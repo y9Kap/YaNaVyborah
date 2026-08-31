@@ -1,0 +1,135 @@
+{
+  "id": "ru-observer-methodical-pack",
+  "name": "Дорожная карта наблюдателя: 18–20 сентября 2026",
+  "version": "2026.08.31-roadmap-2026.09.18-20",
+  "locale": "ru-RU",
+  "jurisdiction": "RU",
+  "electionType": "THREE_DAY_MANUAL_COUNT",
+  "validFrom": "2026-09-18",
+  "validUntil": "2026-09-20",
+  "contentVersion": 4,
+  "schemaVersion": 2,
+  "publisher": "Приоритетный источник: «Дорожная карта наблюдателя» от 31.08.2026 для голосования 18–20.09.2026; остальные материалы пакета вспомогательные",
+  "isDemo": false,
+  "emergencyContacts": [
+    {
+      "id": "roadmap-hotline-yabloko",
+      "title": "Горячая линия для наблюдателей и членов комиссии от Партии «ЯБЛОКО»",
+      "phone": "8 (800) 777-87-25",
+      "description": "Номер полностью перенесён с шестой страницы приоритетной дорожной карты.",
+      "type": "HEADQUARTERS"
+    },
+    {
+      "id": "emergency-112",
+      "title": "Экстренные службы",
+      "phone": "112",
+      "description": "Единый номер экстренных служб. Используйте при непосредственной угрозе жизни, здоровью или безопасности.",
+      "type": "EMERGENCY_SERVICE"
+    }
+  ],
+  "files": [
+    {
+      "path": "voting_days.json",
+      "sha256": "00093b98604c8c8971fbf87aa0be764489e129d8250e53624471a0c444652a16"
+    },
+    {
+      "path": "checklists/definitions.json",
+      "sha256": "426e96293243d2d8b5e5c0e6fd36809d9e98b45b90c6f642e62fa02bbed03475"
+    },
+    {
+      "path": "checklists/items.json",
+      "sha256": "5dba966e9a66660040fbac787fc5935b9f979a7b8ca4b9091795d83c812e6530"
+    },
+    {
+      "path": "situations/situations.json",
+      "sha256": "08d98f37eee06993b527e9c98c255d10b58391254861373b51b1ba8a81b2ebe4"
+    },
+    {
+      "path": "laws/laws.json",
+      "sha256": "bf5c6d94bff119bda7dfda1294c2b2fcd64e44fa0dbf04fc0c3f649a7e0428f4"
+    },
+    {
+      "path": "complaint_templates/templates.json",
+      "sha256": "5ad07578fca0b083ea0439138d41ddb3d87922adf339c579801818f06d918c3a"
+    },
+    {
+      "path": "reconciliation_rules/forms.json",
+      "sha256": "7e442c77ef648e33cf70c1a01a1c0859dca20625016ef46b2b4b290313cedf89"
+    },
+    {
+      "path": "reference_documents/documents.json",
+      "sha256": "848c80ee72f80f0658728aab7b88f0cbabc1dc92a355eb88a39ebc138ccf710a"
+    },
+    {
+      "path": "reference_documents/source_conflict_guide.txt",
+      "sha256": "0b0e8a681636ea749424fcd1cbbd6066899e68ea64d8ad3d910c759bebe3eb8f",
+      "mediaType": "text/plain"
+    },
+    {
+      "path": "reference_documents/source_multiday_guide.txt",
+      "sha256": "72a248f01f944e0ebbf4df0483a4779070d1fecf19f79c41f8f2477f277285ca",
+      "mediaType": "text/plain"
+    },
+    {
+      "path": "reference_documents/source_general_guide.txt",
+      "sha256": "7307729c14ff4737d312bb5f817711dc15da0d7830522a65bfc9994bd4681876",
+      "mediaType": "text/plain"
+    },
+    {
+      "path": "reference_documents/source_observer_status.txt",
+      "sha256": "e503a8d16705247fe749cf95f4a46211cf1cc2d2a65b2c8bf0f24ca14d034fc2",
+      "mediaType": "text/plain"
+    },
+    {
+      "path": "reference_documents/source_home_voting.txt",
+      "sha256": "84fa88fc5fd889157446aec46ac15f45b62983e600bd684f004792922fb5927e",
+      "mediaType": "text/plain"
+    },
+    {
+      "path": "reference_documents/source_counting_sequence.txt",
+      "sha256": "d8770fd5bcd404211b6e5acd330afb551ddc2b4e532ae95b1a4134f95b866b5a",
+      "mediaType": "text/plain"
+    },
+    {
+      "path": "reference_documents/source_counting_checklist.txt",
+      "sha256": "094b22c42fc15accb365b1b8f0872e8f22fab9323a1ea4e3b5368a29161cdafb",
+      "mediaType": "text/plain"
+    },
+    {
+      "path": "reference_documents/source_preparation_checklist.txt",
+      "sha256": "7fc71afd59a78f1de5b870b1a01e39e50ed50688e8cdd207119524fa227ff6f2",
+      "mediaType": "text/plain"
+    },
+    {
+      "path": "reference_documents/source_home_checklist.txt",
+      "sha256": "cd4643c28663cce30f2f7ec8eeb768b8728116311c970de72f138c3309b9ef77",
+      "mediaType": "text/plain"
+    },
+    {
+      "path": "reference_documents/source_roadmap.txt",
+      "sha256": "dd75638e09ffe74d80d04ae49b2f9fec5debf0178f58eca7ca780d237c560c7e",
+      "mediaType": "text/plain"
+    }
+  ],
+  "hashes": {
+    "voting_days.json": "00093b98604c8c8971fbf87aa0be764489e129d8250e53624471a0c444652a16",
+    "checklists/definitions.json": "426e96293243d2d8b5e5c0e6fd36809d9e98b45b90c6f642e62fa02bbed03475",
+    "checklists/items.json": "5dba966e9a66660040fbac787fc5935b9f979a7b8ca4b9091795d83c812e6530",
+    "situations/situations.json": "08d98f37eee06993b527e9c98c255d10b58391254861373b51b1ba8a81b2ebe4",
+    "laws/laws.json": "bf5c6d94bff119bda7dfda1294c2b2fcd64e44fa0dbf04fc0c3f649a7e0428f4",
+    "complaint_templates/templates.json": "5ad07578fca0b083ea0439138d41ddb3d87922adf339c579801818f06d918c3a",
+    "reconciliation_rules/forms.json": "7e442c77ef648e33cf70c1a01a1c0859dca20625016ef46b2b4b290313cedf89",
+    "reference_documents/documents.json": "848c80ee72f80f0658728aab7b88f0cbabc1dc92a355eb88a39ebc138ccf710a",
+    "reference_documents/source_conflict_guide.txt": "0b0e8a681636ea749424fcd1cbbd6066899e68ea64d8ad3d910c759bebe3eb8f",
+    "reference_documents/source_multiday_guide.txt": "72a248f01f944e0ebbf4df0483a4779070d1fecf19f79c41f8f2477f277285ca",
+    "reference_documents/source_general_guide.txt": "7307729c14ff4737d312bb5f817711dc15da0d7830522a65bfc9994bd4681876",
+    "reference_documents/source_observer_status.txt": "e503a8d16705247fe749cf95f4a46211cf1cc2d2a65b2c8bf0f24ca14d034fc2",
+    "reference_documents/source_home_voting.txt": "84fa88fc5fd889157446aec46ac15f45b62983e600bd684f004792922fb5927e",
+    "reference_documents/source_counting_sequence.txt": "d8770fd5bcd404211b6e5acd330afb551ddc2b4e532ae95b1a4134f95b866b5a",
+    "reference_documents/source_counting_checklist.txt": "094b22c42fc15accb365b1b8f0872e8f22fab9323a1ea4e3b5368a29161cdafb",
+    "reference_documents/source_preparation_checklist.txt": "7fc71afd59a78f1de5b870b1a01e39e50ed50688e8cdd207119524fa227ff6f2",
+    "reference_documents/source_home_checklist.txt": "cd4643c28663cce30f2f7ec8eeb768b8728116311c970de72f138c3309b9ef77",
+    "reference_documents/source_roadmap.txt": "dd75638e09ffe74d80d04ae49b2f9fec5debf0178f58eca7ca780d237c560c7e"
+  },
+  "optionalSignature": null
+}

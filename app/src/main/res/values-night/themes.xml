@@ -1,0 +1,7 @@
+<resources>
+    <style name="Theme.YaNaVyborah" parent="android:style/Theme.Material.NoActionBar">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:navigationBarColor">#0F1512</item>
+    </style>
+</resources>

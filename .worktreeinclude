@@ -1,0 +1,2 @@
+# Keep the local source documents available in Codex-managed worktrees.
+data&docs/**

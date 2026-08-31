@@ -1,0 +1,299 @@
+[
+  {
+    "id": "reconciliation-protocol-lines",
+    "packId": "ru-observer-methodical-pack",
+    "title": "Строки протокола и 4 контрольных соотношения",
+    "description": "Точные номера строк и четыре соотношения перенесены из приоритетной дорожной карты для голосования 18–20 сентября 2026 года с ручным подсчётом. Нумерация строк указана в соответствии с применяемым законом о выборах.",
+    "votingDayIds": [
+      "observer-final-day"
+    ],
+    "fields": [
+      {
+        "id": "line_1",
+        "label": "Строка 1 — избиратели в списке на момент окончания голосования",
+        "order": 10
+      },
+      {
+        "id": "line_2",
+        "label": "Строка 2 — бюллетени, полученные УИК от ТИК",
+        "order": 20
+      },
+      {
+        "id": "line_3",
+        "label": "Строка 3 — значение по официальной форме протокола",
+        "order": 30
+      },
+      {
+        "id": "line_4",
+        "label": "Строка 4 — бюллетени, выданные в помещении",
+        "order": 40
+      },
+      {
+        "id": "line_5",
+        "label": "Строка 5 — бюллетени, выданные вне помещения",
+        "order": 50
+      },
+      {
+        "id": "line_6",
+        "label": "Строка 6 — погашенные неиспользованные и испорченные бюллетени",
+        "order": 60
+      },
+      {
+        "id": "line_7",
+        "label": "Строка 7 — бюллетени в переносных ящиках и соответствующих сейф-пакетах",
+        "order": 70
+      },
+      {
+        "id": "line_8",
+        "label": "Строка 8 — бюллетени в стационарных ящиках",
+        "order": 80
+      },
+      {
+        "id": "line_9",
+        "label": "Строка 9 — недействительные бюллетени",
+        "order": 90
+      },
+      {
+        "id": "line_10",
+        "label": "Строка 10 — действительные бюллетени",
+        "order": 100
+      },
+      {
+        "id": "line_11",
+        "label": "Строка 11 — значение по официальной форме протокола",
+        "order": 110
+      },
+      {
+        "id": "line_12",
+        "label": "Строка 12 — значение по официальной форме протокола",
+        "order": 120
+      },
+      {
+        "id": "sum_line_13_plus",
+        "label": "Сумма строк 13 и последующих",
+        "order": 130
+      }
+    ],
+    "rules": [
+      {
+        "id": "roadmap-ratio-1",
+        "type": "SUM_LESS_OR_EQUAL",
+        "inputIds": [
+          "line_3",
+          "line_4",
+          "line_5"
+        ],
+        "targetInputId": "line_1",
+        "message": "(1) [1] ≥ [3] + [4] + [5]"
+      },
+      {
+        "id": "roadmap-ratio-2",
+        "type": "SUM_EQUALS_SUM",
+        "inputIds": [
+          "line_2",
+          "line_12"
+        ],
+        "comparisonInputIds": [
+          "line_3",
+          "line_4",
+          "line_5",
+          "line_6",
+          "line_11"
+        ],
+        "message": "(2) [2] + [12] = [3] + [4] + [5] + [6] + [11]"
+      },
+      {
+        "id": "roadmap-ratio-3",
+        "type": "SUM_EQUALS_SUM",
+        "inputIds": [
+          "line_7",
+          "line_8"
+        ],
+        "comparisonInputIds": [
+          "line_9",
+          "line_10"
+        ],
+        "message": "(3) [7] + [8] = [9] + [10]"
+      },
+      {
+        "id": "roadmap-ratio-4",
+        "type": "EQUAL",
+        "inputIds": [
+          "line_10",
+          "sum_line_13_plus"
+        ],
+        "message": "(4) [10] = Σ[13...]"
+      }
+    ]
+  },
+  {
+    "id": "reconciliation-one-ballot-type",
+    "packId": "ru-observer-methodical-pack",
+    "title": "Состав бюллетеней из ящиков по одному виду выборов",
+    "description": "Дополнительная рабочая сверка. При расхождении с четырьмя соотношениями приоритетной дорожной карты применяются соотношения из формы «Строки протокола и 4 контрольных соотношения».",
+    "votingDayIds": [
+      "observer-final-day"
+    ],
+    "fields": [
+      {
+        "id": "established_ballots_in_boxes",
+        "label": "Бюллетени установленной формы из всех ящиков",
+        "order": 10
+      },
+      {
+        "id": "valid_ballots",
+        "label": "Действительные",
+        "order": 20
+      },
+      {
+        "id": "invalid_ballots",
+        "label": "Недействительные",
+        "order": 30
+      }
+    ],
+    "rules": [
+      {
+        "id": "valid-plus-invalid",
+        "type": "SUM_EQUALS",
+        "inputIds": [
+          "valid_ballots",
+          "invalid_ballots"
+        ],
+        "targetInputId": "established_ballots_in_boxes",
+        "message": "Сумма действительных и недействительных не совпадает с числом бюллетеней установленной формы из ящиков."
+      }
+    ]
+  },
+  {
+    "id": "reconciliation-home-voting-act",
+    "packId": "ru-observer-methodical-pack",
+    "title": "Акт голосования вне помещения",
+    "description": "Рабочая карточка по конкретному переносному ящику. Порядок и числа сверяйте прежде всего с контролируемыми событиями приоритетной дорожной карты.",
+    "votingDayIds": [
+      "observer-voting-day-1",
+      "observer-voting-day-2",
+      "observer-final-day"
+    ],
+    "fields": [
+      {
+        "id": "portable_box_number",
+        "label": "Номер переносного ящика",
+        "order": 10,
+        "inputType": "TEXT"
+      },
+      {
+        "id": "written_requests",
+        "label": "Письменные заявления о голосовании вне помещения",
+        "order": 20
+      },
+      {
+        "id": "ballots_given_team",
+        "label": "Бюллетени, выданные выездной группе",
+        "order": 30
+      },
+      {
+        "id": "voters_received_ballots",
+        "label": "Избиратели, получившие бюллетени вне помещения",
+        "order": 40
+      },
+      {
+        "id": "spoiled_replaced_ballots",
+        "label": "Испорченные и заменённые бюллетени",
+        "order": 50
+      },
+      {
+        "id": "returned_unused_ballots",
+        "label": "Возвращённые неиспользованные бюллетени",
+        "order": 60
+      },
+      {
+        "id": "safe_pack_mark",
+        "label": "Номер сейф-пакета или уникальная отметка, если применимо",
+        "order": 70,
+        "inputType": "TEXT"
+      },
+      {
+        "id": "act_number",
+        "label": "Номер или отметка акта",
+        "order": 80,
+        "inputType": "TEXT"
+      }
+    ],
+    "rules": [
+      {
+        "id": "home-act-manual-check",
+        "type": "CUSTOM_WARNING",
+        "inputIds": [],
+        "message": "Сверьте количество заявлений, выданных, использованных, испорченных и возвращённых бюллетеней с выпиской, реестром и действующей формой акта."
+      }
+    ]
+  },
+  {
+    "id": "reconciliation-safe-pack",
+    "packId": "ru-observer-methodical-pack",
+    "title": "Акт о перемещении бюллетеней в сейф-пакет",
+    "description": "По дорожной карте акт составляется отдельно по каждому переносному ящику и общий для всех стационарных. Если бюллетени не поместились в один пакет, акт один на все пакеты с перечислением всех заводских серийных номеров.",
+    "votingDayIds": [
+      "observer-voting-day-1",
+      "observer-voting-day-2",
+      "observer-final-day"
+    ],
+    "fields": [
+      {
+        "id": "act_scope",
+        "label": "Для чего акт: переносной ящик №… или все стационарные ящики",
+        "order": 10,
+        "inputType": "TEXT"
+      },
+      {
+        "id": "safe_pack_serial_numbers",
+        "label": "Все заводские серийные номера сейф-пакетов по акту",
+        "order": 20,
+        "inputType": "TEXT"
+      },
+      {
+        "id": "ballot_type",
+        "label": "Вид бюллетеня",
+        "order": 30,
+        "inputType": "TEXT"
+      },
+      {
+        "id": "voters_count",
+        "label": "Число избирателей по этому виду бюллетеня",
+        "order": 40
+      },
+      {
+        "id": "count_basis",
+        "label": "Основание числа: заявления надомников или отметки в списке",
+        "order": 50,
+        "inputType": "TEXT"
+      },
+      {
+        "id": "copy_certification",
+        "label": "Заверительная надпись на копии акта",
+        "order": 60,
+        "inputType": "TEXT"
+      }
+    ],
+    "rules": [
+      {
+        "id": "safe-pack-act-scope",
+        "type": "CUSTOM_WARNING",
+        "inputIds": [],
+        "message": "Проверьте: отдельный акт по каждому переносному ящику, общий акт для всех стационарных ящиков."
+      },
+      {
+        "id": "safe-pack-all-serials",
+        "type": "CUSTOM_WARNING",
+        "inputIds": [],
+        "message": "Если использовано несколько сейф-пакетов, перечислите в одном акте все заводские серийные номера."
+      },
+      {
+        "id": "safe-pack-copy-certification",
+        "type": "CUSTOM_WARNING",
+        "inputIds": [],
+        "message": "На копии акта должна быть заверительная надпись, аналогичная заверению копии протокола."
+      }
+    ]
+  }
+]

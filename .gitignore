@@ -1,0 +1,37 @@
+*.iml
+.gradle/
+.kotlin/
+/local.properties
+.idea/
+.DS_Store
+**/build/
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# Local credentials and signing material
+.env
+.env.*
+!.env.example
+*.jks
+*.keystore
+*.pem
+*.key
+*.p12
+*.pfx
+*.mobileprovision
+key.properties
+keystore.properties
+secrets.properties
+credentials.json
+service-account*.json
+google-services.json
+.netrc
+
+# Generated release artifacts
+*.apk
+*.aab
+/dist/
+
+/data&docs/

@@ -1,0 +1,126 @@
+name: Publish Android release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: android-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout tag
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Resolve version
+        id: version
+        shell: bash
+        run: |
+          tag="${GITHUB_REF_NAME}"
+          if [[ ! "${tag}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "Tag must match vMAJOR.MINOR.PATCH or vMAJOR.MINOR.PATCH-suffix" >&2
+            exit 1
+          fi
+          version_name="${tag#v}"
+          version_code="$(git rev-list --count HEAD)"
+          if [[ "${version_code}" -lt 1 ]]; then
+            echo "Could not calculate a positive Android versionCode" >&2
+            exit 1
+          fi
+          echo "name=${version_name}" >> "${GITHUB_OUTPUT}"
+          echo "code=${version_code}" >> "${GITHUB_OUTPUT}"
+          if [[ "${version_name}" == *-* ]]; then
+            echo "prerelease=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "prerelease=false" >> "${GITHUB_OUTPUT}"
+          fi
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Install Android SDK platform
+        run: sdkmanager "platforms;android-37"
+
+      - name: Restore release signing key
+        shell: bash
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          if [[ -z "${KEYSTORE_BASE64}" || -z "${KEYSTORE_PASSWORD}" || -z "${KEY_ALIAS}" || -z "${KEY_PASSWORD}" ]]; then
+            echo "Configure all four ANDROID_* signing secrets before publishing a release" >&2
+            exit 1
+          fi
+          keystore_path="${RUNNER_TEMP}/yanavyborah-release.jks"
+          printf '%s' "${KEYSTORE_BASE64}" | base64 --decode > "${keystore_path}"
+          echo "YANAVYBORAH_KEYSTORE_FILE=${keystore_path}" >> "${GITHUB_ENV}"
+
+      - name: Test and build signed release APK
+        env:
+          YANAVYBORAH_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          YANAVYBORAH_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          YANAVYBORAH_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: >-
+          ./gradlew testDebugUnitTest :app:assembleRelease
+          -PVERSION_NAME="${{ steps.version.outputs.name }}"
+          -PVERSION_CODE="${{ steps.version.outputs.code }}"
+
+      - name: Verify and prepare APK
+        id: artifact
+        shell: bash
+        run: |
+          mapfile -t apks < <(find app/build/outputs/apk/release -maxdepth 1 -type f -name '*.apk' -print)
+          if [[ "${#apks[@]}" -ne 1 ]]; then
+            echo "Expected exactly one release APK, found ${#apks[@]}" >&2
+            exit 1
+          fi
+          apksigner_path="$(find "${ANDROID_HOME}/build-tools" -type f -name apksigner -print | sort -V | tail -n 1)"
+          if [[ -z "${apksigner_path}" ]]; then
+            echo "apksigner was not found" >&2
+            exit 1
+          fi
+          "${apksigner_path}" verify --verbose --print-certs "${apks[0]}"
+          mkdir -p dist
+          file_name="YaNaVyborah-${{ steps.version.outputs.name }}.apk"
+          cp "${apks[0]}" "dist/${file_name}"
+          (cd dist && sha256sum "${file_name}") > "dist/${file_name}.sha256"
+          echo "apk=dist/${file_name}" >> "${GITHUB_OUTPUT}"
+          echo "checksum=dist/${file_name}.sha256" >> "${GITHUB_OUTPUT}"
+
+      - name: Publish GitHub Release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [[ "${{ steps.version.outputs.prerelease }}" == "true" ]]; then
+            gh release create "${GITHUB_REF_NAME}" \
+              "${{ steps.artifact.outputs.apk }}" \
+              "${{ steps.artifact.outputs.checksum }}" \
+              --verify-tag --generate-notes --prerelease \
+              --title "Я на выборах ${GITHUB_REF_NAME}"
+          else
+            gh release create "${GITHUB_REF_NAME}" \
+              "${{ steps.artifact.outputs.apk }}" \
+              "${{ steps.artifact.outputs.checksum }}" \
+              --verify-tag --generate-notes \
+              --title "Я на выборах ${GITHUB_REF_NAME}"
+          fi

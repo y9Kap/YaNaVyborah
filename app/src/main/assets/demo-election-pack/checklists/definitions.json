@@ -1,0 +1,470 @@
+[
+  {
+    "id": "checklist-preparation",
+    "packId": "ru-observer-methodical-pack",
+    "title": "Подготовка наблюдателя и участка",
+    "votingDayIds": [
+      "observer-preparation"
+    ],
+    "stageIds": [
+      "preparation-documents",
+      "preparation-room"
+    ],
+    "itemIds": [
+      "check-bring-documents",
+      "check-arrive-register",
+      "check-notify-intentions",
+      "check-no-campaigning",
+      "check-information-stand",
+      "check-secret-voting-places",
+      "check-observer-view"
+    ]
+  },
+  {
+    "id": "checklist-roadmap-arrival",
+    "packId": "ru-observer-methodical-pack",
+    "title": "Прибытие на участок",
+    "votingDayIds": [
+      "observer-voting-day-1",
+      "observer-voting-day-2",
+      "observer-final-day"
+    ],
+    "stageIds": [
+      "day-1-opening",
+      "day-2-opening",
+      "final-day-opening"
+    ],
+    "itemIds": [
+      "roadmap-p01-r02",
+      "roadmap-p01-r03",
+      "roadmap-p01-r04",
+      "roadmap-p01-r05"
+    ]
+  },
+  {
+    "id": "checklist-roadmap-opening-friday",
+    "packId": "ru-observer-methodical-pack",
+    "title": "Перед открытием участка — пятница, 18 сентября",
+    "votingDayIds": [
+      "observer-voting-day-1"
+    ],
+    "stageIds": [
+      "day-1-opening"
+    ],
+    "itemIds": [
+      "roadmap-p01-r07",
+      "roadmap-p01-r08",
+      "roadmap-p01-r09",
+      "roadmap-p01-r10",
+      "roadmap-p01-r11",
+      "roadmap-p01-r12",
+      "roadmap-p01-r13"
+    ]
+  },
+  {
+    "id": "checklist-roadmap-opening-saturday",
+    "packId": "ru-observer-methodical-pack",
+    "title": "Перед открытием участка — специальная проверка в субботу",
+    "votingDayIds": [
+      "observer-voting-day-2"
+    ],
+    "stageIds": [
+      "day-2-opening"
+    ],
+    "itemIds": [
+      "roadmap-p01-r15"
+    ]
+  },
+  {
+    "id": "checklist-roadmap-opening-weekend",
+    "packId": "ru-observer-methodical-pack",
+    "title": "Перед открытием участка — суббота и воскресенье",
+    "votingDayIds": [
+      "observer-voting-day-2",
+      "observer-final-day"
+    ],
+    "stageIds": [
+      "day-2-opening",
+      "final-day-opening"
+    ],
+    "itemIds": [
+      "roadmap-p01-r16",
+      "roadmap-p01-r18",
+      "roadmap-p01-r19a",
+      "roadmap-p01-r19b",
+      "roadmap-p01-r20",
+      "roadmap-p01-r21"
+    ]
+  },
+  {
+    "id": "checklist-roadmap-opening-sunday",
+    "packId": "ru-observer-methodical-pack",
+    "title": "Перед открытием участка — специальная проверка в воскресенье",
+    "votingDayIds": [
+      "observer-final-day"
+    ],
+    "stageIds": [
+      "final-day-opening"
+    ],
+    "itemIds": [
+      "roadmap-p01-r17"
+    ]
+  },
+  {
+    "id": "checklist-roadmap-room-documents",
+    "packId": "ru-observer-methodical-pack",
+    "title": "Оценка помещения для голосования и документов комиссии",
+    "votingDayIds": [
+      "observer-voting-day-1",
+      "observer-voting-day-2",
+      "observer-final-day"
+    ],
+    "stageIds": [
+      "day-1-opening",
+      "day-1-voting",
+      "day-2-opening",
+      "day-2-voting",
+      "final-day-opening",
+      "final-day-voting"
+    ],
+    "itemIds": [
+      "roadmap-p01-r23",
+      "roadmap-p01-r24",
+      "roadmap-p01-r25",
+      "roadmap-p01-r26",
+      "roadmap-p01-r27",
+      "roadmap-p01-r28",
+      "roadmap-p02-r01",
+      "roadmap-p02-r02",
+      "roadmap-p02-r03",
+      "roadmap-p02-r04",
+      "roadmap-p02-r05",
+      "roadmap-p02-r06",
+      "roadmap-p02-r07"
+    ]
+  },
+  {
+    "id": "checklist-roadmap-general-voting",
+    "packId": "ru-observer-methodical-pack",
+    "title": "Общий порядок голосования",
+    "votingDayIds": [
+      "observer-voting-day-1",
+      "observer-voting-day-2",
+      "observer-final-day"
+    ],
+    "stageIds": [
+      "day-1-voting",
+      "day-2-voting",
+      "final-day-voting"
+    ],
+    "itemIds": [
+      "roadmap-p02-r09",
+      "roadmap-p02-r10",
+      "roadmap-p02-r11",
+      "roadmap-p02-r12",
+      "roadmap-p02-r13",
+      "roadmap-p02-r14",
+      "roadmap-p02-r15",
+      "roadmap-p02-r16",
+      "roadmap-p02-r17",
+      "roadmap-p02-r18",
+      "roadmap-p02-r19",
+      "roadmap-p02-r20a"
+    ]
+  },
+  {
+    "id": "checklist-roadmap-home-common",
+    "packId": "ru-observer-methodical-pack",
+    "title": "Голосование на дому — общая процедура",
+    "votingDayIds": [
+      "observer-voting-day-1",
+      "observer-voting-day-2",
+      "observer-final-day"
+    ],
+    "stageIds": [
+      "day-1-home-voting",
+      "day-2-home-voting",
+      "final-day-home-voting"
+    ],
+    "itemIds": [
+      "roadmap-p02-r22",
+      "roadmap-p02-r23",
+      "roadmap-p02-r24",
+      "roadmap-p02-r25",
+      "roadmap-p02-r26",
+      "roadmap-p02-r27",
+      "roadmap-p03-r01",
+      "roadmap-p03-r02",
+      "roadmap-p03-r03",
+      "roadmap-p03-r04",
+      "roadmap-p03-r06",
+      "roadmap-p03-r08",
+      "roadmap-p03-r09"
+    ]
+  },
+  {
+    "id": "checklist-roadmap-home-first-two-days",
+    "packId": "ru-observer-methodical-pack",
+    "title": "Голосование на дому — действия в пятницу и субботу",
+    "votingDayIds": [
+      "observer-voting-day-1",
+      "observer-voting-day-2"
+    ],
+    "stageIds": [
+      "day-1-home-voting",
+      "day-2-home-voting"
+    ],
+    "itemIds": [
+      "roadmap-p03-r05",
+      "roadmap-p03-r07"
+    ]
+  },
+  {
+    "id": "checklist-roadmap-home-sunday",
+    "packId": "ru-observer-methodical-pack",
+    "title": "Голосование на дому — контроль в воскресенье",
+    "votingDayIds": [
+      "observer-final-day"
+    ],
+    "stageIds": [
+      "final-day-home-voting"
+    ],
+    "itemIds": [
+      "roadmap-p02-r21"
+    ]
+  },
+  {
+    "id": "checklist-roadmap-additional-voting",
+    "packId": "ru-observer-methodical-pack",
+    "title": "Дополнительная форма голосования — пятница и суббота",
+    "votingDayIds": [
+      "observer-voting-day-1",
+      "observer-voting-day-2"
+    ],
+    "stageIds": [
+      "day-1-home-voting",
+      "day-2-home-voting"
+    ],
+    "itemIds": [
+      "roadmap-p03-r11",
+      "roadmap-p03-r12",
+      "roadmap-p03-r13",
+      "roadmap-p03-r14",
+      "roadmap-p03-r15",
+      "roadmap-p03-r16",
+      "roadmap-p03-r17",
+      "roadmap-p03-r18"
+    ]
+  },
+  {
+    "id": "checklist-roadmap-day-close",
+    "packId": "ru-observer-methodical-pack",
+    "title": "Завершение дня голосования — пятница и суббота",
+    "votingDayIds": [
+      "observer-voting-day-1",
+      "observer-voting-day-2"
+    ],
+    "stageIds": [
+      "day-1-storage",
+      "day-2-storage"
+    ],
+    "itemIds": [
+      "roadmap-p03-r20",
+      "roadmap-p03-r21",
+      "roadmap-p03-r22",
+      "roadmap-p03-r23",
+      "roadmap-p03-r24a"
+    ]
+  },
+  {
+    "id": "checklist-roadmap-count-start",
+    "packId": "ru-observer-methodical-pack",
+    "title": "Начало подсчёта голосов — воскресенье",
+    "votingDayIds": [
+      "observer-final-day"
+    ],
+    "stageIds": [
+      "final-day-counting"
+    ],
+    "itemIds": [
+      "roadmap-p03-r25",
+      "roadmap-p03-r26",
+      "roadmap-p04-r01",
+      "roadmap-p04-r02",
+      "roadmap-p04-r03"
+    ]
+  },
+  {
+    "id": "checklist-roadmap-voter-list-count",
+    "packId": "ru-observer-methodical-pack",
+    "title": "Работа со списком избирателей — воскресенье",
+    "votingDayIds": [
+      "observer-final-day"
+    ],
+    "stageIds": [
+      "final-day-counting"
+    ],
+    "itemIds": [
+      "roadmap-p04-r05",
+      "roadmap-p04-r06",
+      "roadmap-p04-r07",
+      "roadmap-p04-r08",
+      "roadmap-p04-r09",
+      "roadmap-p04-r10",
+      "roadmap-p04-r11",
+      "roadmap-p04-r12",
+      "roadmap-p04-r13a"
+    ]
+  },
+  {
+    "id": "checklist-roadmap-direct-count",
+    "packId": "ru-observer-methodical-pack",
+    "title": "Непосредственный подсчёт голосов — воскресенье",
+    "votingDayIds": [
+      "observer-final-day"
+    ],
+    "stageIds": [
+      "final-day-counting"
+    ],
+    "itemIds": [
+      "roadmap-p04-r14",
+      "roadmap-p04-r15",
+      "roadmap-p04-r16",
+      "roadmap-p04-r17",
+      "roadmap-p04-r18",
+      "roadmap-p04-r19",
+      "roadmap-p04-r20",
+      "roadmap-p04-r21",
+      "roadmap-p04-r22",
+      "roadmap-p04-r23",
+      "roadmap-p04-r24",
+      "roadmap-p04-r25",
+      "roadmap-p05-r02",
+      "roadmap-p05-r03",
+      "roadmap-p05-r04",
+      "roadmap-p05-r05",
+      "roadmap-p05-r06",
+      "roadmap-p05-r07",
+      "roadmap-p05-r08",
+      "roadmap-p05-r09",
+      "roadmap-p05-r10",
+      "roadmap-p05-r11",
+      "roadmap-p05-r12",
+      "roadmap-p05-r13",
+      "roadmap-p05-r14",
+      "roadmap-p05-r15",
+      "roadmap-p05-r16",
+      "roadmap-p05-r17",
+      "roadmap-p05-r18"
+    ]
+  },
+  {
+    "id": "checklist-roadmap-final-meeting",
+    "packId": "ru-observer-methodical-pack",
+    "title": "Итоговое заседание УИК — воскресенье",
+    "votingDayIds": [
+      "observer-final-day"
+    ],
+    "stageIds": [
+      "final-day-protocol"
+    ],
+    "itemIds": [
+      "roadmap-p05-r20",
+      "roadmap-p05-r21",
+      "roadmap-p05-r22",
+      "roadmap-p05-r23",
+      "roadmap-p05-r24"
+    ]
+  },
+  {
+    "id": "checklist-roadmap-protocol-copy",
+    "packId": "ru-observer-methodical-pack",
+    "title": "Получение копии протокола — воскресенье",
+    "votingDayIds": [
+      "observer-final-day"
+    ],
+    "stageIds": [
+      "final-day-protocol"
+    ],
+    "itemIds": [
+      "roadmap-p05-r26",
+      "roadmap-p05-r27",
+      "roadmap-p05-r28",
+      "roadmap-p05-r29",
+      "roadmap-p06-r02",
+      "roadmap-p06-r03",
+      "roadmap-p06-r04",
+      "roadmap-p06-r05",
+      "roadmap-p06-r06",
+      "roadmap-p06-r07",
+      "roadmap-p06-r08"
+    ]
+  },
+  {
+    "id": "checklist-roadmap-protocol-original-check",
+    "packId": "ru-observer-methodical-pack",
+    "title": "Проверить в протоколе",
+    "votingDayIds": [
+      "observer-final-day"
+    ],
+    "stageIds": [
+      "final-day-protocol"
+    ],
+    "itemIds": [
+      "roadmap-p07-protocol-01",
+      "roadmap-p07-protocol-02",
+      "roadmap-p07-protocol-03",
+      "roadmap-p07-protocol-04",
+      "roadmap-p07-protocol-05",
+      "roadmap-p07-protocol-06",
+      "roadmap-p07-protocol-07",
+      "roadmap-p07-protocol-08",
+      "roadmap-p07-protocol-09",
+      "roadmap-p07-protocol-10",
+      "roadmap-p07-protocol-11"
+    ]
+  },
+  {
+    "id": "checklist-roadmap-protocol-copy-check",
+    "packId": "ru-observer-methodical-pack",
+    "title": "Проверить в копии протокола",
+    "votingDayIds": [
+      "observer-final-day"
+    ],
+    "stageIds": [
+      "final-day-protocol"
+    ],
+    "itemIds": [
+      "roadmap-p07-copy-01",
+      "roadmap-p07-copy-02",
+      "roadmap-p07-copy-03",
+      "roadmap-p07-copy-04",
+      "roadmap-p07-copy-05",
+      "roadmap-p07-copy-06",
+      "roadmap-p07-copy-07",
+      "roadmap-p07-copy-08",
+      "roadmap-p07-copy-09",
+      "roadmap-p07-copy-10"
+    ]
+  },
+  {
+    "id": "checklist-roadmap-safe-pack-act",
+    "packId": "ru-observer-methodical-pack",
+    "title": "Акт о перемещении бюллетеней в сейф-пакет",
+    "votingDayIds": [
+      "observer-voting-day-1",
+      "observer-voting-day-2",
+      "observer-final-day"
+    ],
+    "stageIds": [
+      "day-1-storage",
+      "day-2-storage",
+      "final-day-counting"
+    ],
+    "itemIds": [
+      "roadmap-p07-safe-pack-act-01",
+      "roadmap-p07-safe-pack-act-02",
+      "roadmap-p07-safe-pack-act-03"
+    ]
+  }
+]
