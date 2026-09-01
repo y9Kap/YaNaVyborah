@@ -9,7 +9,7 @@
 ## Требования и локальная сборка
 
 - JDK 17;
-- Android SDK Platform 37;
+- Android SDK Platform 36;
 - Android Studio с поддержкой текущих AGP/Kotlin или Gradle Wrapper из репозитория.
 
 `local.properties` нужен только для локального пути `sdk.dir`, игнорируется Git и не должен содержать ключи подписи или другие секреты.

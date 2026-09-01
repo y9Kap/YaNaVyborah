@@ -2,7 +2,7 @@ plugins { alias(libs.plugins.android.library) }
 
 android {
     namespace = "org.yanavybori.core.search"
-    compileSdk { version = release(37) }
+    compileSdk { version = release(36) }
     defaultConfig { minSdk = 24 }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

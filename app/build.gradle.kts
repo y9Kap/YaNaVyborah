@@ -26,12 +26,12 @@ check(releaseSigningValues.none { !it.isNullOrBlank() } || hasReleaseSigning) {
 
 android {
     namespace = "org.yanavybori.app"
-    compileSdk { version = release(37) }
+    compileSdk { version = release(36) }
 
     defaultConfig {
         applicationId = "org.yanavybori.app"
         minSdk = 24
-        targetSdk = 37
+        targetSdk = 36
         versionCode = configuredVersionCode
         versionName = configuredVersionName
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

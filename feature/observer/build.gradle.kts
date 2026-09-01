@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "org.yanavybori.feature.observer"
-    compileSdk { version = release(37) }
+    compileSdk { version = release(36) }
     defaultConfig { minSdk = 24 }
     buildFeatures { compose = true }
     compileOptions {
