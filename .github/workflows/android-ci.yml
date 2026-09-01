@@ -28,8 +28,10 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
 
-      - name: Install Android SDK platform
-        run: sdkmanager "platforms;android-36"
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
+        with:
+          packages: "platform-tools platforms;android-36"
 
       - name: Test and build debug APK
         run: ./gradlew testDebugUnitTest :app:assembleDebug
