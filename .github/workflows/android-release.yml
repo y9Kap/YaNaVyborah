@@ -55,10 +55,10 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
 
-      - name: Install Android SDK platform
-        run: >-
-          "${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
-          "platforms;android-37"
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
+        with:
+          packages: "platform-tools platforms;android-37"
 
       - name: Restore release signing key
         shell: bash
