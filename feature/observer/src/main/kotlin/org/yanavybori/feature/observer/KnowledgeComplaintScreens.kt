@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -24,6 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -267,6 +269,8 @@ internal fun ComplaintsScreen(
     var rewriting by remember { mutableStateOf<Complaint?>(null) }
     var photoTarget by remember { mutableStateOf<Complaint?>(null) }
     var showPhotoWarning by remember { mutableStateOf(false) }
+    var complaintToRevealId by remember { mutableStateOf<String?>(null) }
+    val listState = rememberLazyListState()
     val photoPicker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         val target = photoTarget
         if (uri != null && target != null) {
@@ -277,14 +281,42 @@ internal fun ComplaintsScreen(
         photoTarget = null
     }
 
-    LazyColumn(modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    LaunchedEffect(
+        complaintToRevealId,
+        state.complaints,
+        state.complaintTemplates,
+        state.manifest?.isDemo,
+    ) {
+        val complaintId = complaintToRevealId ?: return@LaunchedEffect
+        val complaintIndex = state.complaints.indexOfFirst { it.id == complaintId }
+        if (complaintIndex < 0) return@LaunchedEffect
+
+        val complaintListStartIndex =
+            (if (state.manifest?.isDemo == true) 1 else 0) +
+                1 + state.complaintTemplates.size + 1
+        listState.animateScrollToItem(complaintListStartIndex + complaintIndex)
+        complaintToRevealId = null
+    }
+
+    LazyColumn(
+        state = listState,
+        modifier = modifier.padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
         if (state.manifest?.isDemo == true) item { DemoBanner() }
         item { Text("Создать из шаблона", style = MaterialTheme.typography.titleMedium) }
         items(
             state.complaintTemplates.sortedBy { if (it.id.startsWith("complaint-roadmap-")) 0 else 1 },
             key = { "template:${it.id}" },
         ) { template ->
-            OutlinedButton(onClick = { viewModel.createComplaint(template) }, modifier = Modifier.fillMaxWidth()) {
+            OutlinedButton(
+                onClick = {
+                    viewModel.createComplaint(template) { complaint ->
+                        complaintToRevealId = complaint.id
+                    }
+                },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
                 Text(template.title)
             }
         }
@@ -302,7 +334,7 @@ internal fun ComplaintsScreen(
                     if (complaint.acceptedCopyMediaId != null) Text("Фото принятой копии сохранено")
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         OutlinedButton(onClick = { rewriting = complaint }, modifier = Modifier.weight(1f)) {
-                            Text("Крупный текст")
+                            Text("Полный текст")
                         }
                         if (complaint.status == ComplaintStatus.DRAFT) {
                             Button(onClick = { viewModel.updateComplaintStatus(complaint, ComplaintStatus.READY) },

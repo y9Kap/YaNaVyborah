@@ -262,9 +262,13 @@ class ObserverViewModel(
 
     fun updateEvent(event: JournalEvent) = task { dependencies.journalRepository.update(event) }
 
-    fun createComplaint(template: ComplaintTemplate, relatedEventIds: List<String> = emptyList()) = task {
+    fun createComplaint(
+        template: ComplaintTemplate,
+        relatedEventIds: List<String> = emptyList(),
+        onCreated: (Complaint) -> Unit = {},
+    ) = task {
         val session = requireNotNull(state.value.activeSession)
-        dependencies.complaintRepository.create(
+        val complaint = dependencies.complaintRepository.create(
             Complaint(
                 id = dependencies.ids.newId(),
                 sessionId = session.id,
@@ -276,6 +280,7 @@ class ObserverViewModel(
                 text = template.body,
             ),
         )
+        onCreated(complaint)
     }
 
     fun createComplaintForSituation(situation: Situation) {
