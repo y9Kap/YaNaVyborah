@@ -1,13 +1,17 @@
 package org.yanavybori.feature.observer
 
+import android.graphics.BitmapFactory
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
@@ -16,6 +20,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -37,10 +42,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.unit.dp
 import org.yanavybori.core.model.MediaSource
 import org.yanavybori.core.model.ReconciliationDefinition
@@ -132,15 +139,26 @@ internal fun ReconciliationScreen(
     }
     val selected = definitions.firstOrNull { it.id == selectedId }
     val selectedIndex = definitions.indexOfFirst { it.id == selectedId }
-    val values = remember(selectedId) { mutableStateMapOf<String, String>() }
+    val values = remember(dayId, selectedId) { mutableStateMapOf<String, String>() }
     val saved = state.reconciliationSessions.firstOrNull { it.definitionId == selectedId && it.votingDayId == dayId }
+    var photoMediaId by rememberSaveable(dayId, selectedId) { mutableStateOf<String?>(null) }
+    var showPhotoWarning by remember { mutableStateOf(false) }
     var mismatchPrompt by remember { mutableStateOf<ReconciliationResult?>(null) }
     var complaintResult by remember { mutableStateOf<ReconciliationResult?>(null) }
     LaunchedEffect(saved?.updatedAt, selectedId) {
         if (saved != null && values.isEmpty()) values.putAll(saved.values)
+        photoMediaId = saved?.photoMediaId
     }
-    val valuesAreSaved = saved != null && saved.values == values.toMap()
+    val valuesAreSaved = saved != null && saved.values == values.toMap() &&
+        saved.photoMediaId == photoMediaId
     val appliedColor = Color(0xFF16803A)
+    val photoPicker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        if (uri != null) {
+            viewModel.importMedia(uri.toString(), MediaSource.PHOTO_PICKER) { asset ->
+                photoMediaId = asset.id
+            }
+        }
+    }
     LazyColumn(modifier.imePadding().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         if (state.manifest?.isDemo == true) item { DemoBanner() }
         item {
@@ -206,9 +224,28 @@ internal fun ReconciliationScreen(
                 )
             }
             item {
+                OutlinedButton(
+                    onClick = { showPhotoWarning = true },
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text(
+                        if (photoMediaId == null) {
+                            "Приложить фотографию к сверке"
+                        } else {
+                            "Заменить приложенную фотографию"
+                        },
+                    )
+                }
+            }
+            photoMediaId?.let { mediaId ->
+                item(key = "selected-reconciliation-photo:$mediaId") {
+                    SavedPhoto(mediaId, state, viewModel)
+                }
+            }
+            item {
                 Button(
                     onClick = {
-                        viewModel.saveReconciliation(definition, values.toMap()) { reconciliation ->
+                        viewModel.saveReconciliation(definition, values.toMap(), photoMediaId) { reconciliation ->
                             mismatchPrompt = reconciliation.results.firstOrNull { result ->
                                 result.status == ReconciliationStatus.ERROR ||
                                     (result.status == ReconciliationStatus.WARNING &&
@@ -265,6 +302,55 @@ internal fun ReconciliationScreen(
             }
         }
         if (definitions.isEmpty()) item { Text("Для текущего дня форм сверки нет.") }
+        val savedMaterials = state.reconciliationSessions
+            .filter { it.votingDayId == dayId }
+            .sortedByDescending { it.updatedAt }
+        if (savedMaterials.isNotEmpty()) {
+            item {
+                Text("Сохранённые сверки и фотографии", style = MaterialTheme.typography.titleLarge)
+            }
+            items(savedMaterials, key = { "saved-reconciliation:${it.id}" }) { reconciliation ->
+                val definition = state.reconciliationDefinitions.firstOrNull {
+                    it.id == reconciliation.definitionId
+                }
+                Card(Modifier.fillMaxWidth()) {
+                    Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                        Text(
+                            definition?.title ?: "Сохранённая сверка",
+                            fontWeight = FontWeight.Bold,
+                        )
+                        Text("Сохранено: ${formatTimestamp(reconciliation.updatedAt)}")
+                        Text("Заполнено полей: ${reconciliation.values.count { it.value.isNotBlank() }}")
+                        reconciliation.photoMediaId?.let { mediaId ->
+                            SavedPhoto(mediaId, state, viewModel)
+                        } ?: Text("Фотография не приложена", style = MaterialTheme.typography.bodySmall)
+                    }
+                }
+            }
+        }
+    }
+    if (showPhotoWarning) {
+        AlertDialog(
+            onDismissRequest = { showPhotoWarning = false },
+            title = { Text("Проверьте кадр") },
+            text = {
+                Text(
+                    "В кадре могут находиться персональные данные. Оригинал будет зашифрован " +
+                        "и сохранён в приватном хранилище приложения.",
+                )
+            },
+            confirmButton = {
+                Button(onClick = {
+                    showPhotoWarning = false
+                    photoPicker.launch(
+                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
+                    )
+                }) { Text("Выбрать фото") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showPhotoWarning = false }) { Text("Отмена") }
+            },
+        )
     }
     mismatchPrompt?.let { result ->
         AlertDialog(
@@ -320,17 +406,21 @@ internal fun ProtocolScreen(
     modifier: Modifier,
     navigate: (ObserverRoute) -> Unit,
 ) {
-    val definitions = state.reconciliationDefinitions
+    val dayId = state.activeSession?.currentVotingDay ?: return
+    val definitions = state.reconciliationDefinitions.filter {
+        it.votingDayIds.isEmpty() || dayId in it.votingDayIds
+    }
     var selectedId by rememberSaveable { mutableStateOf("") }
     LaunchedEffect(definitions) {
-        if (definitions.none { it.id == selectedId }) selectedId = definitions.lastOrNull()?.id.orEmpty()
+        if (definitions.none { it.id == selectedId }) selectedId = definitions.firstOrNull()?.id.orEmpty()
     }
     val selected = definitions.firstOrNull { it.id == selectedId }
-    val values = remember(selectedId) { mutableStateMapOf<String, String>() }
-    var comments by rememberSaveable(selectedId) { mutableStateOf("") }
-    var photoMediaId by rememberSaveable(selectedId) { mutableStateOf<String?>(null) }
+    val selectedIndex = definitions.indexOfFirst { it.id == selectedId }
+    val values = remember(dayId, selectedId) { mutableStateMapOf<String, String>() }
+    var comments by rememberSaveable(dayId, selectedId) { mutableStateOf("") }
+    var photoMediaId by rememberSaveable(dayId, selectedId) { mutableStateOf<String?>(null) }
     var showPhotoWarning by remember { mutableStateOf(false) }
-    var saveApplied by rememberSaveable(selectedId) { mutableStateOf(false) }
+    var saveApplied by rememberSaveable(dayId, selectedId) { mutableStateOf(false) }
     val appliedColor = Color(0xFF16803A)
     val photoPicker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         if (uri != null) {
@@ -342,15 +432,49 @@ internal fun ProtocolScreen(
     }
     LazyColumn(modifier.imePadding().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         if (state.manifest?.isDemo == true) item { DemoBanner() }
-        item { Text("Числа вводятся вручную. OCR не используется как источник данных.") }
         item {
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(definitions, key = { it.id }) { definition ->
-                    FilterChip(selectedId == definition.id, { selectedId = definition.id }, { Text(definition.title) })
+            Text(
+                "Выберите форму, перенесите данные из документа вручную и при необходимости " +
+                    "приложите его фотографию. Распознавание текста не используется.",
+            )
+        }
+        if (selected != null) {
+            item {
+                Surface(
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    shape = MaterialTheme.shapes.large,
+                ) {
+                    Column(
+                        Modifier.fillMaxWidth().padding(14.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        Text(
+                            "Форма ${selectedIndex + 1} из ${definitions.size}",
+                            style = MaterialTheme.typography.labelLarge,
+                        )
+                        Text(
+                            selected.title,
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                        )
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            OutlinedButton(
+                                onClick = { selectedId = definitions[selectedIndex - 1].id },
+                                enabled = selectedIndex > 0,
+                                modifier = Modifier.weight(1f),
+                            ) { Text("← Предыдущая форма") }
+                            OutlinedButton(
+                                onClick = { selectedId = definitions[selectedIndex + 1].id },
+                                enabled = selectedIndex in 0 until definitions.lastIndex,
+                                modifier = Modifier.weight(1f),
+                            ) { Text("Следующая форма →") }
+                        }
+                    }
                 }
             }
         }
         selected?.let { definition ->
+            item { Text(definition.description) }
             items(definition.fields.sortedBy { it.order }, key = { "protocol:${it.id}" }) { field ->
                 OutlinedTextField(
                     value = values[field.id].orEmpty(),
@@ -379,7 +503,12 @@ internal fun ProtocolScreen(
             }
             item {
                 OutlinedButton(onClick = { showPhotoWarning = true }, modifier = Modifier.fillMaxWidth()) {
-                    Text(if (photoMediaId == null) "Добавить фотографию" else "Фотография сохранена в приватном архиве")
+                    Text(if (photoMediaId == null) "Приложить фотографию документа" else "Заменить фотографию документа")
+                }
+            }
+            photoMediaId?.let { mediaId ->
+                item(key = "selected-protocol-photo:$mediaId") {
+                    SavedPhoto(mediaId, state, viewModel)
                 }
             }
             item {
@@ -399,6 +528,7 @@ internal fun ProtocolScreen(
                 ) { Text(if (saveApplied) "✓ Снимок сохранён" else "Сохранить снимок") }
             }
         }
+        if (definitions.isEmpty()) item { Text("Для текущего дня форм протокола нет.") }
         item {
             TextButton(onClick = { navigate(ObserverRoute.REFERENCES) }, modifier = Modifier.fillMaxWidth()) {
                 Text("Открыть справочные материалы")
@@ -409,8 +539,12 @@ internal fun ProtocolScreen(
             Card(Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
                     Text(formatTimestamp(snapshot.capturedAt), fontWeight = FontWeight.Bold)
-                    val snapshotDefinition = definitions.firstOrNull { it.id == snapshot.protocolFormId }
+                    val snapshotDefinition = state.reconciliationDefinitions.firstOrNull {
+                        it.id == snapshot.protocolFormId
+                    }
                     Text("Форма: ${snapshotDefinition?.title ?: "сохранённая форма"}")
+                    val dayTitle = state.votingDays.firstOrNull { it.id == snapshot.votingDayId }?.title
+                    Text("День: ${dayTitle ?: "сохранённый день"}")
                     Text(
                         snapshot.values.entries.joinToString(separator = "\n") { (fieldId, value) ->
                             val label = snapshotDefinition?.fields?.firstOrNull { it.id == fieldId }?.label
@@ -418,7 +552,7 @@ internal fun ProtocolScreen(
                             "• $label: $value"
                         },
                     )
-                    if (snapshot.photoMediaId != null) Text("Фото: сохранено и зашифровано")
+                    snapshot.photoMediaId?.let { mediaId -> SavedPhoto(mediaId, state, viewModel) }
                     if (snapshot.comments.isNotBlank()) Text(snapshot.comments)
                 }
             }
@@ -428,7 +562,12 @@ internal fun ProtocolScreen(
         AlertDialog(
             onDismissRequest = { showPhotoWarning = false },
             title = { Text("Проверьте кадр") },
-            text = { Text("В кадре могут находиться персональные данные. Оригинал будет зашифрован и сохранён в private app storage.") },
+            text = {
+                Text(
+                    "В кадре могут находиться персональные данные. Оригинал будет зашифрован " +
+                        "и сохранён в приватном хранилище приложения.",
+                )
+            },
             confirmButton = {
                 Button(onClick = {
                     showPhotoWarning = false
@@ -438,6 +577,53 @@ internal fun ProtocolScreen(
             dismissButton = { TextButton(onClick = { showPhotoWarning = false }) { Text("Отмена") } },
         )
     }
+}
+
+@Composable
+private fun SavedPhoto(
+    mediaId: String,
+    state: ObserverUiState,
+    viewModel: ObserverViewModel,
+) {
+    LaunchedEffect(mediaId) { viewModel.loadMediaPreview(mediaId) }
+    val asset = state.mediaAssets.firstOrNull { it.id == mediaId }
+    val previewBytes = state.mediaPreviews[mediaId]
+    val preview = remember(previewBytes) {
+        previewBytes?.let { bytes ->
+            BitmapFactory.decodeByteArray(bytes, 0, bytes.size)?.asImageBitmap()
+        }
+    }
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Text(
+            asset?.let { "Фото: ${it.originalName} · ${formatFileSize(it.size)}" }
+                ?: "Фото сохранено и зашифровано",
+            style = MaterialTheme.typography.bodySmall,
+            fontWeight = FontWeight.SemiBold,
+        )
+        when {
+            preview != null -> {
+                Image(
+                    bitmap = preview,
+                    contentDescription = "Сохранённая фотография",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(preview.width.toFloat() / preview.height.coerceAtLeast(1))
+                        .clip(RoundedCornerShape(12.dp)),
+                    contentScale = ContentScale.Fit,
+                )
+            }
+            mediaId in state.mediaPreviewErrors -> {
+                Text("Предпросмотр фотографии недоступен", style = MaterialTheme.typography.bodySmall)
+            }
+            else -> Text("Загрузка фотографии…", style = MaterialTheme.typography.bodySmall)
+        }
+    }
+}
+
+private fun formatFileSize(bytes: Long): String = when {
+    bytes >= 1024 * 1024 -> "%.1f МБ".format(bytes / (1024.0 * 1024.0))
+    bytes >= 1024 -> "%.1f КБ".format(bytes / 1024.0)
+    else -> "$bytes Б"
 }
 
 @Composable

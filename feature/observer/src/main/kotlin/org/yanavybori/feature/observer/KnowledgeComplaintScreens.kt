@@ -61,10 +61,18 @@ internal fun SituationNavigatorScreen(
     var selectedId by rememberSaveable { mutableStateOf<String?>(null) }
     val selected = state.situations.firstOrNull { it.id == selectedId }
     val children = selected?.let { parent -> state.situations.filter { it.parentId == parent.id } }.orEmpty()
+    val listState = rememberLazyListState()
     BackHandler(enabled = selected != null) {
         selectedId = selected?.parentId
     }
-    LazyColumn(modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    LaunchedEffect(selectedId) {
+        listState.scrollToItem(0)
+    }
+    LazyColumn(
+        state = listState,
+        modifier = modifier.padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
         if (state.manifest?.isDemo == true) item { DemoBanner() }
         if (selected == null) {
             item { Text("Выберите ситуацию", style = MaterialTheme.typography.titleLarge) }

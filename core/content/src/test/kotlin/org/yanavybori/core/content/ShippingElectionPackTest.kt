@@ -24,7 +24,7 @@ class ShippingElectionPackTest {
 
         assertTrue(result is ElectionPackImportResult.Installed)
         val content = requireNotNull(repository.content)
-        assertEquals(5, content.manifest.contentVersion)
+        assertEquals(6, content.manifest.contentVersion)
         assertEquals("8 (800) 777-87-25", content.manifest.emergencyContacts.first().phone)
         assertEquals(156, content.checklistItems.count { it.sourceDocumentId == "reference-roadmap" })
         assertEquals(15, content.situations.count { it.parentId == "situation-roadmap-gross" })

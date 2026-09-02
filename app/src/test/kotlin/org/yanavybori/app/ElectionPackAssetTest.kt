@@ -20,7 +20,7 @@ class ElectionPackAssetTest {
         val manifest = parseObject(pack.resolve("manifest.json"))
 
         assertEquals("2026.09.02-roadmap-2026.09.18-20", manifest.string("version"))
-        assertEquals(5, manifest.int("contentVersion"))
+        assertEquals(6, manifest.int("contentVersion"))
         assertEquals("2026-09-18", manifest.string("validFrom"))
         assertEquals("2026-09-20", manifest.string("validUntil"))
         assertTrue("Приоритетный источник" in manifest.string("publisher"))
@@ -48,6 +48,10 @@ class ElectionPackAssetTest {
 
         val situations = parseArray(pack.resolve("situations/situations.json")).map { it.jsonObject }
         assertEquals(15, situations.count { it.optionalString("parentId") == "situation-roadmap-gross" })
+        assertTrue(
+            "Ниже перечислены 15 ситуаций" in
+                situations.single { it.string("id") == "situation-roadmap-gross" }.string("summary"),
+        )
         assertFalse(situations.any { "свободно перемещаться" in it.string("title") })
 
         val laws = parseArray(pack.resolve("laws/laws.json")).map { it.jsonObject }
@@ -56,6 +60,7 @@ class ElectionPackAssetTest {
 
         val forms = parseArray(pack.resolve("reconciliation_rules/forms.json")).map { it.jsonObject }
         val protocol = forms.single { it.string("id") == "reconciliation-protocol-lines" }
+        assertTrue(protocol.string("title").startsWith("Итоговый протокол УИК"))
         val ruleTypes = protocol.array("rules").map { it.jsonObject }.map { it.string("type") }
         assertEquals(listOf("SUM_LESS_OR_EQUAL", "SUM_EQUALS_SUM", "SUM_EQUALS_SUM", "EQUAL"), ruleTypes)
 

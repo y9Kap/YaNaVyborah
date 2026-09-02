@@ -45,8 +45,8 @@ class UserDatabaseMigrationTest {
 
     @Test
     fun current_schema_opens_and_validates() {
-        helper.createDatabase(DB_NAME, 2).close()
-        helper.runMigrationsAndValidate(DB_NAME, 2, true).close()
+        helper.createDatabase(DB_NAME, 3).close()
+        helper.runMigrationsAndValidate(DB_NAME, 3, true).close()
     }
 
     @Test
@@ -72,6 +72,31 @@ class UserDatabaseMigrationTest {
                 org.junit.Assert.assertEquals("[]", cursor.getString(2))
                 org.junit.Assert.assertTrue(cursor.isNull(3))
                 org.junit.Assert.assertTrue(cursor.isNull(4))
+            }
+        }
+    }
+
+    @Test
+    fun migration_2_3_preserves_reconciliations_and_adds_optional_photo() {
+        helper.createDatabase(DB_NAME, 2).apply {
+            execSQL(
+                "INSERT INTO reconciliation_sessions " +
+                    "(id, observationSessionId, votingDayId, definitionId, createdAt, updatedAt, " +
+                    "valuesJson, resultsJson) VALUES " +
+                    "('reconciliation', 'session', 'day', 'definition', 1, 2, '{}', '[]')",
+            )
+            close()
+        }
+
+        helper.runMigrationsAndValidate(DB_NAME, 3, true, UserDatabase.MIGRATION_2_3).use { database ->
+            database.query(
+                "SELECT valuesJson, resultsJson, photoMediaId FROM reconciliation_sessions " +
+                    "WHERE id = 'reconciliation'",
+            ).use { cursor ->
+                cursor.moveToFirst()
+                org.junit.Assert.assertEquals("{}", cursor.getString(0))
+                org.junit.Assert.assertEquals("[]", cursor.getString(1))
+                org.junit.Assert.assertTrue(cursor.isNull(2))
             }
         }
     }

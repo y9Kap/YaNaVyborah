@@ -421,11 +421,11 @@ private fun CounterMarkEntity.toModel() = CounterMark(id, counterSessionId, time
 private fun CounterMark.toEntity() = CounterMarkEntity(id, counterSessionId, timestamp, delta)
 private fun ReconciliationSessionEntity.toModel() = ReconciliationSession(
     id, observationSessionId, votingDayId, definitionId, createdAt, updatedAt,
-    userJson.decodeFromString(valuesJson), userJson.decodeFromString(resultsJson),
+    userJson.decodeFromString(valuesJson), userJson.decodeFromString(resultsJson), photoMediaId,
 )
 private fun ReconciliationSession.toEntity() = ReconciliationSessionEntity(
     id, observationSessionId, votingDayId, definitionId, createdAt, updatedAt,
-    userJson.encodeToString(values), userJson.encodeToString(results),
+    userJson.encodeToString(values), userJson.encodeToString(results), photoMediaId,
 )
 private fun ProtocolSnapshotEntity.toModel() = ProtocolSnapshot(
     id, observationSessionId, votingDayId, protocolFormId, capturedAt,

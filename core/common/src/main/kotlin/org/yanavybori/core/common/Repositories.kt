@@ -127,6 +127,7 @@ interface MediaRepository {
     fun observeMedia(): Flow<List<MediaAsset>>
     suspend fun import(request: MediaImportRequest): MediaAsset
     suspend fun get(id: String): MediaAsset?
+    suspend fun loadImagePreview(id: String, maxDimension: Int = 1200): ByteArray?
     suspend fun privacyReport(mediaAssetId: String): PrivacyReport?
     suspend fun delete(id: String)
 }

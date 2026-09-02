@@ -3,11 +3,11 @@ plugins {
     alias(libs.plugins.compose.compiler)
 }
 
-val configuredVersionName = providers.gradleProperty("VERSION_NAME").orNull ?: "0.1.0"
+val configuredVersionName = providers.gradleProperty("VERSION_NAME").orNull ?: "0.2.0"
 val configuredVersionCode = providers.gradleProperty("VERSION_CODE").orNull?.let { value ->
     value.toIntOrNull()?.takeIf { it > 0 }
         ?: error("VERSION_CODE должен быть положительным целым числом")
-} ?: 1
+} ?: 2
 
 val releaseKeystorePath = providers.environmentVariable("YANAVYBORAH_KEYSTORE_FILE").orNull
 val releaseKeystorePassword = providers.environmentVariable("YANAVYBORAH_KEYSTORE_PASSWORD").orNull

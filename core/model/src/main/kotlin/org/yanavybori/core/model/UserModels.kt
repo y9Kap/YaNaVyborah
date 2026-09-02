@@ -114,6 +114,7 @@ data class ReconciliationSession(
     val updatedAt: Long,
     val values: Map<String, String>,
     val results: List<ReconciliationResult>,
+    val photoMediaId: String? = null,
 )
 
 @Serializable

@@ -3,6 +3,7 @@ package org.yanavybori.feature.observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -87,6 +88,9 @@ data class ObserverUiState(
     val counterLastMarks: Map<String, CounterMark> = emptyMap(),
     val reconciliationSessions: List<ReconciliationSession> = emptyList(),
     val protocolSnapshots: List<ProtocolSnapshot> = emptyList(),
+    val mediaAssets: List<MediaAsset> = emptyList(),
+    val mediaPreviews: Map<String, ByteArray> = emptyMap(),
+    val mediaPreviewErrors: Set<String> = emptySet(),
     val searchResults: List<SearchResult> = emptyList(),
     val complaintToRevealId: String? = null,
     val errorMessage: String? = null,
@@ -102,6 +106,7 @@ class ObserverViewModel(
     val state: StateFlow<ObserverUiState> = mutableState.asStateFlow()
     private var packJob: Job? = null
     private var sessionJob: Job? = null
+    private val loadingMediaPreviewIds = mutableSetOf<String>()
     private val journalFactory = JournalEventFactory(dependencies.clock, dependencies.ids)
 
     init {
@@ -118,6 +123,11 @@ class ObserverViewModel(
                 sessionJob?.cancel()
                 if (session != null) sessionJob = collectSession(session)
                 else clearSessionData()
+            }
+        }
+        viewModelScope.launch {
+            dependencies.mediaRepository.observeMedia().collectLatest { media ->
+                mutableState.update { it.copy(mediaAssets = media) }
             }
         }
     }
@@ -165,6 +175,8 @@ class ObserverViewModel(
                 counterLastMarks = emptyMap(),
                 reconciliationSessions = emptyList(),
                 protocolSnapshots = emptyList(),
+                mediaPreviews = emptyMap(),
+                mediaPreviewErrors = emptySet(),
                 complaintToRevealId = null,
             )
         }
@@ -205,6 +217,7 @@ class ObserverViewModel(
         val mediaIds = buildSet {
             state.value.journalEvents.flatMapTo(this) { it.mediaIds }
             state.value.complaints.mapNotNullTo(this) { it.acceptedCopyMediaId }
+            state.value.reconciliationSessions.mapNotNullTo(this) { it.photoMediaId }
             state.value.protocolSnapshots.mapNotNullTo(this) { it.photoMediaId }
         }
         dependencies.observationRepository.deleteSession(session.id, password)
@@ -346,6 +359,7 @@ class ObserverViewModel(
     fun saveReconciliation(
         definition: ReconciliationDefinition,
         values: Map<String, String>,
+        photoMediaId: String?,
         onSaved: (ReconciliationSession) -> Unit = {},
     ) = task {
         val session = requireNotNull(state.value.activeSession)
@@ -365,8 +379,12 @@ class ObserverViewModel(
             updatedAt = now,
             values = values,
             results = dependencies.reconciliationEngine.evaluate(definition, values, previous),
+            photoMediaId = photoMediaId,
         )
         dependencies.reconciliationRepository.save(reconciliation)
+        existing?.photoMediaId
+            ?.takeIf { it != photoMediaId }
+            ?.let { dependencies.mediaRepository.delete(it) }
         onSaved(reconciliation)
     }
 
@@ -398,6 +416,35 @@ class ObserverViewModel(
     fun importMedia(uri: String, source: MediaSource, onImported: (MediaAsset) -> Unit) = task {
         val asset = dependencies.mediaRepository.import(MediaImportRequest(uri, source))
         onImported(asset)
+    }
+
+    fun loadMediaPreview(mediaId: String) {
+        val current = state.value
+        if (mediaId in current.mediaPreviews || mediaId in current.mediaPreviewErrors ||
+            !loadingMediaPreviewIds.add(mediaId)
+        ) {
+            return
+        }
+        viewModelScope.launch {
+            try {
+                val bytes = dependencies.mediaRepository.loadImagePreview(mediaId, maxDimension = 900)
+                mutableState.update { state ->
+                    if (bytes == null) {
+                        state.copy(mediaPreviewErrors = state.mediaPreviewErrors + mediaId)
+                    } else {
+                        state.copy(mediaPreviews = state.mediaPreviews + (mediaId to bytes))
+                    }
+                }
+            } catch (error: CancellationException) {
+                throw error
+            } catch (_: Exception) {
+                mutableState.update { state ->
+                    state.copy(mediaPreviewErrors = state.mediaPreviewErrors + mediaId)
+                }
+            } finally {
+                loadingMediaPreviewIds.remove(mediaId)
+            }
+        }
     }
 
     fun deleteMedia(mediaId: String) = task { dependencies.mediaRepository.delete(mediaId) }

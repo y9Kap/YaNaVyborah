@@ -7,7 +7,7 @@
   "electionType": "THREE_DAY_MANUAL_COUNT",
   "validFrom": "2026-09-18",
   "validUntil": "2026-09-20",
-  "contentVersion": 5,
+  "contentVersion": 6,
   "schemaVersion": 2,
   "publisher": "Приоритетный источник: «Дорожная карта наблюдателя» от 31.08.2026 для голосования 18–20.09.2026; остальные материалы пакета вспомогательные",
   "isDemo": false,
@@ -42,7 +42,7 @@
     },
     {
       "path": "situations/situations.json",
-      "sha256": "218b3f6649f60d5953aa1b281559d9dc2a86a70e22577abc39024daab772718f"
+      "sha256": "7c2d08c8c8e908532665ee36a03f41b145bb102d642867713c3de88c439dc865"
     },
     {
       "path": "laws/laws.json",
@@ -54,7 +54,7 @@
     },
     {
       "path": "reconciliation_rules/forms.json",
-      "sha256": "7e442c77ef648e33cf70c1a01a1c0859dca20625016ef46b2b4b290313cedf89"
+      "sha256": "135a8184e0b87a1b3db20ad15b80bc8e9bb67cf3b28968cb8c87db077df2de5f"
     },
     {
       "path": "reference_documents/documents.json",
@@ -115,10 +115,10 @@
     "voting_days.json": "00093b98604c8c8971fbf87aa0be764489e129d8250e53624471a0c444652a16",
     "checklists/definitions.json": "426e96293243d2d8b5e5c0e6fd36809d9e98b45b90c6f642e62fa02bbed03475",
     "checklists/items.json": "93fee1a0f01d246c52584fbd3437850dc774d35b9bbe44064b05bce9a2304f08",
-    "situations/situations.json": "218b3f6649f60d5953aa1b281559d9dc2a86a70e22577abc39024daab772718f",
+    "situations/situations.json": "7c2d08c8c8e908532665ee36a03f41b145bb102d642867713c3de88c439dc865",
     "laws/laws.json": "ee440130c846fa8d51e6304a98de5552477a2877f87e25f4de6e981a2cfc6819",
     "complaint_templates/templates.json": "5ad07578fca0b083ea0439138d41ddb3d87922adf339c579801818f06d918c3a",
-    "reconciliation_rules/forms.json": "7e442c77ef648e33cf70c1a01a1c0859dca20625016ef46b2b4b290313cedf89",
+    "reconciliation_rules/forms.json": "135a8184e0b87a1b3db20ad15b80bc8e9bb67cf3b28968cb8c87db077df2de5f",
     "reference_documents/documents.json": "9b61a6f4c2f0609fd8f74c785ef5c0e69dd412b7c032c51787a59b977b5d723d",
     "reference_documents/source_conflict_guide.txt": "0b0e8a681636ea749424fcd1cbbd6066899e68ea64d8ad3d910c759bebe3eb8f",
     "reference_documents/source_multiday_guide.txt": "72a248f01f944e0ebbf4df0483a4779070d1fecf19f79c41f8f2477f277285ca",

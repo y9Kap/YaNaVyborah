@@ -107,6 +107,7 @@ data class ReconciliationSessionEntity(
     val updatedAt: Long,
     val valuesJson: String,
     val resultsJson: String,
+    val photoMediaId: String?,
 )
 
 @Entity(tableName = "protocol_snapshots")
@@ -324,7 +325,7 @@ interface MediaDao {
         MediaAssetEntity::class,
         PrivacyReportEntity::class,
     ],
-    version = 2,
+    version = 3,
     exportSchema = true,
 )
 abstract class UserDatabase : RoomDatabase() {
@@ -361,11 +362,18 @@ abstract class UserDatabase : RoomDatabase() {
                 )
             }
         }
+        val MIGRATION_2_3: Migration = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "ALTER TABLE reconciliation_sessions ADD COLUMN photoMediaId TEXT",
+                )
+            }
+        }
 
         fun create(context: Context): UserDatabase = Room.databaseBuilder(
             context.applicationContext,
             UserDatabase::class.java,
             NAME,
-        ).addMigrations(MIGRATION_1_2).build()
+        ).addMigrations(MIGRATION_1_2, MIGRATION_2_3).build()
     }
 }
