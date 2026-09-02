@@ -12,11 +12,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
@@ -33,6 +35,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -64,6 +67,23 @@ internal fun ChecklistScreen(
             definition.itemIds.mapNotNull(itemsById::get).minOfOrNull(ChecklistItem::order) ?: Int.MAX_VALUE
         }
     val statuses = state.checklistStates.associateBy { it.checklistItemId }
+    var problemTargetItemId by rememberSaveable { mutableStateOf<String?>(null) }
+    var problemTargetEvent by remember { mutableStateOf<JournalEvent?>(null) }
+    var showComplaintTemplates by rememberSaveable { mutableStateOf(false) }
+    var cameraError by rememberSaveable { mutableStateOf<String?>(null) }
+    val context = LocalContext.current
+    val targetItem = state.checklistItems.firstOrNull { it.id == problemTargetItemId }
+    val targetEvent = problemTargetEvent?.let { remembered ->
+        state.journalEvents.firstOrNull { it.id == remembered.id } ?: remembered
+    }
+    val problemMediaPicker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        val eventId = targetEvent?.id
+        if (uri != null && eventId != null) {
+            viewModel.importMedia(uri.toString(), MediaSource.PHOTO_PICKER) { asset ->
+                viewModel.attachMediaToEvent(eventId, asset.id)
+            }
+        }
+    }
     LazyColumn(
         modifier.padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -91,15 +111,82 @@ internal fun ChecklistScreen(
             }
             val sectionItems = definition.itemIds.mapNotNull(itemsById::get).sortedBy { it.order }
             items(sectionItems, key = { it.id }) { item ->
+                val relatedProblemEvent = state.journalEvents
+                    .filter {
+                        it.votingDayId == dayId && it.relatedChecklistItemId == item.id &&
+                            it.category == JournalCategory.PROBLEM
+                    }
+                    .maxByOrNull { it.timestamp }
                 ChecklistItemCard(
                     item = item,
                     status = statuses[item.id]?.status ?: ChecklistStatus.NOT_CHECKED,
-                    onStatus = { viewModel.setChecklistState(item, it) },
+                    problemEvent = relatedProblemEvent,
+                    onStatus = { selectedStatus ->
+                        viewModel.setChecklistState(item, selectedStatus) { update ->
+                            if (selectedStatus == ChecklistStatus.PROBLEM) {
+                                problemTargetItemId = item.id
+                                problemTargetEvent = update.journalEvent
+                            }
+                        }
+                    },
+                    onProblemActions = { event ->
+                        problemTargetItemId = item.id
+                        problemTargetEvent = event
+                    },
                     onOpenLaws = { navigate(ObserverRoute.LAWS) },
                 )
             }
         }
         if (visibleDefinitions.isEmpty()) item { Text("Для этого дня в пакете нет пунктов.") }
+    }
+    if (targetItem != null && !showComplaintTemplates) {
+        ChecklistProblemActionsDialog(
+            item = targetItem,
+            event = targetEvent,
+            cameraError = cameraError,
+            onDismiss = {
+                problemTargetItemId = null
+                problemTargetEvent = null
+                cameraError = null
+            },
+            onOpenCamera = {
+                cameraError = null
+                runCatching {
+                    context.startActivity(Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA))
+                }.onFailure {
+                    cameraError = "Камеру открыть не удалось. Откройте системную камеру вручную."
+                }
+            },
+            onPickMedia = {
+                problemMediaPicker.launch(
+                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo),
+                )
+            },
+            onCreateComplaint = { showComplaintTemplates = true },
+            onOpenJournal = {
+                problemTargetItemId = null
+                problemTargetEvent = null
+                navigate(ObserverRoute.JOURNAL)
+            },
+        )
+    }
+    if (showComplaintTemplates && targetItem != null) {
+        ComplaintTemplatePickerDialog(
+            templates = state.complaintTemplates,
+            onDismiss = { showComplaintTemplates = false },
+            onSelect = { template ->
+                viewModel.createComplaint(
+                    template = template,
+                    relatedEventIds = listOfNotNull(targetEvent?.id),
+                    contextNotes = "Проблема чек-листа: ${targetItem.title}\n${targetItem.shortExplanation}",
+                )
+                showComplaintTemplates = false
+                problemTargetItemId = null
+                problemTargetEvent = null
+                navigate(ObserverRoute.COMPLAINTS)
+            },
+            title = "Жалоба по проблеме чек-листа",
+        )
     }
 }
 
@@ -107,13 +194,17 @@ internal fun ChecklistScreen(
 private fun ChecklistItemCard(
     item: ChecklistItem,
     status: ChecklistStatus,
+    problemEvent: JournalEvent?,
     onStatus: (ChecklistStatus) -> Unit,
+    onProblemActions: (JournalEvent) -> Unit,
     onOpenLaws: () -> Unit,
 ) {
     var expanded by rememberSaveable(item.id) { mutableStateOf(false) }
     var pendingStatusName by rememberSaveable(item.id, status.name) { mutableStateOf(status.name) }
     val pendingStatus = ChecklistStatus.valueOf(pendingStatusName)
     val hasUnconfirmedStatus = pendingStatus != status
+    val isApplied = !hasUnconfirmedStatus && status != ChecklistStatus.NOT_CHECKED
+    val appliedColor = Color(0xFF16803A)
     Card(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Text(item.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
@@ -170,9 +261,80 @@ private fun ChecklistItemCard(
                     onClick = { onStatus(pendingStatus) },
                     enabled = hasUnconfirmedStatus,
                     modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (isApplied) appliedColor else MaterialTheme.colorScheme.primary,
+                        disabledContainerColor = if (isApplied) appliedColor else MaterialTheme.colorScheme.surfaceVariant,
+                        disabledContentColor = if (isApplied) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
+                    ),
                 ) {
-                    Text("Зафиксировать")
+                    Text(if (isApplied) "✓ Зафиксировано" else "Зафиксировать")
                 }
+            }
+            if (status == ChecklistStatus.PROBLEM && problemEvent != null) {
+                OutlinedButton(
+                    onClick = { onProblemActions(problemEvent) },
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text(
+                        if (problemEvent.mediaIds.isEmpty()) {
+                            "Добавить фото, видео или жалобу"
+                        } else {
+                            "Медиа: ${problemEvent.mediaIds.size} · добавить или создать жалобу"
+                        },
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ChecklistProblemActionsDialog(
+    item: ChecklistItem,
+    event: JournalEvent?,
+    cameraError: String?,
+    onDismiss: () -> Unit,
+    onOpenCamera: () -> Unit,
+    onPickMedia: () -> Unit,
+    onCreateComplaint: () -> Unit,
+    onOpenJournal: () -> Unit,
+) {
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(shape = MaterialTheme.shapes.extraLarge) {
+            Column(
+                Modifier.fillMaxWidth().imePadding().verticalScroll(rememberScrollState()).padding(18.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Text("Проблема зафиксирована", style = MaterialTheme.typography.titleLarge)
+                Text(item.title, fontWeight = FontWeight.Bold)
+                Text(
+                    "Добавьте доказательства или сразу создайте черновик жалобы. " +
+                        "Фото и видео сохраняются в защищённом хранилище приложения.",
+                )
+                if (event == null) {
+                    Text(
+                        "Связанная запись журнала ещё сохраняется. Закройте окно и откройте действия проблемы снова.",
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                } else if (event.mediaIds.isNotEmpty()) {
+                    Text("Прикреплено медиафайлов: ${event.mediaIds.size}", color = Color(0xFF16803A))
+                }
+                cameraError?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+                Button(onClick = onOpenCamera, enabled = event != null, modifier = Modifier.fillMaxWidth()) {
+                    Text("Открыть камеру")
+                }
+                Button(onClick = onPickMedia, enabled = event != null, modifier = Modifier.fillMaxWidth()) {
+                    Text("Выбрать сохранённое фото или видео")
+                }
+                OutlinedButton(
+                    onClick = onCreateComplaint,
+                    enabled = event != null,
+                    modifier = Modifier.fillMaxWidth(),
+                ) { Text("Сформировать жалобу") }
+                TextButton(onClick = onOpenJournal, modifier = Modifier.fillMaxWidth()) {
+                    Text("Открыть запись в журнале")
+                }
+                TextButton(onClick = onDismiss, modifier = Modifier.fillMaxWidth()) { Text("Закрыть") }
             }
         }
     }
@@ -333,7 +495,7 @@ internal fun NewJournalEventFlow(
         NewEventStep.TYPE -> Dialog(onDismissRequest = ::dismissAndCleanUp) {
             Surface(shape = MaterialTheme.shapes.extraLarge) {
                 Column(
-                    Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(18.dp),
+                    Modifier.fillMaxWidth().imePadding().verticalScroll(rememberScrollState()).padding(18.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     Text("Что добавить?", style = MaterialTheme.typography.titleLarge)
@@ -370,7 +532,7 @@ internal fun NewJournalEventFlow(
         NewEventStep.CAPTURE -> Dialog(onDismissRequest = ::dismissAndCleanUp) {
             Surface(shape = MaterialTheme.shapes.extraLarge) {
                 Column(
-                    Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(18.dp),
+                    Modifier.fillMaxWidth().imePadding().verticalScroll(rememberScrollState()).padding(18.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     Text("Сначала зафиксируйте факт", style = MaterialTheme.typography.titleLarge)
@@ -442,7 +604,7 @@ internal fun EventEditorDialog(
     Dialog(onDismissRequest = onDismiss) {
         Surface(shape = MaterialTheme.shapes.extraLarge) {
             LazyColumn(
-                Modifier.fillMaxWidth().padding(18.dp),
+                Modifier.fillMaxWidth().imePadding().padding(18.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 item {
@@ -472,15 +634,18 @@ internal fun EventEditorDialog(
                 }
                 item {
                     OutlinedTextField(title, { title = it }, label = { Text("Заголовок") },
-                        modifier = Modifier.fillMaxWidth())
+                        modifier = Modifier.fillMaxWidth(),
+                        visualTransformation = TemplatePlaceholderVisualTransformation(MaterialTheme.colorScheme.error))
                 }
                 item {
                     OutlinedTextField(description, { description = it }, label = { Text("Описание") },
-                        modifier = Modifier.fillMaxWidth(), minLines = 3)
+                        modifier = Modifier.fillMaxWidth(), minLines = 3,
+                        visualTransformation = TemplatePlaceholderVisualTransformation(MaterialTheme.colorScheme.error))
                 }
                 item {
                     OutlinedTextField(participants, { participants = it },
-                        label = { Text("Участники / примечания") }, modifier = Modifier.fillMaxWidth())
+                        label = { Text("Участники / примечания") }, modifier = Modifier.fillMaxWidth(),
+                        visualTransformation = TemplatePlaceholderVisualTransformation(MaterialTheme.colorScheme.error))
                 }
                 item {
                     LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {

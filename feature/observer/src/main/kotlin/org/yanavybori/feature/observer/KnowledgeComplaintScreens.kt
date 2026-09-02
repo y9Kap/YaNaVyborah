@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -40,6 +41,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import org.yanavybori.core.model.Complaint
 import org.yanavybori.core.model.ComplaintStatus
+import org.yanavybori.core.model.ComplaintTemplate
 import org.yanavybori.core.model.LawReference
 import org.yanavybori.core.model.MediaSource
 import org.yanavybori.core.model.Situation
@@ -213,11 +215,29 @@ internal fun PoliceScreen(
 }
 
 @Composable
-internal fun LawsScreen(state: ObserverUiState, viewModel: ObserverViewModel, modifier: Modifier) {
+internal fun LawsScreen(
+    state: ObserverUiState,
+    viewModel: ObserverViewModel,
+    modifier: Modifier,
+    navigate: (ObserverRoute) -> Unit,
+) {
     var expandedId by rememberSaveable { mutableStateOf<String?>(null) }
     var query by rememberSaveable { mutableStateOf("") }
-    LazyColumn(modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+    LazyColumn(modifier.imePadding().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         if (state.manifest?.isDemo == true) item { DemoBanner() }
+        item {
+            Text(
+                "Нажмите на карточку, чтобы открыть развёрнутый текст всех применимых пунктов нормы, " +
+                    "на которые ссылаются материалы приложения.",
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        }
+        item {
+            OutlinedButton(
+                onClick = { navigate(ObserverRoute.REFERENCES) },
+                modifier = Modifier.fillMaxWidth(),
+            ) { Text("Открыть полные документы и памятки") }
+        }
         item {
             OutlinedTextField(
                 value = query,
@@ -250,7 +270,10 @@ internal fun LawsScreen(state: ObserverUiState, viewModel: ObserverViewModel, mo
                     Text(law.title, fontWeight = FontWeight.Bold)
                     Text(law.citation)
                     Text(law.summary)
-                    if (expandedId == law.id) Text(law.text)
+                    if (expandedId == law.id) {
+                        Text("Применимые положения", fontWeight = FontWeight.SemiBold)
+                        Text(law.text)
+                    }
                     Text("Источник: ${law.source}", style = MaterialTheme.typography.bodySmall)
                     Text("Версия пакета: ${law.sourceVersion}", style = MaterialTheme.typography.bodySmall)
                 }
@@ -269,7 +292,6 @@ internal fun ComplaintsScreen(
     var rewriting by remember { mutableStateOf<Complaint?>(null) }
     var photoTarget by remember { mutableStateOf<Complaint?>(null) }
     var showPhotoWarning by remember { mutableStateOf(false) }
-    var complaintToRevealId by remember { mutableStateOf<String?>(null) }
     val listState = rememberLazyListState()
     val photoPicker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         val target = photoTarget
@@ -282,12 +304,12 @@ internal fun ComplaintsScreen(
     }
 
     LaunchedEffect(
-        complaintToRevealId,
+        state.complaintToRevealId,
         state.complaints,
         state.complaintTemplates,
         state.manifest?.isDemo,
     ) {
-        val complaintId = complaintToRevealId ?: return@LaunchedEffect
+        val complaintId = state.complaintToRevealId ?: return@LaunchedEffect
         val complaintIndex = state.complaints.indexOfFirst { it.id == complaintId }
         if (complaintIndex < 0) return@LaunchedEffect
 
@@ -295,12 +317,12 @@ internal fun ComplaintsScreen(
             (if (state.manifest?.isDemo == true) 1 else 0) +
                 1 + state.complaintTemplates.size + 1
         listState.animateScrollToItem(complaintListStartIndex + complaintIndex)
-        complaintToRevealId = null
+        viewModel.consumeComplaintReveal(complaintId)
     }
 
     LazyColumn(
         state = listState,
-        modifier = modifier.padding(16.dp),
+        modifier = modifier.imePadding().padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         if (state.manifest?.isDemo == true) item { DemoBanner() }
@@ -311,9 +333,7 @@ internal fun ComplaintsScreen(
         ) { template ->
             OutlinedButton(
                 onClick = {
-                    viewModel.createComplaint(template) { complaint ->
-                        complaintToRevealId = complaint.id
-                    }
+                    viewModel.createComplaint(template)
                 },
                 modifier = Modifier.fillMaxWidth(),
             ) {
@@ -329,7 +349,10 @@ internal fun ComplaintsScreen(
                             modifier = Modifier.weight(1f))
                         StatusPill(complaint.status.label(), MaterialTheme.colorScheme.primary)
                     }
-                    Text(complaint.text, maxLines = 3)
+                    Text(
+                        highlightTemplatePlaceholders(complaint.text, MaterialTheme.colorScheme.error),
+                        maxLines = 3,
+                    )
                     complaint.registrationNumber?.let { Text("Рег. номер: $it") }
                     if (complaint.acceptedCopyMediaId != null) Text("Фото принятой копии сохранено")
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -407,10 +430,30 @@ private fun ComplaintEditorDialog(
     var notes by remember(initial.id) { mutableStateOf(initial.notes) }
     Dialog(onDismissRequest = onDismiss) {
         Surface(shape = MaterialTheme.shapes.extraLarge) {
-            LazyColumn(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            LazyColumn(
+                Modifier.fillMaxWidth().imePadding().padding(18.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
                 item { Text("Редактировать жалобу", style = MaterialTheme.typography.titleLarge) }
-                item { OutlinedTextField(recipient, { recipient = it }, label = { Text("Кому передана") }, modifier = Modifier.fillMaxWidth()) }
-                item { OutlinedTextField(text, { text = it }, label = { Text("Текст") }, modifier = Modifier.fillMaxWidth(), minLines = 8) }
+                item {
+                    OutlinedTextField(
+                        recipient,
+                        { recipient = it },
+                        label = { Text("Кому передана") },
+                        modifier = Modifier.fillMaxWidth(),
+                        visualTransformation = TemplatePlaceholderVisualTransformation(MaterialTheme.colorScheme.error),
+                    )
+                }
+                item {
+                    OutlinedTextField(
+                        text,
+                        { text = it },
+                        label = { Text("Текст") },
+                        modifier = Modifier.fillMaxWidth(),
+                        minLines = 8,
+                        visualTransformation = TemplatePlaceholderVisualTransformation(MaterialTheme.colorScheme.error),
+                    )
+                }
                 item { OutlinedTextField(registration, { registration = it }, label = { Text("Регистрационный номер") }, modifier = Modifier.fillMaxWidth()) }
                 item { OutlinedTextField(notes, { notes = it }, label = { Text("Заметки") }, modifier = Modifier.fillMaxWidth()) }
                 if (initial.status == ComplaintStatus.SUBMITTED) {
@@ -455,11 +498,63 @@ private fun RewriteComplaintDialog(complaint: Complaint, onDismiss: () -> Unit) 
         Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
             LazyColumn(Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(22.dp)) {
                 item { Text("Для переписывания", fontSize = 28.sp, fontWeight = FontWeight.Bold) }
-                item { Text("Кому: ${complaint.recipient}", fontSize = 22.sp, fontWeight = FontWeight.Bold) }
+                item {
+                    Text(
+                        highlightTemplatePlaceholders(
+                            "Кому: ${complaint.recipient}",
+                            MaterialTheme.colorScheme.error,
+                        ),
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                }
                 complaint.text.split("\n").filter { it.isNotBlank() }.forEach { paragraph ->
-                    item { Text(paragraph, fontSize = 24.sp, lineHeight = 34.sp) }
+                    item {
+                        Text(
+                            highlightTemplatePlaceholders(paragraph, MaterialTheme.colorScheme.error),
+                            fontSize = 24.sp,
+                            lineHeight = 34.sp,
+                        )
+                    }
                 }
                 item { Button(onClick = onDismiss, modifier = Modifier.fillMaxWidth()) { Text("Закрыть") } }
+            }
+        }
+    }
+}
+
+@Composable
+internal fun ComplaintTemplatePickerDialog(
+    templates: List<ComplaintTemplate>,
+    onDismiss: () -> Unit,
+    onSelect: (ComplaintTemplate) -> Unit,
+    title: String = "Выберите шаблон жалобы",
+) {
+    val sortedTemplates = templates.sortedBy { if (it.id.startsWith("complaint-roadmap-")) 0 else 1 }
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(shape = MaterialTheme.shapes.extraLarge) {
+            LazyColumn(
+                Modifier.fillMaxWidth().imePadding().padding(18.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                item { Text(title, style = MaterialTheme.typography.titleLarge) }
+                item {
+                    Text(
+                        "После выбора будет создан черновик, который можно отредактировать в конструкторе.",
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                }
+                items(sortedTemplates, key = { "picker:${it.id}" }) { template ->
+                    OutlinedButton(
+                        onClick = { onSelect(template) },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) { Text(template.title) }
+                }
+                item {
+                    TextButton(onClick = onDismiss, modifier = Modifier.fillMaxWidth()) {
+                        Text("Отмена")
+                    }
+                }
             }
         }
     }

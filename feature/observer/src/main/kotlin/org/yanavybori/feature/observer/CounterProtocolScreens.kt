@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,6 +18,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
@@ -43,6 +45,8 @@ import androidx.compose.ui.unit.dp
 import org.yanavybori.core.model.MediaSource
 import org.yanavybori.core.model.ReconciliationDefinition
 import org.yanavybori.core.model.ReconciliationInputType
+import org.yanavybori.core.model.ReconciliationResult
+import org.yanavybori.core.model.ReconciliationRuleType
 import org.yanavybori.core.model.ReconciliationStatus
 import org.yanavybori.core.navigation.ObserverRoute
 import org.yanavybori.core.ui.DemoBanner
@@ -51,7 +55,7 @@ import org.yanavybori.core.ui.StatusPill
 @Composable
 internal fun CounterScreen(state: ObserverUiState, viewModel: ObserverViewModel, modifier: Modifier) {
     var label by rememberSaveable { mutableStateOf("") }
-    LazyColumn(modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    LazyColumn(modifier.imePadding().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         item {
             Text("Счётчики хранят только статистические отметки, без сведений о личности.")
         }
@@ -116,6 +120,7 @@ internal fun ReconciliationScreen(
     state: ObserverUiState,
     viewModel: ObserverViewModel,
     modifier: Modifier,
+    navigate: (ObserverRoute) -> Unit,
 ) {
     val dayId = state.activeSession?.currentVotingDay ?: return
     val definitions = state.reconciliationDefinitions.filter {
@@ -126,21 +131,63 @@ internal fun ReconciliationScreen(
         if (definitions.none { it.id == selectedId }) selectedId = definitions.firstOrNull()?.id.orEmpty()
     }
     val selected = definitions.firstOrNull { it.id == selectedId }
+    val selectedIndex = definitions.indexOfFirst { it.id == selectedId }
     val values = remember(selectedId) { mutableStateMapOf<String, String>() }
     val saved = state.reconciliationSessions.firstOrNull { it.definitionId == selectedId && it.votingDayId == dayId }
+    var mismatchPrompt by remember { mutableStateOf<ReconciliationResult?>(null) }
+    var complaintResult by remember { mutableStateOf<ReconciliationResult?>(null) }
     LaunchedEffect(saved?.updatedAt, selectedId) {
         if (saved != null && values.isEmpty()) values.putAll(saved.values)
     }
-    LazyColumn(modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    val valuesAreSaved = saved != null && saved.values == values.toMap()
+    val appliedColor = Color(0xFF16803A)
+    LazyColumn(modifier.imePadding().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         if (state.manifest?.isDemo == true) item { DemoBanner() }
-        item { Text("Формулы и названия полей загружены из Election Pack, а не из Kotlin-кода.") }
+        item {
+            Text(
+                "Выберите нужную сверку, заполните её поля и запустите проверку. " +
+                    "Приложение покажет конкретные строки и величину расхождения.",
+            )
+        }
+        if (selected != null) {
+            item {
+                Surface(
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    shape = MaterialTheme.shapes.large,
+                ) {
+                    Column(
+                        Modifier.fillMaxWidth().padding(14.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        Text(
+                            "Доступно сверок: ${definitions.size} · открыта ${selectedIndex + 1} из ${definitions.size}",
+                            style = MaterialTheme.typography.labelLarge,
+                        )
+                        Text(selected.title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            OutlinedButton(
+                                onClick = { selectedId = definitions[selectedIndex - 1].id },
+                                enabled = selectedIndex > 0,
+                                modifier = Modifier.weight(1f),
+                            ) { Text("← Предыдущая") }
+                            OutlinedButton(
+                                onClick = { selectedId = definitions[selectedIndex + 1].id },
+                                enabled = selectedIndex in 0 until definitions.lastIndex,
+                                modifier = Modifier.weight(1f),
+                            ) { Text("Следующая →") }
+                        }
+                    }
+                }
+            }
+        }
         item {
             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(definitions, key = { it.id }) { definition ->
+                    val index = definitions.indexOf(definition)
                     FilterChip(
                         selected = selectedId == definition.id,
                         onClick = { selectedId = definition.id },
-                        label = { Text(definition.title) },
+                        label = { Text("${index + 1}. ${definition.title}") },
                     )
                 }
             }
@@ -160,13 +207,34 @@ internal fun ReconciliationScreen(
             }
             item {
                 Button(
-                    onClick = { viewModel.saveReconciliation(definition, values.toMap()) },
+                    onClick = {
+                        viewModel.saveReconciliation(definition, values.toMap()) { reconciliation ->
+                            mismatchPrompt = reconciliation.results.firstOrNull { result ->
+                                result.status == ReconciliationStatus.ERROR ||
+                                    (result.status == ReconciliationStatus.WARNING &&
+                                        definition.rules.firstOrNull { it.id == result.ruleId }?.type !=
+                                        ReconciliationRuleType.CUSTOM_WARNING)
+                            }
+                        }
+                    },
+                    enabled = !valuesAreSaved,
                     modifier = Modifier.fillMaxWidth(),
-                ) { Text("Проверить и сохранить") }
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (valuesAreSaved) appliedColor else MaterialTheme.colorScheme.primary,
+                        disabledContainerColor = if (valuesAreSaved) appliedColor else MaterialTheme.colorScheme.surfaceVariant,
+                        disabledContentColor = if (valuesAreSaved) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
+                    ),
+                ) { Text(if (valuesAreSaved) "✓ Проверено и сохранено" else "Проверить и сохранить") }
             }
-            val results = state.reconciliationSessions
-                .firstOrNull { it.definitionId == definition.id && it.votingDayId == dayId }
-                ?.results.orEmpty()
+            if (saved != null && !valuesAreSaved) {
+                item {
+                    Text(
+                        "Поля изменены. Результаты предыдущей проверки скрыты — нажмите «Проверить и сохранить» снова.",
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+            }
+            val results = if (valuesAreSaved) saved.results else emptyList()
             items(results, key = { "result:${it.ruleId}" }) { result ->
                 val color = result.status.color()
                 Surface(color = color.copy(alpha = 0.12f), shape = MaterialTheme.shapes.medium) {
@@ -175,14 +243,73 @@ internal fun ReconciliationScreen(
                         Text(result.message, fontWeight = FontWeight.Bold)
                         Text(result.explanation)
                         Text(
-                            result.sourceValues.entries.joinToString { "${it.key}=${it.value.ifBlank { "—" }}" },
+                            result.sourceValues.entries.joinToString(separator = "\n") { (fieldId, value) ->
+                                val fieldLabel = definition.fields.firstOrNull { it.id == fieldId }?.label
+                                    ?: "Поле сверки"
+                                "• $fieldLabel: ${value.ifBlank { "не заполнено" }}"
+                            },
                             style = MaterialTheme.typography.bodySmall,
                         )
+                        if (result.status == ReconciliationStatus.ERROR ||
+                            (result.status == ReconciliationStatus.WARNING &&
+                                definition.rules.firstOrNull { it.id == result.ruleId }?.type !=
+                                ReconciliationRuleType.CUSTOM_WARNING)
+                        ) {
+                            OutlinedButton(
+                                onClick = { complaintResult = result },
+                                modifier = Modifier.fillMaxWidth(),
+                            ) { Text("Сформировать жалобу") }
+                        }
                     }
                 }
             }
         }
         if (definitions.isEmpty()) item { Text("Для текущего дня форм сверки нет.") }
+    }
+    mismatchPrompt?.let { result ->
+        AlertDialog(
+            onDismissRequest = { mismatchPrompt = null },
+            title = { Text("Обнаружено несовпадение") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(result.message, fontWeight = FontWeight.Bold)
+                    Text(result.explanation)
+                    Text("Можно сразу создать связанный по смыслу черновик жалобы.")
+                }
+            },
+            confirmButton = {
+                Button(onClick = {
+                    complaintResult = result
+                    mismatchPrompt = null
+                }) { Text("Сформировать жалобу") }
+            },
+            dismissButton = {
+                TextButton(onClick = { mismatchPrompt = null }) { Text("Продолжить сверку") }
+            },
+        )
+    }
+    complaintResult?.let { result ->
+        ComplaintTemplatePickerDialog(
+            templates = state.complaintTemplates,
+            onDismiss = { complaintResult = null },
+            onSelect = { template ->
+                val definition = selected
+                viewModel.createComplaint(
+                    template = template,
+                    contextNotes = buildString {
+                        append("Сверка: ")
+                        append(definition?.title.orEmpty())
+                        append("\n")
+                        append(result.message)
+                        append("\n")
+                        append(result.explanation)
+                    },
+                )
+                complaintResult = null
+                navigate(ObserverRoute.COMPLAINTS)
+            },
+            title = "Жалоба по результату сверки",
+        )
     }
 }
 
@@ -203,12 +330,17 @@ internal fun ProtocolScreen(
     var comments by rememberSaveable(selectedId) { mutableStateOf("") }
     var photoMediaId by rememberSaveable(selectedId) { mutableStateOf<String?>(null) }
     var showPhotoWarning by remember { mutableStateOf(false) }
+    var saveApplied by rememberSaveable(selectedId) { mutableStateOf(false) }
+    val appliedColor = Color(0xFF16803A)
     val photoPicker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         if (uri != null) {
-            viewModel.importMedia(uri.toString(), MediaSource.PHOTO_PICKER) { photoMediaId = it.id }
+            viewModel.importMedia(uri.toString(), MediaSource.PHOTO_PICKER) {
+                photoMediaId = it.id
+                saveApplied = false
+            }
         }
     }
-    LazyColumn(modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    LazyColumn(modifier.imePadding().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         if (state.manifest?.isDemo == true) item { DemoBanner() }
         item { Text("Числа вводятся вручную. OCR не используется как источник данных.") }
         item {
@@ -222,7 +354,10 @@ internal fun ProtocolScreen(
             items(definition.fields.sortedBy { it.order }, key = { "protocol:${it.id}" }) { field ->
                 OutlinedTextField(
                     value = values[field.id].orEmpty(),
-                    onValueChange = { values[field.id] = it },
+                    onValueChange = {
+                        values[field.id] = it
+                        saveApplied = false
+                    },
                     label = { Text(field.label) },
                     modifier = Modifier.fillMaxWidth(),
                     textStyle = MaterialTheme.typography.headlineSmall,
@@ -233,7 +368,10 @@ internal fun ProtocolScreen(
             item {
                 OutlinedTextField(
                     value = comments,
-                    onValueChange = { comments = it },
+                    onValueChange = {
+                        comments = it
+                        saveApplied = false
+                    },
                     label = { Text("Комментарии") },
                     modifier = Modifier.fillMaxWidth(),
                     minLines = 3,
@@ -247,13 +385,18 @@ internal fun ProtocolScreen(
             item {
                 Button(
                     onClick = {
-                        viewModel.saveProtocol(definition, values.toMap(), comments, photoMediaId)
-                        values.clear()
-                        comments = ""
-                        photoMediaId = null
+                        viewModel.saveProtocol(definition, values.toMap(), comments, photoMediaId) {
+                            saveApplied = true
+                        }
                     },
+                    enabled = !saveApplied,
                     modifier = Modifier.fillMaxWidth(),
-                ) { Text("Сохранить snapshot") }
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (saveApplied) appliedColor else MaterialTheme.colorScheme.primary,
+                        disabledContainerColor = if (saveApplied) appliedColor else MaterialTheme.colorScheme.surfaceVariant,
+                        disabledContentColor = if (saveApplied) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
+                    ),
+                ) { Text(if (saveApplied) "✓ Снимок сохранён" else "Сохранить снимок") }
             }
         }
         item {
@@ -266,8 +409,15 @@ internal fun ProtocolScreen(
             Card(Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
                     Text(formatTimestamp(snapshot.capturedAt), fontWeight = FontWeight.Bold)
-                    Text("Форма: ${snapshot.protocolFormId}")
-                    Text(snapshot.values.entries.joinToString { "${it.key}=${it.value}" })
+                    val snapshotDefinition = definitions.firstOrNull { it.id == snapshot.protocolFormId }
+                    Text("Форма: ${snapshotDefinition?.title ?: "сохранённая форма"}")
+                    Text(
+                        snapshot.values.entries.joinToString(separator = "\n") { (fieldId, value) ->
+                            val label = snapshotDefinition?.fields?.firstOrNull { it.id == fieldId }?.label
+                                ?: "Поле протокола"
+                            "• $label: $value"
+                        },
+                    )
                     if (snapshot.photoMediaId != null) Text("Фото: сохранено и зашифровано")
                     if (snapshot.comments.isNotBlank()) Text(snapshot.comments)
                 }
@@ -304,7 +454,7 @@ internal fun ReferenceDocumentsScreen(
         }
     }
     var expandedId by rememberSaveable { mutableStateOf<String?>(requestedDocumentId) }
-    LazyColumn(modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+    LazyColumn(modifier.imePadding().padding(16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
         if (state.manifest?.isDemo == true) item { DemoBanner() }
         if (requestedDocumentId != null) {
             item {
@@ -327,7 +477,10 @@ internal fun ReferenceDocumentsScreen(
                         ) {
                             Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                                 document.previewLines.forEachIndexed { index, line ->
-                                    Text(line, fontWeight = if (index == 0) FontWeight.Bold else FontWeight.Normal)
+                                    Text(
+                                        highlightTemplatePlaceholders(line, MaterialTheme.colorScheme.error),
+                                        fontWeight = if (index == 0) FontWeight.Bold else FontWeight.Normal,
+                                    )
                                 }
                             }
                         }
@@ -336,9 +489,22 @@ internal fun ReferenceDocumentsScreen(
                         TextButton(onClick = {
                             expandedId = if (expandedId == document.id) null else document.id
                         }) {
-                            Text(if (expandedId == document.id) "Свернуть полный конспект" else "Открыть полный конспект")
+                            Text(
+                                if (expandedId == document.id) {
+                                    "Свернуть полный текст"
+                                } else {
+                                    "Открыть полный текст документа"
+                                },
+                            )
                         }
-                        if (expandedId == document.id) Text(document.content)
+                        if (expandedId == document.id) {
+                            Text(
+                                highlightTemplatePlaceholders(
+                                    document.content,
+                                    MaterialTheme.colorScheme.error,
+                                ),
+                            )
+                        }
                     }
                     document.hotspots.sortedBy { it.number }.forEach { hotspot ->
                         Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.Top) {

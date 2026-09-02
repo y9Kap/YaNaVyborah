@@ -20,6 +20,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.yanavybori.core.common.Clock
+import org.yanavybori.core.common.ChecklistStateUpdate
 import org.yanavybori.core.common.ComplaintRepository
 import org.yanavybori.core.common.ComplaintStatusPolicy
 import org.yanavybori.core.common.CounterRepository
@@ -261,7 +262,7 @@ class RoomObservationRepository(
         votingDayId: String,
         checklistItemId: String,
         status: ChecklistStatus,
-    ): ChecklistItemState {
+    ): ChecklistStateUpdate {
         val state = ChecklistItemState(
             id = "$sessionId:$votingDayId:$checklistItemId",
             sessionId = sessionId,
@@ -271,18 +272,18 @@ class RoomObservationRepository(
             updatedAt = clock.now(),
         )
         checklistStateDao.upsert(state.toEntity())
-        if (status != ChecklistStatus.NOT_CHECKED) {
-            journalDao.upsert(
-                journalFactory.fromChecklist(
-                    sessionId,
-                    votingDayId,
-                    checklistItemId,
-                    "Чек-лист обновлён",
-                    status,
-                ).toEntity(),
-            )
+        val journalEvent = if (status != ChecklistStatus.NOT_CHECKED) {
+            journalFactory.fromChecklist(
+                sessionId,
+                votingDayId,
+                checklistItemId,
+                "Чек-лист обновлён",
+                status,
+            ).also { journalDao.upsert(it.toEntity()) }
+        } else {
+            null
         }
-        return state
+        return ChecklistStateUpdate(state, journalEvent)
     }
 }
 

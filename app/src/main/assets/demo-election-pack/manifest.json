@@ -1,13 +1,13 @@
 {
   "id": "ru-observer-methodical-pack",
   "name": "Дорожная карта наблюдателя: 18–20 сентября 2026",
-  "version": "2026.08.31-roadmap-2026.09.18-20",
+  "version": "2026.09.02-roadmap-2026.09.18-20",
   "locale": "ru-RU",
   "jurisdiction": "RU",
   "electionType": "THREE_DAY_MANUAL_COUNT",
   "validFrom": "2026-09-18",
   "validUntil": "2026-09-20",
-  "contentVersion": 4,
+  "contentVersion": 5,
   "schemaVersion": 2,
   "publisher": "Приоритетный источник: «Дорожная карта наблюдателя» от 31.08.2026 для голосования 18–20.09.2026; остальные материалы пакета вспомогательные",
   "isDemo": false,
@@ -38,15 +38,15 @@
     },
     {
       "path": "checklists/items.json",
-      "sha256": "5dba966e9a66660040fbac787fc5935b9f979a7b8ca4b9091795d83c812e6530"
+      "sha256": "93fee1a0f01d246c52584fbd3437850dc774d35b9bbe44064b05bce9a2304f08"
     },
     {
       "path": "situations/situations.json",
-      "sha256": "08d98f37eee06993b527e9c98c255d10b58391254861373b51b1ba8a81b2ebe4"
+      "sha256": "218b3f6649f60d5953aa1b281559d9dc2a86a70e22577abc39024daab772718f"
     },
     {
       "path": "laws/laws.json",
-      "sha256": "bf5c6d94bff119bda7dfda1294c2b2fcd64e44fa0dbf04fc0c3f649a7e0428f4"
+      "sha256": "ee440130c846fa8d51e6304a98de5552477a2877f87e25f4de6e981a2cfc6819"
     },
     {
       "path": "complaint_templates/templates.json",
@@ -58,7 +58,7 @@
     },
     {
       "path": "reference_documents/documents.json",
-      "sha256": "848c80ee72f80f0658728aab7b88f0cbabc1dc92a355eb88a39ebc138ccf710a"
+      "sha256": "9b61a6f4c2f0609fd8f74c785ef5c0e69dd412b7c032c51787a59b977b5d723d"
     },
     {
       "path": "reference_documents/source_conflict_guide.txt",
@@ -77,7 +77,7 @@
     },
     {
       "path": "reference_documents/source_observer_status.txt",
-      "sha256": "e503a8d16705247fe749cf95f4a46211cf1cc2d2a65b2c8bf0f24ca14d034fc2",
+      "sha256": "f72938879ad0d4c4b7c71a9aad96adfa322fd10a9e08f1fc95132db18bf43ff9",
       "mediaType": "text/plain"
     },
     {
@@ -107,29 +107,29 @@
     },
     {
       "path": "reference_documents/source_roadmap.txt",
-      "sha256": "dd75638e09ffe74d80d04ae49b2f9fec5debf0178f58eca7ca780d237c560c7e",
+      "sha256": "638c7b5e9dfbd8e8979319d102ed78a6af5b6214e7497115bc0c8e92ba8defa0",
       "mediaType": "text/plain"
     }
   ],
   "hashes": {
     "voting_days.json": "00093b98604c8c8971fbf87aa0be764489e129d8250e53624471a0c444652a16",
     "checklists/definitions.json": "426e96293243d2d8b5e5c0e6fd36809d9e98b45b90c6f642e62fa02bbed03475",
-    "checklists/items.json": "5dba966e9a66660040fbac787fc5935b9f979a7b8ca4b9091795d83c812e6530",
-    "situations/situations.json": "08d98f37eee06993b527e9c98c255d10b58391254861373b51b1ba8a81b2ebe4",
-    "laws/laws.json": "bf5c6d94bff119bda7dfda1294c2b2fcd64e44fa0dbf04fc0c3f649a7e0428f4",
+    "checklists/items.json": "93fee1a0f01d246c52584fbd3437850dc774d35b9bbe44064b05bce9a2304f08",
+    "situations/situations.json": "218b3f6649f60d5953aa1b281559d9dc2a86a70e22577abc39024daab772718f",
+    "laws/laws.json": "ee440130c846fa8d51e6304a98de5552477a2877f87e25f4de6e981a2cfc6819",
     "complaint_templates/templates.json": "5ad07578fca0b083ea0439138d41ddb3d87922adf339c579801818f06d918c3a",
     "reconciliation_rules/forms.json": "7e442c77ef648e33cf70c1a01a1c0859dca20625016ef46b2b4b290313cedf89",
-    "reference_documents/documents.json": "848c80ee72f80f0658728aab7b88f0cbabc1dc92a355eb88a39ebc138ccf710a",
+    "reference_documents/documents.json": "9b61a6f4c2f0609fd8f74c785ef5c0e69dd412b7c032c51787a59b977b5d723d",
     "reference_documents/source_conflict_guide.txt": "0b0e8a681636ea749424fcd1cbbd6066899e68ea64d8ad3d910c759bebe3eb8f",
     "reference_documents/source_multiday_guide.txt": "72a248f01f944e0ebbf4df0483a4779070d1fecf19f79c41f8f2477f277285ca",
     "reference_documents/source_general_guide.txt": "7307729c14ff4737d312bb5f817711dc15da0d7830522a65bfc9994bd4681876",
-    "reference_documents/source_observer_status.txt": "e503a8d16705247fe749cf95f4a46211cf1cc2d2a65b2c8bf0f24ca14d034fc2",
+    "reference_documents/source_observer_status.txt": "f72938879ad0d4c4b7c71a9aad96adfa322fd10a9e08f1fc95132db18bf43ff9",
     "reference_documents/source_home_voting.txt": "84fa88fc5fd889157446aec46ac15f45b62983e600bd684f004792922fb5927e",
     "reference_documents/source_counting_sequence.txt": "d8770fd5bcd404211b6e5acd330afb551ddc2b4e532ae95b1a4134f95b866b5a",
     "reference_documents/source_counting_checklist.txt": "094b22c42fc15accb365b1b8f0872e8f22fab9323a1ea4e3b5368a29161cdafb",
     "reference_documents/source_preparation_checklist.txt": "7fc71afd59a78f1de5b870b1a01e39e50ed50688e8cdd207119524fa227ff6f2",
     "reference_documents/source_home_checklist.txt": "cd4643c28663cce30f2f7ec8eeb768b8728116311c970de72f138c3309b9ef77",
-    "reference_documents/source_roadmap.txt": "dd75638e09ffe74d80d04ae49b2f9fec5debf0178f58eca7ca780d237c560c7e"
+    "reference_documents/source_roadmap.txt": "638c7b5e9dfbd8e8979319d102ed78a6af5b6214e7497115bc0c8e92ba8defa0"
   },
   "optionalSignature": null
 }

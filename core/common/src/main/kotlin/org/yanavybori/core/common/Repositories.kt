@@ -29,6 +29,11 @@ import org.yanavybori.core.model.VotingDayDefinition
 
 const val SESSION_DELETION_PASSWORD_MIN_LENGTH = 4
 
+data class ChecklistStateUpdate(
+    val state: ChecklistItemState,
+    val journalEvent: JournalEvent?,
+)
+
 interface ElectionPackRepository {
     fun observeActiveManifest(): Flow<ElectionPackManifest?>
     suspend fun activeManifest(): ElectionPackManifest?
@@ -73,7 +78,7 @@ interface ObservationRepository {
         votingDayId: String,
         checklistItemId: String,
         status: ChecklistStatus,
-    ): ChecklistItemState
+    ): ChecklistStateUpdate
 }
 
 interface JournalRepository {

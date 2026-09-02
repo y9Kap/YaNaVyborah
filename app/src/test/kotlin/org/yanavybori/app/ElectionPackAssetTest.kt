@@ -9,6 +9,7 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -18,8 +19,8 @@ class ElectionPackAssetTest {
         val pack = findPackDirectory()
         val manifest = parseObject(pack.resolve("manifest.json"))
 
-        assertEquals("2026.08.31-roadmap-2026.09.18-20", manifest.string("version"))
-        assertEquals(4, manifest.int("contentVersion"))
+        assertEquals("2026.09.02-roadmap-2026.09.18-20", manifest.string("version"))
+        assertEquals(5, manifest.int("contentVersion"))
         assertEquals("2026-09-18", manifest.string("validFrom"))
         assertEquals("2026-09-20", manifest.string("validUntil"))
         assertTrue("Приоритетный источник" in manifest.string("publisher"))
@@ -42,9 +43,16 @@ class ElectionPackAssetTest {
             roadmapItems.groupingBy { it.int("sourcePage") }.eachCount().toSortedMap(),
         )
         assertTrue(roadmapItems.all { it.string("title").isNotBlank() })
+        assertFalse(roadmapItems.any { "Не допускайте голосования помощника" in it.string("title") })
+        assertFalse(roadmapItems.any { "Поставьте подпись" in it.string("title") })
 
         val situations = parseArray(pack.resolve("situations/situations.json")).map { it.jsonObject }
         assertEquals(15, situations.count { it.optionalString("parentId") == "situation-roadmap-gross" })
+        assertFalse(situations.any { "свободно перемещаться" in it.string("title") })
+
+        val laws = parseArray(pack.resolve("laws/laws.json")).map { it.jsonObject }
+        assertTrue("Пункт 9 статьи 30" in laws.single { it.string("id") == "law-observer-rights" }.string("citation"))
+        assertTrue("пункт 12 статьи 64" in laws.single { it.string("id") == "law-observer-limits" }.string("citation"))
 
         val forms = parseArray(pack.resolve("reconciliation_rules/forms.json")).map { it.jsonObject }
         val protocol = forms.single { it.string("id") == "reconciliation-protocol-lines" }
@@ -52,6 +60,7 @@ class ElectionPackAssetTest {
         assertEquals(listOf("SUM_LESS_OR_EQUAL", "SUM_EQUALS_SUM", "SUM_EQUALS_SUM", "EQUAL"), ruleTypes)
 
         val documents = parseArray(pack.resolve("reference_documents/documents.json")).map { it.jsonObject }
+        assertFalse(documents.any { "конспект" in it.string("description").lowercase() })
         assertEquals("reference_documents/source_roadmap.txt",
             documents.single { it.string("id") == "reference-roadmap" }.string("contentPath"))
         val source = pack.resolve("reference_documents/source_roadmap.txt").readText()

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -136,9 +137,8 @@ fun ObserverFeature(
         snackbarHost = { SnackbarHost(snackbar) },
         bottomBar = {
             CompactCounterBar(
-                counter = state.counters.firstOrNull { it.stoppedAt == null },
-                lastMark = state.counters.firstOrNull { it.stoppedAt == null }
-                    ?.let { counter -> state.counterLastMarks[counter.id] },
+                counters = state.counters.filter { it.stoppedAt == null },
+                lastMarks = state.counterLastMarks,
                 onOpen = { navigateTo(ObserverRoute.COUNTERS) },
                 onIncrement = viewModel::incrementCounter,
                 onDecrement = viewModel::decrementCounter,
@@ -159,9 +159,14 @@ fun ObserverFeature(
                 )
                 ObserverRoute.JOURNAL -> JournalScreen(state, viewModel, contentModifier)
                 ObserverRoute.COUNTERS -> CounterScreen(state, viewModel, contentModifier)
-                ObserverRoute.RECONCILIATION -> ReconciliationScreen(state, viewModel, contentModifier)
+                ObserverRoute.RECONCILIATION -> ReconciliationScreen(
+                    state,
+                    viewModel,
+                    contentModifier,
+                    ::navigateTo,
+                )
                 ObserverRoute.COMPLAINTS -> ComplaintsScreen(state, viewModel, contentModifier)
-                ObserverRoute.LAWS -> LawsScreen(state, viewModel, contentModifier)
+                ObserverRoute.LAWS -> LawsScreen(state, viewModel, contentModifier, ::navigateTo)
                 ObserverRoute.POLICE -> PoliceScreen(
                     state,
                     viewModel,
@@ -402,8 +407,8 @@ private fun ObserverHomeScreen(
         item { AppCard("Счётчики", "Несколько потоков, отметки +1/−1 и таймер", { navigate(ObserverRoute.COUNTERS) }) }
         item { AppCard("Сверки", "Поля и проверки из Election Pack", { navigate(ObserverRoute.RECONCILIATION) }) }
         item { AppCard("Жалобы", "Черновики и режим переписывания", { navigate(ObserverRoute.COMPLAINTS) }) }
-        item { AppCard("Законы и справки", "Источник и версия пакета", { navigate(ObserverRoute.LAWS) }) }
-        item { AppCard("Примеры документов", "Протоколы, жалобы и акты из сценариев", { navigate(ObserverRoute.REFERENCES) }) }
+        item { AppCard("Законы и справки", "Развёрнутые нормы, источники и версии", { navigate(ObserverRoute.LAWS) }) }
+        item { AppCard("Документы и полные материалы", "Полные тексты памяток, протоколы, жалобы и акты", { navigate(ObserverRoute.REFERENCES) }) }
         item {
             AppCard(
                 "Экстренные телефоны",
@@ -412,7 +417,7 @@ private fun ObserverHomeScreen(
             )
         }
         item { AppCard("Журнал", "События и фильтр по дню", { navigate(ObserverRoute.JOURNAL) }) }
-        item { AppCard("Протокол", "Ручной ввод, фото и snapshot", { navigate(ObserverRoute.PROTOCOL) }) }
+        item { AppCard("Протокол", "Ручной ввод, фото и сохранённые снимки", { navigate(ObserverRoute.PROTOCOL) }) }
         item { AppCard("Взаимодействие с полицией", "Спокойная фиксация фактов", { navigate(ObserverRoute.POLICE) }) }
         state.journalEvents.firstOrNull()?.let { event ->
             item {
@@ -489,7 +494,10 @@ private fun DeleteSessionDialog(
             Text(if (isLegacySession) "Защитить удаление" else "Удалить сессию?")
         },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Column(
+                Modifier.imePadding(),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
                 Text(
                     if (isLegacySession) {
                         "Эта сессия создана в старой версии. Сначала назначьте ей пароль; после этого удаление будет доступно только по нему."
@@ -571,14 +579,14 @@ private fun DaySelector(state: ObserverUiState, viewModel: ObserverViewModel) {
 
 @Composable
 private fun CompactCounterBar(
-    counter: CounterSession?,
-    lastMark: CounterMark?,
+    counters: List<CounterSession>,
+    lastMarks: Map<String, CounterMark>,
     onOpen: () -> Unit,
     onIncrement: (String) -> Unit,
     onDecrement: (String) -> Unit,
 ) {
     Surface(shadowElevation = 8.dp, tonalElevation = 3.dp) {
-        if (counter == null) {
+        if (counters.isEmpty()) {
             Row(
                 Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -590,41 +598,55 @@ private fun CompactCounterBar(
         } else {
             Column(
                 Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
             ) {
                 Row(
                     Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    Column(Modifier.weight(1f)) {
-                        Text(counter.label, style = MaterialTheme.typography.labelMedium)
-                        Text(
-                            counter.currentValue.toString(),
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold,
-                        )
-                    }
-                    OutlinedButton(onClick = onOpen) {
-                        Icon(Icons.Outlined.Settings, contentDescription = null)
-                        Text("Настроить", modifier = Modifier.padding(start = 6.dp))
+                    Text(
+                        "Активные счётчики: ${counters.size} · листайте горизонтально",
+                        style = MaterialTheme.typography.labelMedium,
+                        modifier = Modifier.weight(1f),
+                    )
+                    IconButton(onClick = onOpen) {
+                        Icon(Icons.Outlined.Settings, contentDescription = "Настроить счётчики")
                     }
                 }
-                CounterLastAction(lastMark)
-                Row(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    OutlinedButton(
-                        onClick = { onDecrement(counter.id) },
-                        enabled = counter.currentValue > 0,
-                        modifier = Modifier.weight(1f),
-                    ) { Text("−1", style = MaterialTheme.typography.titleLarge) }
-                    Button(
-                        onClick = { onIncrement(counter.id) },
-                        modifier = Modifier.weight(1f).height(52.dp),
-                    ) {
-                        Text("+1", style = MaterialTheme.typography.titleLarge)
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    items(counters, key = { "compact:${it.id}" }) { counter ->
+                        Surface(
+                            modifier = Modifier.width(292.dp),
+                            shape = MaterialTheme.shapes.large,
+                            color = MaterialTheme.colorScheme.surfaceContainerHighest,
+                        ) {
+                            Column(
+                                Modifier.padding(10.dp),
+                                verticalArrangement = Arrangement.spacedBy(5.dp),
+                            ) {
+                                Row(
+                                    Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                ) {
+                                    Column(Modifier.weight(1f)) {
+                                        Text(counter.label, style = MaterialTheme.typography.labelMedium)
+                                        Text(
+                                            counter.currentValue.toString(),
+                                            style = MaterialTheme.typography.titleLarge,
+                                            fontWeight = FontWeight.Bold,
+                                        )
+                                    }
+                                    OutlinedButton(
+                                        onClick = { onDecrement(counter.id) },
+                                        enabled = counter.currentValue > 0,
+                                    ) { Text("−1") }
+                                    Button(onClick = { onIncrement(counter.id) }) { Text("+1") }
+                                }
+                                CounterLastAction(lastMarks[counter.id])
+                            }
+                        }
                     }
                 }
             }
@@ -643,7 +665,7 @@ private fun ObserverRoute.title(): String = when (this) {
     ObserverRoute.LAWS -> "Законы и справки"
     ObserverRoute.POLICE -> "Полиция"
     ObserverRoute.PROTOCOL -> "Протокол"
-    ObserverRoute.REFERENCES -> "Примеры документов"
+    ObserverRoute.REFERENCES -> "Документы и материалы"
     ObserverRoute.EMERGENCY_CONTACTS -> "Экстренные телефоны"
 }
 

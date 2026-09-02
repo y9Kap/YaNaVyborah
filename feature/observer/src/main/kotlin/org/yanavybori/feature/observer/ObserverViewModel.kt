@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.yanavybori.core.common.Clock
+import org.yanavybori.core.common.ChecklistStateUpdate
 import org.yanavybori.core.common.ComplaintRepository
 import org.yanavybori.core.common.CounterRepository
 import org.yanavybori.core.common.ElectionPackRepository
@@ -87,6 +88,7 @@ data class ObserverUiState(
     val reconciliationSessions: List<ReconciliationSession> = emptyList(),
     val protocolSnapshots: List<ProtocolSnapshot> = emptyList(),
     val searchResults: List<SearchResult> = emptyList(),
+    val complaintToRevealId: String? = null,
     val errorMessage: String? = null,
 ) {
     val currentDay: VotingDayDefinition?
@@ -163,6 +165,7 @@ class ObserverViewModel(
                 counterLastMarks = emptyMap(),
                 reconciliationSessions = emptyList(),
                 protocolSnapshots = emptyList(),
+                complaintToRevealId = null,
             )
         }
     }
@@ -218,14 +221,24 @@ class ObserverViewModel(
         )
     }
 
-    fun setChecklistState(item: ChecklistItem, status: ChecklistStatus) = task {
+    fun setChecklistState(
+        item: ChecklistItem,
+        status: ChecklistStatus,
+        onUpdated: (ChecklistStateUpdate) -> Unit = {},
+    ) = task {
         val session = requireNotNull(state.value.activeSession)
-        dependencies.observationRepository.setChecklistState(
+        val update = dependencies.observationRepository.setChecklistState(
             session.id,
             session.currentVotingDay,
             item.id,
             status,
         )
+        val event = update.journalEvent?.copy(
+            title = item.title,
+            description = "Чек-лист: ${status.labelForJournal()}. ${item.shortExplanation}",
+        )
+        if (event != null) dependencies.journalRepository.update(event)
+        onUpdated(update.copy(journalEvent = event))
     }
 
     fun newEventDraft(): JournalEvent {
@@ -262,9 +275,19 @@ class ObserverViewModel(
 
     fun updateEvent(event: JournalEvent) = task { dependencies.journalRepository.update(event) }
 
+    fun attachMediaToEvent(eventId: String, mediaId: String) = task {
+        val event = requireNotNull(dependencies.journalRepository.getEvent(eventId)) {
+            "Связанная запись журнала не найдена"
+        }
+        dependencies.journalRepository.update(
+            event.copy(mediaIds = (event.mediaIds + mediaId).distinct()),
+        )
+    }
+
     fun createComplaint(
         template: ComplaintTemplate,
         relatedEventIds: List<String> = emptyList(),
+        contextNotes: String = "",
         onCreated: (Complaint) -> Unit = {},
     ) = task {
         val session = requireNotNull(state.value.activeSession)
@@ -278,8 +301,17 @@ class ObserverViewModel(
                 createdAt = dependencies.clock.now(),
                 status = ComplaintStatus.DRAFT,
                 text = template.body,
+                notes = contextNotes,
             ),
         )
+        relatedEventIds.forEach { eventId ->
+            dependencies.journalRepository.getEvent(eventId)?.let { event ->
+                dependencies.journalRepository.update(
+                    event.copy(relatedComplaintIds = (event.relatedComplaintIds + complaint.id).distinct()),
+                )
+            }
+        }
+        mutableState.update { it.copy(complaintToRevealId = complaint.id) }
         onCreated(complaint)
     }
 
@@ -289,6 +321,10 @@ class ObserverViewModel(
     }
 
     fun updateComplaint(complaint: Complaint) = task { dependencies.complaintRepository.update(complaint) }
+
+    fun consumeComplaintReveal(complaintId: String) = mutableState.update { current ->
+        if (current.complaintToRevealId == complaintId) current.copy(complaintToRevealId = null) else current
+    }
 
     fun updateComplaintStatus(complaint: Complaint, status: ComplaintStatus) = task {
         dependencies.complaintRepository.updateStatus(complaint.id, status)
@@ -307,7 +343,11 @@ class ObserverViewModel(
     fun undoCounter(counterId: String) = task { dependencies.counterRepository.undoLast(counterId) }
     fun stopCounter(counterId: String) = task { dependencies.counterRepository.stop(counterId) }
 
-    fun saveReconciliation(definition: ReconciliationDefinition, values: Map<String, String>) = task {
+    fun saveReconciliation(
+        definition: ReconciliationDefinition,
+        values: Map<String, String>,
+        onSaved: (ReconciliationSession) -> Unit = {},
+    ) = task {
         val session = requireNotNull(state.value.activeSession)
         val existing = state.value.reconciliationSessions.firstOrNull {
             it.definitionId == definition.id && it.votingDayId == session.currentVotingDay
@@ -316,18 +356,18 @@ class ObserverViewModel(
         val previous = state.value.reconciliationSessions
             .firstOrNull { it.definitionId == definition.id && it.id != existing?.id }
             ?.values.orEmpty()
-        dependencies.reconciliationRepository.save(
-            ReconciliationSession(
-                id = existing?.id ?: dependencies.ids.newId(),
-                observationSessionId = session.id,
-                votingDayId = session.currentVotingDay,
-                definitionId = definition.id,
-                createdAt = existing?.createdAt ?: now,
-                updatedAt = now,
-                values = values,
-                results = dependencies.reconciliationEngine.evaluate(definition, values, previous),
-            ),
+        val reconciliation = ReconciliationSession(
+            id = existing?.id ?: dependencies.ids.newId(),
+            observationSessionId = session.id,
+            votingDayId = session.currentVotingDay,
+            definitionId = definition.id,
+            createdAt = existing?.createdAt ?: now,
+            updatedAt = now,
+            values = values,
+            results = dependencies.reconciliationEngine.evaluate(definition, values, previous),
         )
+        dependencies.reconciliationRepository.save(reconciliation)
+        onSaved(reconciliation)
     }
 
     fun saveProtocol(
@@ -335,10 +375,10 @@ class ObserverViewModel(
         values: Map<String, String>,
         comments: String,
         photoMediaId: String?,
+        onSaved: (ProtocolSnapshot) -> Unit = {},
     ) = task {
         val session = requireNotNull(state.value.activeSession)
-        dependencies.protocolRepository.save(
-            ProtocolSnapshot(
+        val snapshot = ProtocolSnapshot(
                 id = dependencies.ids.newId(),
                 observationSessionId = session.id,
                 votingDayId = session.currentVotingDay,
@@ -350,8 +390,9 @@ class ObserverViewModel(
                     .filter { it.definitionId == definition.id }
                     .map { it.id },
                 comments = comments,
-            ),
-        )
+            )
+        dependencies.protocolRepository.save(snapshot)
+        onSaved(snapshot)
     }
 
     fun importMedia(uri: String, source: MediaSource, onImported: (MediaAsset) -> Unit) = task {
@@ -378,4 +419,11 @@ class ObserverViewModel(
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
             ObserverViewModel(dependencies) as T
     }
+}
+
+private fun ChecklistStatus.labelForJournal(): String = when (this) {
+    ChecklistStatus.NOT_CHECKED -> "не выполнено"
+    ChecklistStatus.OK -> "всё нормально"
+    ChecklistStatus.PROBLEM -> "проблема"
+    ChecklistStatus.NOT_APPLICABLE -> "не применимо"
 }

@@ -110,14 +110,18 @@ class ReconciliationEngine {
         definition: ReconciliationDefinition,
         rawValues: Map<String, String>,
         previousValues: Map<String, String> = emptyMap(),
-    ): List<ReconciliationResult> = definition.rules.map { rule ->
-        evaluateRule(rule, rawValues, previousValues)
+    ): List<ReconciliationResult> {
+        val fieldLabels = definition.fields.associate { it.id to it.label }
+        return definition.rules.map { rule ->
+            evaluateRule(rule, rawValues, previousValues, fieldLabels)
+        }
     }
 
     private fun evaluateRule(
         rule: ReconciliationRule,
         rawValues: Map<String, String>,
         previousValues: Map<String, String>,
+        fieldLabels: Map<String, String>,
     ): ReconciliationResult {
         val relevantIds = buildList {
             addAll(rule.inputIds)
@@ -127,6 +131,16 @@ class ReconciliationEngine {
         val source = relevantIds.associateWith { rawValues[it].orEmpty() }
         val currentNumbers = rule.inputIds.map { rawValues[it]?.toLongOrNull() }
         val comparisonNumbers = rule.comparisonInputIds.map { rawValues[it]?.toLongOrNull() }
+        fun label(id: String): String = fieldLabels[id] ?: "Поле «$id»"
+        fun value(id: String): String = rawValues[id].orEmpty().ifBlank { "не заполнено" }
+        fun labeledValue(id: String): String = "«${label(id)}» — ${value(id)}"
+        fun expression(ids: List<String>, numbers: List<Long>): String =
+            ids.zip(numbers).joinToString(" + ") { (id, number) -> "«${label(id)}» ($number)" }
+        fun mismatch(left: Long, right: Long, leftName: String, rightName: String): String = when {
+            left == right -> "Значения совпадают."
+            left > right -> "Не совпадает: $leftName больше, чем $rightName, на ${left - right}."
+            else -> "Не совпадает: $leftName меньше, чем $rightName, на ${right - left}."
+        }
         fun result(status: ReconciliationStatus, explanation: String) = ReconciliationResult(
             ruleId = rule.id,
             status = status,
@@ -134,66 +148,125 @@ class ReconciliationEngine {
             explanation = explanation,
             sourceValues = source,
         )
-        if (rule.type != ReconciliationRuleType.CUSTOM_WARNING &&
-            (currentNumbers.any { it == null } || comparisonNumbers.any { it == null } ||
-                rule.targetInputId?.let { rawValues[it]?.toLongOrNull() == null } == true)
-        ) {
-            return result(ReconciliationStatus.NOT_CHECKED, "Недостаточно введённых числовых значений")
+        val numericInputIds = buildList {
+            addAll(rule.inputIds)
+            addAll(rule.comparisonInputIds)
+            rule.targetInputId?.let(::add)
+        }.distinct()
+        val invalidInputIds = numericInputIds.filter { rawValues[it]?.toLongOrNull() == null }
+        if (rule.type != ReconciliationRuleType.CUSTOM_WARNING && invalidInputIds.isNotEmpty()) {
+            return result(
+                ReconciliationStatus.NOT_CHECKED,
+                "Не заполнено или введено не число: ${invalidInputIds.joinToString { "«${label(it)}»" }}.",
+            )
         }
         val numbers = currentNumbers.filterNotNull()
         return when (rule.type) {
             ReconciliationRuleType.EQUAL -> {
                 val ok = numbers.distinct().size <= 1
-                result(if (ok) ReconciliationStatus.OK else ReconciliationStatus.ERROR,
-                    "Сравниваются: ${numbers.joinToString(" = ")}")
+                val compared = rule.inputIds.joinToString { labeledValue(it) }
+                val spread = (numbers.maxOrNull() ?: 0L) - (numbers.minOrNull() ?: 0L)
+                result(
+                    if (ok) ReconciliationStatus.OK else ReconciliationStatus.ERROR,
+                    if (ok) "Совпадают: $compared." else "Не совпадают: $compared. Разница — $spread.",
+                )
             }
             ReconciliationRuleType.SUM_EQUALS -> {
-                val target = rawValues.getValue(rule.targetInputId!!).toLong()
+                val targetId = rule.targetInputId!!
+                val target = rawValues.getValue(targetId).toLong()
                 val sum = numbers.sum()
-                result(if (sum == target) ReconciliationStatus.OK else ReconciliationStatus.ERROR,
-                    "${numbers.joinToString(" + ")} = $sum; ожидаемое значение: $target")
+                result(
+                    if (sum == target) ReconciliationStatus.OK else ReconciliationStatus.ERROR,
+                    "${expression(rule.inputIds, numbers)} = $sum; «${label(targetId)}» = $target. " +
+                        mismatch(sum, target, "сумма", "«${label(targetId)}»"),
+                )
             }
             ReconciliationRuleType.SUM_LESS_OR_EQUAL -> {
-                val target = rawValues.getValue(rule.targetInputId!!).toLong()
+                val targetId = rule.targetInputId!!
+                val target = rawValues.getValue(targetId).toLong()
                 val sum = numbers.sum()
-                result(if (sum <= target) ReconciliationStatus.OK else ReconciliationStatus.ERROR,
-                    "${numbers.joinToString(" + ")} = $sum; значение не должно превышать $target")
+                val comparison = if (sum <= target) {
+                    "Условие выполнено: сумма не превышает «${label(targetId)}» (запас ${target - sum})."
+                } else {
+                    "Условие нарушено: сумма превышает «${label(targetId)}» на ${sum - target}."
+                }
+                result(
+                    if (sum <= target) ReconciliationStatus.OK else ReconciliationStatus.ERROR,
+                    "${expression(rule.inputIds, numbers)} = $sum; «${label(targetId)}» = $target. $comparison",
+                )
             }
             ReconciliationRuleType.SUM_EQUALS_SUM -> {
                 val comparison = comparisonNumbers.filterNotNull()
                 val left = numbers.sum()
                 val right = comparison.sum()
-                result(if (left == right) ReconciliationStatus.OK else ReconciliationStatus.ERROR,
-                    "${numbers.joinToString(" + ")} = $left; ${comparison.joinToString(" + ")} = $right")
+                result(
+                    if (left == right) ReconciliationStatus.OK else ReconciliationStatus.ERROR,
+                    "${expression(rule.inputIds, numbers)} = $left; " +
+                        "${expression(rule.comparisonInputIds, comparison)} = $right. " +
+                        mismatch(left, right, "первая сумма", "вторая сумма"),
+                )
             }
             ReconciliationRuleType.RANGE -> {
                 val value = numbers.first()
                 val min = rule.minimum ?: Long.MIN_VALUE
                 val max = rule.maximum ?: Long.MAX_VALUE
-                result(if (value in min..max) ReconciliationStatus.OK else ReconciliationStatus.WARNING,
-                    "Значение $value; допустимый диапазон: $min..$max")
+                val bounds = when {
+                    rule.minimum != null && rule.maximum != null -> "от $min до $max"
+                    rule.minimum != null -> "не меньше $min"
+                    else -> "не больше $max"
+                }
+                result(
+                    if (value in min..max) ReconciliationStatus.OK else ReconciliationStatus.WARNING,
+                    "${labeledValue(rule.inputIds.first())}. Допустимое значение: $bounds.",
+                )
             }
             ReconciliationRuleType.MATCH_PREVIOUS -> {
                 val previousId = rule.previousInputId ?: rule.inputIds.first()
                 val previous = previousValues[previousId]?.toLongOrNull()
-                    ?: return result(ReconciliationStatus.NOT_CHECKED, "Предыдущее значение не найдено")
+                    ?: return result(
+                        ReconciliationStatus.NOT_CHECKED,
+                        "Для «${label(previousId)}» нет сохранённого значения из предыдущей сверки.",
+                    )
                 val current = numbers.first()
-                result(if (current == previous) ReconciliationStatus.OK else ReconciliationStatus.ERROR,
-                    "Текущее значение: $current; ранее введено: $previous")
+                result(
+                    if (current == previous) ReconciliationStatus.OK else ReconciliationStatus.ERROR,
+                    "${labeledValue(rule.inputIds.first())}; ранее сохранено — $previous. " +
+                        mismatch(current, previous, "текущее значение", "ранее сохранённое"),
+                )
             }
             ReconciliationRuleType.UNIQUE -> {
                 val ok = numbers.size == numbers.distinct().size
-                result(if (ok) ReconciliationStatus.OK else ReconciliationStatus.WARNING,
-                    "Проверены значения: ${numbers.joinToString()}")
+                val duplicates = numbers.groupingBy { it }.eachCount().filterValues { it > 1 }.keys
+                result(
+                    if (ok) ReconciliationStatus.OK else ReconciliationStatus.WARNING,
+                    if (ok) {
+                        "Все значения различаются: ${rule.inputIds.joinToString { labeledValue(it) }}."
+                    } else {
+                        "Повторяются значения ${duplicates.joinToString()}: " +
+                            rule.inputIds.joinToString { labeledValue(it) } + "."
+                    },
+                )
             }
             ReconciliationRuleType.SEQUENTIAL -> {
                 val ok = numbers.zipWithNext().all { (a, b) -> b == a + 1 }
-                result(if (ok) ReconciliationStatus.OK else ReconciliationStatus.WARNING,
-                    "Проверена последовательность: ${numbers.joinToString(" -> ")}")
+                val breaks = numbers.zipWithNext().mapIndexedNotNull { index, (first, second) ->
+                    if (second == first + 1) null else {
+                        "между «${label(rule.inputIds[index])}» ($first) и " +
+                            "«${label(rule.inputIds[index + 1])}» ($second)"
+                    }
+                }
+                result(
+                    if (ok) ReconciliationStatus.OK else ReconciliationStatus.WARNING,
+                    if (ok) {
+                        "Последовательность соблюдена: ${rule.inputIds.joinToString { labeledValue(it) }}."
+                    } else {
+                        "Нарушена последовательность ${breaks.joinToString()}."
+                    },
+                )
             }
             ReconciliationRuleType.CUSTOM_WARNING -> result(
                 ReconciliationStatus.WARNING,
-                "Информационная проверка из Election Pack; автоматический вывод не выполняется",
+                "Это ручная проверка: сопоставьте указанные документы и зафиксируйте наблюдаемые факты.",
             )
         }
     }

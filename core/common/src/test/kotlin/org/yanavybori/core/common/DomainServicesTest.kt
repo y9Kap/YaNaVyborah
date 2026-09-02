@@ -136,6 +136,9 @@ class DomainServicesTest {
 
         assertEquals(ReconciliationStatus.ERROR, results.getValue("sum-limit").status)
         assertEquals(ReconciliationStatus.ERROR, results.getValue("sum-to-sum").status)
+        assertTrue(results.getValue("sum-limit").explanation.contains("Строка А"))
+        assertTrue(results.getValue("sum-limit").explanation.contains("превышает"))
+        assertFalse(results.getValue("sum-limit").explanation.contains("a="))
     }
 
     private fun complaint(status: ComplaintStatus) = Complaint(
@@ -149,7 +152,12 @@ class DomainServicesTest {
         title = "demo",
         description = "demo",
         fields = listOf("a", "b", "c", "total").mapIndexed { index, id ->
-            ReconciliationFieldDefinition(id, id, index)
+            ReconciliationFieldDefinition(
+                id,
+                mapOf("a" to "Строка А", "b" to "Строка Б", "c" to "Строка В", "total" to "Итого")
+                    .getValue(id),
+                index,
+            )
         },
         rules = rules.toList(),
     )
