@@ -77,6 +77,21 @@ class DatabaseIntegrationTest {
     }
 
     @Test
+    fun restoring_sections_does_not_overwrite_marks_and_deletion_cleans_all_days() = runBlocking {
+        val dao = userDatabase.checklistStateDao()
+        dao.upsert(ChecklistStateEntity("mark", "session", "day", "item", "PROBLEM", 1))
+        val excluded = ChecklistSectionEntity("session", "day", "section", true, true)
+        dao.upsertSections(listOf(excluded, excluded.copy(votingDayId = "day2", notApplicable = false)))
+        assertTrue(dao.observeSections("session", "day").first().single().notApplicable)
+        assertTrue(!dao.observeSections("session", "day2").first().single().notApplicable)
+        dao.upsertSections(listOf(excluded.copy(collapsed = false, notApplicable = false)))
+        assertEquals("PROBLEM", dao.observe("session", "day").first().single().status)
+        userDatabase.observationDao().deleteSession("session")
+        assertTrue(dao.observeSections("session", "day").first().isEmpty())
+        assertTrue(dao.observeSections("session", "day2").first().isEmpty())
+    }
+
+    @Test
     fun deleting_session_removes_its_counters_and_marks() = runBlocking {
         userDatabase.observationDao().upsert(
             ObservationSessionEntity(

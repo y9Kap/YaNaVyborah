@@ -65,6 +65,7 @@ class AppContainer(context: Context) {
         reconciliationRepository = reconciliationRepository,
         protocolRepository = protocolRepository,
         mediaRepository = mediaRepository,
+        readPackFile = { path -> AssetElectionPackSource(appContext, "demo-election-pack").read(path) },
         reconciliationEngine = ReconciliationEngine(),
     )
 

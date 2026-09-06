@@ -7,6 +7,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,6 +39,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -48,6 +50,13 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.security.MessageDigest
 import androidx.compose.ui.unit.dp
 import org.yanavybori.core.model.MediaSource
 import org.yanavybori.core.model.ReconciliationDefinition
@@ -62,6 +71,13 @@ import org.yanavybori.core.ui.StatusPill
 @Composable
 internal fun CounterScreen(state: ObserverUiState, viewModel: ObserverViewModel, modifier: Modifier) {
     var label by rememberSaveable { mutableStateOf("") }
+    val focusManager = LocalFocusManager.current
+    fun createCounter() {
+        if (label.isBlank()) return
+        viewModel.createCounter(label)
+        label = ""
+        focusManager.clearFocus()
+    }
     LazyColumn(modifier.imePadding().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         item {
             Text("Счётчики хранят только статистические отметки, без сведений о личности.")
@@ -73,14 +89,13 @@ internal fun CounterScreen(state: ObserverUiState, viewModel: ObserverViewModel,
                 modifier = Modifier.fillMaxWidth(),
                 label = { Text("Например: Стол №4") },
                 singleLine = true,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(onDone = { createCounter() }),
             )
         }
         item {
             Button(
-                onClick = {
-                    viewModel.createCounter(label)
-                    label = ""
-                },
+                onClick = ::createCounter,
                 enabled = label.isNotBlank(),
                 modifier = Modifier.fillMaxWidth(),
             ) { Text("Создать счётчик") }
@@ -631,7 +646,38 @@ internal fun ReferenceDocumentsScreen(
     state: ObserverUiState,
     modifier: Modifier,
     requestedDocumentId: String? = null,
+    readPackFile: suspend (String) -> ByteArray,
 ) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var exportDocumentId by rememberSaveable { mutableStateOf<String?>(null) }
+    var exportMessage by rememberSaveable { mutableStateOf<String?>(null) }
+    var exporting by remember { mutableStateOf(false) }
+    val saveOriginal = rememberLauncherForActivityResult(SaveOriginalDocument()) { uri ->
+        val document = state.referenceDocuments.firstOrNull { it.id == exportDocumentId }
+        exportDocumentId = null
+        if (uri != null && document?.original != null) scope.launch {
+            exporting = true
+            exportMessage = try {
+                withContext(Dispatchers.IO) {
+                    val original = requireNotNull(document.original)
+                    val bytes = readPackFile(original.path)
+                    val expected = state.manifest?.files?.firstOrNull { it.path == original.path }?.sha256
+                    val actual = MessageDigest.getInstance("SHA-256").digest(bytes).joinToString("") { "%02x".format(it) }
+                    check(expected != null && actual.equals(expected, ignoreCase = true)) { "Контрольная сумма оригинала не совпадает" }
+                    requireNotNull(context.contentResolver.openOutputStream(uri)) { "Не удалось открыть файл для записи" }
+                        .use { it.write(bytes) }
+                }
+                "Оригинал сохранён. Откройте его в просмотрщике документов для печати."
+            } catch (error: kotlinx.coroutines.CancellationException) {
+                throw error
+            } catch (error: Exception) {
+                "Не удалось сохранить оригинал: ${error.message.orEmpty()}"
+            } finally {
+                exporting = false
+            }
+        }
+    }
     val documents = state.referenceDocuments.sortedBy { document ->
         when (document.id) {
             requestedDocumentId -> 0
@@ -640,7 +686,12 @@ internal fun ReferenceDocumentsScreen(
         }
     }
     var expandedId by rememberSaveable { mutableStateOf<String?>(requestedDocumentId) }
+    LaunchedEffect(requestedDocumentId) { if (requestedDocumentId != null) expandedId = requestedDocumentId }
     LazyColumn(modifier.imePadding().padding(16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        item {
+            Text("Комплект для печати: дорожная карта, инструкция, первое заявление и форма жалобы. Дорожная карта — приоритетный методический источник; пояснения к расхождениям приведены перед инструкцией. Счётчики находятся в отдельном разделе приложения.")
+        }
+        exportMessage?.let { message -> item { Text(message) } }
         if (state.manifest?.isDemo == true) item { DemoBanner() }
         if (requestedDocumentId != null) {
             item {
@@ -655,6 +706,12 @@ internal fun ReferenceDocumentsScreen(
                 Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Text(document.title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                     Text(document.description)
+                    document.original?.let { original ->
+                        OutlinedButton(enabled = !exporting && exportDocumentId == null, onClick = {
+                            exportDocumentId = document.id
+                            saveOriginal.launch(original)
+                        }) { Text("Сохранить оригинал ${if (original.mimeType == "application/pdf") "PDF" else "DOCX"}") }
+                    }
                     if (document.previewLines.isNotEmpty()) {
                         Surface(
                             modifier = Modifier.fillMaxWidth(),
@@ -704,7 +761,6 @@ internal fun ReferenceDocumentsScreen(
                             }
                         }
                     }
-                    Text("Файл пакета: ${document.contentPath}", style = MaterialTheme.typography.bodySmall)
                 }
             }
         }

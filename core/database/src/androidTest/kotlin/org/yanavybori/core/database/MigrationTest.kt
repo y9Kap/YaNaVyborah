@@ -45,8 +45,8 @@ class UserDatabaseMigrationTest {
 
     @Test
     fun current_schema_opens_and_validates() {
-        helper.createDatabase(DB_NAME, 3).close()
-        helper.runMigrationsAndValidate(DB_NAME, 3, true).close()
+        helper.createDatabase(DB_NAME, 4).close()
+        helper.runMigrationsAndValidate(DB_NAME, 4, true).close()
     }
 
     @Test
@@ -97,6 +97,27 @@ class UserDatabaseMigrationTest {
                 org.junit.Assert.assertEquals("{}", cursor.getString(0))
                 org.junit.Assert.assertEquals("[]", cursor.getString(1))
                 org.junit.Assert.assertTrue(cursor.isNull(2))
+            }
+        }
+    }
+
+    @Test
+    fun migration_3_4_preserves_item_marks_and_adds_independent_section_settings() {
+        helper.createDatabase(DB_NAME, 3).apply {
+            execSQL("INSERT INTO checklist_states VALUES ('mark', 'session', 'day', 'item', 'PROBLEM', 7)")
+            close()
+        }
+        helper.runMigrationsAndValidate(DB_NAME, 4, true, UserDatabase.MIGRATION_3_4).use { db ->
+            db.query("SELECT status, updatedAt FROM checklist_states WHERE id = 'mark'").use {
+                org.junit.Assert.assertTrue(it.moveToFirst())
+                org.junit.Assert.assertEquals("PROBLEM", it.getString(0))
+                org.junit.Assert.assertEquals(7, it.getLong(1))
+            }
+            db.execSQL("INSERT INTO checklist_sections VALUES ('session', 'day', 'section', 1, 1)")
+            db.execSQL("INSERT INTO checklist_sections VALUES ('session', 'other-day', 'section', 0, 0)")
+            db.query("SELECT COUNT(*) FROM checklist_sections").use {
+                it.moveToFirst()
+                org.junit.Assert.assertEquals(2, it.getInt(0))
             }
         }
     }

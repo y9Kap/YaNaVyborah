@@ -210,6 +210,11 @@ class ElectionPackImporter(
         require(content.referenceDocuments.all { it.contentPath in declaredPaths }) {
             "Справочный документ ссылается на отсутствующий файл"
         }
+        require(content.referenceDocuments.mapNotNull { it.original }.all {
+            it.path.isSafePackPath() && it.path in declaredPaths &&
+                it.mimeType.isNotBlank() && it.fileName.isNotBlank() &&
+                !it.fileName.contains('/') && !it.fileName.contains('\\')
+        }) { "Оригинал справочного документа ссылается на отсутствующий файл или содержит недопустимое имя" }
         content.reconciliationDefinitions.forEach { definition ->
             val fieldIds = definition.fields.map { it.id }.toSet()
             require(fieldIds.size == definition.fields.size) {

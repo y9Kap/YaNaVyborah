@@ -32,6 +32,15 @@ data class ChecklistItemState(
 enum class ChecklistStatus { NOT_CHECKED, OK, PROBLEM, NOT_APPLICABLE }
 
 @Serializable
+data class ChecklistSectionState(
+    val sessionId: String,
+    val votingDayId: String,
+    val definitionId: String,
+    val collapsed: Boolean = false,
+    val notApplicable: Boolean = false,
+)
+
+@Serializable
 data class JournalEvent(
     val id: String,
     val sessionId: String,

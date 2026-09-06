@@ -22,6 +22,7 @@ import org.yanavybori.core.model.EmergencyContactType
 import org.yanavybori.core.model.LawReference
 import org.yanavybori.core.model.ReconciliationDefinition
 import org.yanavybori.core.model.ReferenceDocument
+import org.yanavybori.core.model.ReferenceOriginal
 import org.yanavybori.core.model.Situation
 import org.yanavybori.core.model.VotingDayDefinition
 import org.yanavybori.core.model.VotingStageDefinition
@@ -97,6 +98,22 @@ class ElectionPackImporterTest {
         val error = capture { ElectionPackImporter(repository).import(testSource(contentVersion = 0)) }
         assertTrue(error is ElectionPackImportException.InvalidManifest)
         assertEquals(0, repository.replaceCount)
+    }
+
+    @Test
+    fun missing_or_damaged_original_never_replaces_pack() = runTest {
+        val document = ReferenceDocument("guide", "demo-pack", "Guide", "Guide", "guide.txt", "text/plain",
+            original = ReferenceOriginal("original.pdf", "application/pdf", "Original.pdf"))
+        val repository = FakeRepository()
+        val missing = testSource(referenceDocuments = listOf(document), referenceFiles = mapOf("guide.txt" to "Text".encodeToByteArray()))
+        assertTrue(capture { ElectionPackImporter(repository).import(missing) } is ElectionPackImportException.InvalidContent)
+        val valid = testSource(referenceDocuments = listOf(document), referenceFiles = mapOf(
+            "guide.txt" to "Text".encodeToByteArray(), "original.pdf" to "%PDF-fixture".encodeToByteArray()))
+        val damaged = MapSource(valid.files + ("original.pdf" to "broken".encodeToByteArray()))
+        assertTrue(capture { ElectionPackImporter(repository).import(damaged) } is ElectionPackImportException.HashMismatch)
+        assertEquals(0, repository.replaceCount)
+        ElectionPackImporter(repository).import(valid)
+        assertEquals(document.original, repository.content?.referenceDocuments?.single()?.original)
     }
 
     @Test

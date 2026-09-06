@@ -44,6 +44,15 @@ data class ChecklistStateEntity(
     val updatedAt: Long,
 )
 
+@Entity(tableName = "checklist_sections", primaryKeys = ["sessionId", "votingDayId", "definitionId"])
+data class ChecklistSectionEntity(
+    val sessionId: String,
+    val votingDayId: String,
+    val definitionId: String,
+    val collapsed: Boolean,
+    val notApplicable: Boolean,
+)
+
 @Entity(tableName = "journal_events")
 data class JournalEventEntity(
     @PrimaryKey val id: String,
@@ -163,6 +172,8 @@ abstract class ObservationDao {
     protected abstract suspend fun deleteCounters(sessionId: String)
     @Query("DELETE FROM checklist_states WHERE sessionId = :sessionId")
     protected abstract suspend fun deleteChecklistStates(sessionId: String)
+    @Query("DELETE FROM checklist_sections WHERE sessionId = :sessionId")
+    protected abstract suspend fun deleteChecklistSections(sessionId: String)
     @Query("DELETE FROM journal_events WHERE sessionId = :sessionId")
     protected abstract suspend fun deleteJournalEvents(sessionId: String)
     @Query("DELETE FROM complaints WHERE sessionId = :sessionId")
@@ -179,6 +190,7 @@ abstract class ObservationDao {
         deleteCounterMarks(sessionId)
         deleteCounters(sessionId)
         deleteChecklistStates(sessionId)
+        deleteChecklistSections(sessionId)
         deleteJournalEvents(sessionId)
         deleteComplaints(sessionId)
         deleteReconciliations(sessionId)
@@ -189,6 +201,10 @@ abstract class ObservationDao {
 
 @Dao
 interface ChecklistStateDao {
+    @Query("SELECT * FROM checklist_sections WHERE sessionId = :sessionId AND votingDayId = :votingDayId")
+    fun observeSections(sessionId: String, votingDayId: String): Flow<List<ChecklistSectionEntity>>
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsertSections(entities: List<ChecklistSectionEntity>)
     @Query("SELECT * FROM checklist_states WHERE sessionId = :sessionId AND votingDayId = :votingDayId")
     fun observe(sessionId: String, votingDayId: String): Flow<List<ChecklistStateEntity>>
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -316,6 +332,7 @@ interface MediaDao {
     entities = [
         ObservationSessionEntity::class,
         ChecklistStateEntity::class,
+        ChecklistSectionEntity::class,
         JournalEventEntity::class,
         ComplaintEntity::class,
         CounterSessionEntity::class,
@@ -325,7 +342,7 @@ interface MediaDao {
         MediaAssetEntity::class,
         PrivacyReportEntity::class,
     ],
-    version = 3,
+    version = 4,
     exportSchema = true,
 )
 abstract class UserDatabase : RoomDatabase() {
@@ -370,10 +387,20 @@ abstract class UserDatabase : RoomDatabase() {
             }
         }
 
+        val MIGRATION_3_4: Migration = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS checklist_sections (sessionId TEXT NOT NULL, " +
+                        "votingDayId TEXT NOT NULL, definitionId TEXT NOT NULL, collapsed INTEGER NOT NULL, " +
+                        "notApplicable INTEGER NOT NULL, PRIMARY KEY(sessionId, votingDayId, definitionId))",
+                )
+            }
+        }
+
         fun create(context: Context): UserDatabase = Room.databaseBuilder(
             context.applicationContext,
             UserDatabase::class.java,
             NAME,
-        ).addMigrations(MIGRATION_1_2, MIGRATION_2_3).build()
+        ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4).build()
     }
 }

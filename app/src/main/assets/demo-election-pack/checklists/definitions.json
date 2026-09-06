@@ -18,7 +18,8 @@
       "check-information-stand",
       "check-secret-voting-places",
       "check-observer-view"
-    ]
+    ],
+    "observationScope": "SHARED"
   },
   {
     "id": "checklist-roadmap-arrival",
@@ -39,7 +40,8 @@
       "roadmap-p01-r03",
       "roadmap-p01-r04",
       "roadmap-p01-r05"
-    ]
+    ],
+    "observationScope": "SHARED"
   },
   {
     "id": "checklist-roadmap-opening-friday",
@@ -59,7 +61,8 @@
       "roadmap-p01-r11",
       "roadmap-p01-r12",
       "roadmap-p01-r13"
-    ]
+    ],
+    "observationScope": "PRECINCT"
   },
   {
     "id": "checklist-roadmap-opening-saturday",
@@ -73,7 +76,8 @@
     ],
     "itemIds": [
       "roadmap-p01-r15"
-    ]
+    ],
+    "observationScope": "PRECINCT"
   },
   {
     "id": "checklist-roadmap-opening-weekend",
@@ -94,7 +98,8 @@
       "roadmap-p01-r19b",
       "roadmap-p01-r20",
       "roadmap-p01-r21"
-    ]
+    ],
+    "observationScope": "PRECINCT"
   },
   {
     "id": "checklist-roadmap-opening-sunday",
@@ -108,7 +113,8 @@
     ],
     "itemIds": [
       "roadmap-p01-r17"
-    ]
+    ],
+    "observationScope": "PRECINCT"
   },
   {
     "id": "checklist-roadmap-room-documents",
@@ -141,7 +147,8 @@
       "roadmap-p02-r05",
       "roadmap-p02-r06",
       "roadmap-p02-r07"
-    ]
+    ],
+    "observationScope": "PRECINCT"
   },
   {
     "id": "checklist-roadmap-general-voting",
@@ -170,7 +177,8 @@
       "roadmap-p02-r18",
       "roadmap-p02-r19",
       "roadmap-p02-r20a"
-    ]
+    ],
+    "observationScope": "PRECINCT"
   },
   {
     "id": "checklist-roadmap-home-common",
@@ -200,7 +208,8 @@
       "roadmap-p03-r06",
       "roadmap-p03-r08",
       "roadmap-p03-r09"
-    ]
+    ],
+    "observationScope": "HOME"
   },
   {
     "id": "checklist-roadmap-home-first-two-days",
@@ -217,7 +226,8 @@
     "itemIds": [
       "roadmap-p03-r05",
       "roadmap-p03-r07"
-    ]
+    ],
+    "observationScope": "HOME"
   },
   {
     "id": "checklist-roadmap-home-sunday",
@@ -231,7 +241,8 @@
     ],
     "itemIds": [
       "roadmap-p02-r21"
-    ]
+    ],
+    "observationScope": "HOME"
   },
   {
     "id": "checklist-roadmap-additional-voting",
@@ -254,7 +265,8 @@
       "roadmap-p03-r16",
       "roadmap-p03-r17",
       "roadmap-p03-r18"
-    ]
+    ],
+    "observationScope": "SHARED"
   },
   {
     "id": "checklist-roadmap-day-close",
@@ -274,7 +286,8 @@
       "roadmap-p03-r22",
       "roadmap-p03-r23",
       "roadmap-p03-r24a"
-    ]
+    ],
+    "observationScope": "SHARED"
   },
   {
     "id": "checklist-roadmap-count-start",
@@ -292,7 +305,8 @@
       "roadmap-p04-r01",
       "roadmap-p04-r02",
       "roadmap-p04-r03"
-    ]
+    ],
+    "observationScope": "SHARED"
   },
   {
     "id": "checklist-roadmap-voter-list-count",
@@ -314,7 +328,8 @@
       "roadmap-p04-r11",
       "roadmap-p04-r12",
       "roadmap-p04-r13a"
-    ]
+    ],
+    "observationScope": "SHARED"
   },
   {
     "id": "checklist-roadmap-direct-count",
@@ -356,7 +371,8 @@
       "roadmap-p05-r16",
       "roadmap-p05-r17",
       "roadmap-p05-r18"
-    ]
+    ],
+    "observationScope": "SHARED"
   },
   {
     "id": "checklist-roadmap-final-meeting",
@@ -374,7 +390,8 @@
       "roadmap-p05-r22",
       "roadmap-p05-r23",
       "roadmap-p05-r24"
-    ]
+    ],
+    "observationScope": "SHARED"
   },
   {
     "id": "checklist-roadmap-protocol-copy",
@@ -398,7 +415,8 @@
       "roadmap-p06-r06",
       "roadmap-p06-r07",
       "roadmap-p06-r08"
-    ]
+    ],
+    "observationScope": "SHARED"
   },
   {
     "id": "checklist-roadmap-protocol-original-check",
@@ -422,7 +440,8 @@
       "roadmap-p07-protocol-09",
       "roadmap-p07-protocol-10",
       "roadmap-p07-protocol-11"
-    ]
+    ],
+    "observationScope": "SHARED"
   },
   {
     "id": "checklist-roadmap-protocol-copy-check",
@@ -445,7 +464,8 @@
       "roadmap-p07-copy-08",
       "roadmap-p07-copy-09",
       "roadmap-p07-copy-10"
-    ]
+    ],
+    "observationScope": "SHARED"
   },
   {
     "id": "checklist-roadmap-safe-pack-act",
@@ -465,6 +485,7 @@
       "roadmap-p07-safe-pack-act-01",
       "roadmap-p07-safe-pack-act-02",
       "roadmap-p07-safe-pack-act-03"
-    ]
+    ],
+    "observationScope": "SHARED"
   }
 ]

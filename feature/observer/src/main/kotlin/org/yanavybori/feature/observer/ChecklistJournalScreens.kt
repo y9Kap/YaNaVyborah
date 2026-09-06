@@ -49,6 +49,7 @@ import org.yanavybori.core.model.EventSeverity
 import org.yanavybori.core.model.JournalCategory
 import org.yanavybori.core.model.JournalEvent
 import org.yanavybori.core.model.MediaSource
+import org.yanavybori.core.model.ObservationScope
 import org.yanavybori.core.navigation.ObserverRoute
 import org.yanavybori.core.ui.StatusPill
 
@@ -59,7 +60,8 @@ internal fun ChecklistScreen(
     modifier: Modifier,
     navigate: (ObserverRoute) -> Unit,
 ) {
-    val dayId = state.activeSession?.currentVotingDay ?: return
+    val session = state.activeSession ?: return
+    val dayId = session.currentVotingDay
     val itemsById = state.checklistItems.associateBy { it.id }
     val visibleDefinitions = state.checklistDefinitions
         .filter { dayId in it.votingDayIds }
@@ -67,6 +69,7 @@ internal fun ChecklistScreen(
             definition.itemIds.mapNotNull(itemsById::get).minOfOrNull(ChecklistItem::order) ?: Int.MAX_VALUE
         }
     val statuses = state.checklistStates.associateBy { it.checklistItemId }
+    var showObservationSettings by rememberSaveable(session.id, dayId) { mutableStateOf(false) }
     var problemTargetItemId by rememberSaveable { mutableStateOf<String?>(null) }
     var problemTargetEvent by remember { mutableStateOf<JournalEvent?>(null) }
     var showComplaintTemplates by rememberSaveable { mutableStateOf(false) }
@@ -94,6 +97,28 @@ internal fun ChecklistScreen(
                 style = MaterialTheme.typography.bodyMedium,
             )
         }
+        item {
+            Card(Modifier.fillMaxWidth()) {
+                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("Моё наблюдение в этот день", style = MaterialTheme.typography.titleMedium)
+                    Text("Не применимы разделы: ${visibleDefinitions.count { state.sectionState(it).notApplicable }} из ${visibleDefinitions.size}")
+                    TextButton(onClick = { showObservationSettings = !showObservationSettings }) {
+                        Text(if (showObservationSettings) "Скрыть настройки" else "На участке / На дому — настроить")
+                    }
+                    if (showObservationSettings) {
+                        Text("Выберите, где наблюдаете. Разделы другого места станут «Не применимо». Подготовка, хранение и подсчёт остаются доступны; любой раздел можно настроить отдельно. Уже сделанные отметки сохранятся.")
+                        OutlinedButton(onClick = { viewModel.setObservationScope(ObservationScope.PRECINCT) }, modifier = Modifier.fillMaxWidth()) {
+                            Text("Остаюсь на участке")
+                        }
+                        OutlinedButton(onClick = { viewModel.setObservationScope(ObservationScope.HOME) }, modifier = Modifier.fillMaxWidth()) {
+                            Text("Еду на дом")
+                        }
+                        TextButton(onClick = { viewModel.setObservationScope(ObservationScope.SHARED) }) { Text("Наблюдаю и там, и там") }
+                        Text("При трёхдневном голосовании рекомендуем оставаться на участке, если выезд не поручен вам отдельно: здесь важен непрерывный контроль ящиков, хранения бюллетеней и подсчёта. Утверждение, что нарушения на дому встречаются реже, не подтверждено материалами комплекта. Распределите наблюдение со своей командой.", style = MaterialTheme.typography.bodySmall)
+                    }
+                }
+            }
+        }
         if (visibleDefinitions.any { definition ->
                 definition.itemIds.mapNotNull(itemsById::get).any { it.sourceDocumentId == "reference-roadmap" }
             }) {
@@ -106,11 +131,21 @@ internal fun ChecklistScreen(
             }
         }
         visibleDefinitions.forEach { definition ->
+            val section = state.sectionState(definition)
             item(key = "section:${definition.id}") {
-                Text(definition.title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(definition.title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                    Text(if (section.notApplicable) "Раздел не применим в этот день • ${definition.itemIds.size} пунктов" else "${definition.itemIds.size} пунктов")
+                    if (!section.notApplicable) TextButton(onClick = {
+                        viewModel.setChecklistSection(section.copy(collapsed = !section.collapsed))
+                    }) { Text(if (section.collapsed) "Развернуть раздел" else "Свернуть раздел") }
+                    TextButton(onClick = {
+                        viewModel.setChecklistSection(section.copy(notApplicable = !section.notApplicable, collapsed = !section.notApplicable))
+                    }) { Text(if (section.notApplicable) "Вернуть раздел" else "Весь раздел не применим") }
+                }
             }
             val sectionItems = definition.itemIds.mapNotNull(itemsById::get).sortedBy { it.order }
-            items(sectionItems, key = { it.id }) { item ->
+            if (!section.collapsed && !section.notApplicable) items(sectionItems, key = { it.id }) { item ->
                 val relatedProblemEvent = state.journalEvents
                     .filter {
                         it.votingDayId == dayId && it.relatedChecklistItemId == item.id &&

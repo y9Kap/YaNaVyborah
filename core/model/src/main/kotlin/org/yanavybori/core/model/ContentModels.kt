@@ -74,7 +74,11 @@ data class ChecklistDefinition(
     val votingDayIds: List<String>,
     val stageIds: List<String> = emptyList(),
     val itemIds: List<String>,
+    val observationScope: ObservationScope = ObservationScope.SHARED,
 )
+
+@Serializable
+enum class ObservationScope { SHARED, PRECINCT, HOME }
 
 @Serializable
 data class ChecklistItem(
@@ -222,7 +226,11 @@ data class ReferenceDocument(
     val hotspots: List<ReferenceHotspot> = emptyList(),
     val previewLines: List<String> = emptyList(),
     val tags: List<String> = emptyList(),
+    val original: ReferenceOriginal? = null,
 )
+
+@Serializable
+data class ReferenceOriginal(val path: String, val mimeType: String, val fileName: String)
 
 @Serializable
 data class ReferenceHotspot(

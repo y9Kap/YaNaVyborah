@@ -9,6 +9,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.isImeVisible
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -47,15 +53,11 @@ import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.yanavybori.core.common.SESSION_DELETION_PASSWORD_MIN_LENGTH
-import org.yanavybori.core.model.ChecklistStatus
 import org.yanavybori.core.model.CounterMark
 import org.yanavybori.core.model.CounterSession
 import org.yanavybori.core.model.JournalEvent
@@ -63,9 +65,10 @@ import org.yanavybori.core.model.ObservationSession
 import org.yanavybori.core.model.VotingDayDefinition
 import org.yanavybori.core.navigation.ObserverRoute
 import org.yanavybori.core.ui.AppCard
+import org.yanavybori.core.ui.AppHelpButton
 import org.yanavybori.core.ui.DemoBanner
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
 fun ObserverFeature(
     dependencies: ObserverDependencies,
@@ -132,11 +135,12 @@ fun ObserverFeature(
                         Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "Назад")
                     }
                 },
+                actions = { AppHelpButton() },
             )
         },
         snackbarHost = { SnackbarHost(snackbar) },
         bottomBar = {
-            CompactCounterBar(
+            if (!WindowInsets.isImeVisible) CompactCounterBar(
                 counters = state.counters.filter { it.stoppedAt == null },
                 lastMarks = state.counterLastMarks,
                 onOpen = { navigateTo(ObserverRoute.COUNTERS) },
@@ -145,7 +149,7 @@ fun ObserverFeature(
             )
         },
     ) { padding ->
-        val contentModifier = Modifier.padding(padding).fillMaxSize()
+        val contentModifier = Modifier.padding(padding).consumeWindowInsets(padding).fillMaxSize()
         saveableStateHolder.SaveableStateProvider(route.name) {
             when (route) {
                 ObserverRoute.HOME -> ObserverHomeScreen(state, viewModel, contentModifier, ::navigateTo)
@@ -179,6 +183,7 @@ fun ObserverFeature(
                     state,
                     contentModifier,
                     requestedReferenceDocumentId,
+                    dependencies.readPackFile,
                 )
                 ObserverRoute.EMERGENCY_CONTACTS -> EmergencyContactsScreen(state, contentModifier)
             }
@@ -194,12 +199,13 @@ private fun SessionSetupScreen(
     snackbar: SnackbarHostState,
 ) {
     var observerFullName by rememberSaveable { mutableStateOf("") }
+    DisableSessionAutofill()
     var region by rememberSaveable { mutableStateOf("") }
     var precinct by rememberSaveable { mutableStateOf("") }
     var precinctName by rememberSaveable { mutableStateOf("") }
     var commissionMembers by rememberSaveable { mutableStateOf("") }
-    var deletionPassword by rememberSaveable { mutableStateOf("") }
-    var deletionPasswordConfirmation by rememberSaveable { mutableStateOf("") }
+    var deletionPassword by remember { mutableStateOf("") }
+    var deletionPasswordConfirmation by remember { mutableStateOf("") }
     var selectedDayId by rememberSaveable { mutableStateOf("") }
     LaunchedEffect(state.votingDays) {
         if (selectedDayId.isBlank()) selectedDayId = state.votingDays.minByOrNull { it.order }?.id.orEmpty()
@@ -208,12 +214,15 @@ private fun SessionSetupScreen(
         deletionPassword.isNotBlank() && deletionPassword == deletionPasswordConfirmation
     Scaffold(snackbarHost = { SnackbarHost(snackbar) }) { padding ->
         LazyColumn(
-            Modifier.fillMaxSize().padding(padding).imePadding().padding(20.dp),
+            Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding).imePadding().padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             item {
-                Text("Новая сессия наблюдения", style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("Новая сессия наблюдения", style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+                    AppHelpButton()
+                }
             }
             if (state.manifest?.isDemo == true) item { DemoBanner() }
             item {
@@ -286,7 +295,7 @@ private fun SessionSetupScreen(
                 )
             }
             item {
-                OutlinedTextField(
+                SessionPasswordField(
                     value = deletionPassword,
                     onValueChange = { deletionPassword = it },
                     modifier = Modifier.fillMaxWidth(),
@@ -294,13 +303,10 @@ private fun SessionSetupScreen(
                     supportingText = {
                         Text("Не менее $SESSION_DELETION_PASSWORD_MIN_LENGTH символов")
                     },
-                    visualTransformation = PasswordVisualTransformation(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                    singleLine = true,
                 )
             }
             item {
-                OutlinedTextField(
+                SessionPasswordField(
                     value = deletionPasswordConfirmation,
                     onValueChange = { deletionPasswordConfirmation = it },
                     modifier = Modifier.fillMaxWidth(),
@@ -314,9 +320,6 @@ private fun SessionSetupScreen(
                     },
                     isError = deletionPasswordConfirmation.isNotEmpty() &&
                         deletionPassword != deletionPasswordConfirmation,
-                    visualTransformation = PasswordVisualTransformation(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                    singleLine = true,
                 )
             }
             item {
@@ -331,6 +334,8 @@ private fun SessionSetupScreen(
                             deletionPassword = deletionPassword,
                             votingDayId = selectedDayId,
                         )
+                        deletionPassword = ""
+                        deletionPasswordConfirmation = ""
                     },
                     enabled = observerFullName.isNotBlank() && region.isNotBlank() &&
                         precinct.isNotBlank() && selectedDayId.isNotBlank() && passwordIsValid,
@@ -352,14 +357,9 @@ private fun ObserverHomeScreen(
     val session = state.activeSession ?: return
     var showDeleteDialog by rememberSaveable { mutableStateOf(false) }
     var eventDraft by remember { mutableStateOf<JournalEvent?>(null) }
-    val dayDefinitionIds = state.checklistDefinitions
-        .filter { session.currentVotingDay in it.votingDayIds }
-        .flatMap { it.itemIds }
-        .toSet()
-    val done = state.checklistStates.count {
-        it.checklistItemId in dayDefinitionIds && it.status != ChecklistStatus.NOT_CHECKED
-    }
-    val total = dayDefinitionIds.size
+    val progress = state.checklistProgress()
+    val done = progress.checked
+    val total = progress.total
     LazyColumn(
         modifier.padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -388,6 +388,7 @@ private fun ObserverHomeScreen(
                         modifier = Modifier.fillMaxWidth(),
                     )
                     Text("Проверено: $done из $total")
+                    if (progress.notApplicable > 0) Text("Не применимо: ${progress.notApplicable}")
                     Text(
                         "Открыть чек-лист текущего дня",
                         style = MaterialTheme.typography.labelMedium,
@@ -476,14 +477,14 @@ private fun ObserverHomeScreen(
 }
 
 @Composable
-private fun DeleteSessionDialog(
+internal fun DeleteSessionDialog(
     session: ObservationSession,
     onDismiss: () -> Unit,
     onSetPassword: (String, () -> Unit) -> Unit,
     onDelete: (String) -> Unit,
 ) {
-    var password by rememberSaveable(session.id, session.hasDeletionPassword) { mutableStateOf("") }
-    var confirmation by rememberSaveable(session.id, session.hasDeletionPassword) { mutableStateOf("") }
+    var password by remember(session.id, session.hasDeletionPassword) { mutableStateOf("") }
+    var confirmation by remember(session.id, session.hasDeletionPassword) { mutableStateOf("") }
     val isLegacySession = !session.hasDeletionPassword
     val canSetPassword = password.length >= SESSION_DELETION_PASSWORD_MIN_LENGTH &&
         password.isNotBlank() && password == confirmation
@@ -494,8 +495,9 @@ private fun DeleteSessionDialog(
             Text(if (isLegacySession) "Защитить удаление" else "Удалить сессию?")
         },
         text = {
+            DisableSessionAutofill()
             Column(
-                Modifier.imePadding(),
+                Modifier.verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 Text(
@@ -505,17 +507,14 @@ private fun DeleteSessionDialog(
                         "Будут удалены чек-листы, журнал, жалобы, счётчики, сверки, снимки протоколов и связанные медиафайлы этой сессии. Действие необратимо."
                     },
                 )
-                OutlinedTextField(
+                SessionPasswordField(
                     value = password,
                     onValueChange = { password = it },
                     label = { Text(if (isLegacySession) "Новый пароль" else "Пароль сессии") },
                     modifier = Modifier.fillMaxWidth(),
-                    visualTransformation = PasswordVisualTransformation(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                    singleLine = true,
                 )
                 if (isLegacySession) {
-                    OutlinedTextField(
+                    SessionPasswordField(
                         value = confirmation,
                         onValueChange = { confirmation = it },
                         label = { Text("Повторите пароль") },
@@ -528,9 +527,6 @@ private fun DeleteSessionDialog(
                                 Text("Не менее $SESSION_DELETION_PASSWORD_MIN_LENGTH символов")
                             }
                         },
-                        visualTransformation = PasswordVisualTransformation(),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                        singleLine = true,
                     )
                 }
             }
@@ -585,7 +581,7 @@ private fun CompactCounterBar(
     onIncrement: (String) -> Unit,
     onDecrement: (String) -> Unit,
 ) {
-    Surface(shadowElevation = 8.dp, tonalElevation = 3.dp) {
+    Surface(modifier = Modifier.navigationBarsPadding(), shadowElevation = 8.dp, tonalElevation = 3.dp) {
         if (counters.isEmpty()) {
             Row(
                 Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),

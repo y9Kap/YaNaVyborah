@@ -33,6 +33,8 @@ import org.yanavybori.core.model.ChecklistDefinition
 import org.yanavybori.core.model.ChecklistItem
 import org.yanavybori.core.model.ChecklistItemState
 import org.yanavybori.core.model.ChecklistStatus
+import org.yanavybori.core.model.ChecklistSectionState
+import org.yanavybori.core.model.ObservationScope
 import org.yanavybori.core.model.Complaint
 import org.yanavybori.core.model.ComplaintStatus
 import org.yanavybori.core.model.ComplaintTemplate
@@ -65,6 +67,7 @@ data class ObserverDependencies(
     val reconciliationRepository: ReconciliationRepository,
     val protocolRepository: ProtocolRepository,
     val mediaRepository: MediaRepository,
+    val readPackFile: suspend (String) -> ByteArray = { error("Оригинал документа недоступен") },
     val reconciliationEngine: ReconciliationEngine = ReconciliationEngine(),
     val clock: Clock = SystemClock,
     val ids: IdGenerator = UuidGenerator,
@@ -76,6 +79,7 @@ data class ObserverUiState(
     val checklistDefinitions: List<ChecklistDefinition> = emptyList(),
     val checklistItems: List<ChecklistItem> = emptyList(),
     val checklistStates: List<ChecklistItemState> = emptyList(),
+    val checklistSections: List<ChecklistSectionState> = emptyList(),
     val situations: List<Situation> = emptyList(),
     val laws: List<LawReference> = emptyList(),
     val complaintTemplates: List<ComplaintTemplate> = emptyList(),
@@ -119,8 +123,11 @@ class ObserverViewModel(
         }
         viewModelScope.launch {
             dependencies.observationRepository.observeActiveSession().collectLatest { session ->
-                mutableState.update { it.copy(activeSession = session) }
                 sessionJob?.cancel()
+                mutableState.update {
+                    it.copy(activeSession = session, checklistStates = emptyList(), checklistSections = emptyList(),
+                        counters = emptyList(), counterLastMarks = emptyMap())
+                }
                 if (session != null) sessionJob = collectSession(session)
                 else clearSessionData()
             }
@@ -149,6 +156,7 @@ class ObserverViewModel(
         mutableState.update { it.copy(counterLastMarks = emptyMap()) }
         coroutineScope {
             launch { dependencies.observationRepository.observeChecklistStates(session.id, session.currentVotingDay).collectLatest { value -> mutableState.update { it.copy(checklistStates = value) } } }
+            launch { dependencies.observationRepository.observeChecklistSections(session.id, session.currentVotingDay).collectLatest { value -> mutableState.update { it.copy(checklistSections = value) } } }
             launch { dependencies.journalRepository.observeEvents(session.id).collectLatest { value -> mutableState.update { it.copy(journalEvents = value) } } }
             launch { dependencies.complaintRepository.observeComplaints(session.id).collectLatest { value -> mutableState.update { it.copy(complaints = value) } } }
             launch { dependencies.counterRepository.observeCounters(session.id, session.currentVotingDay).collectLatest { value -> mutableState.update { it.copy(counters = value) } } }
@@ -169,6 +177,7 @@ class ObserverViewModel(
         mutableState.update {
             it.copy(
                 checklistStates = emptyList(),
+                checklistSections = emptyList(),
                 journalEvents = emptyList(),
                 complaints = emptyList(),
                 counters = emptyList(),
@@ -252,6 +261,22 @@ class ObserverViewModel(
         )
         if (event != null) dependencies.journalRepository.update(event)
         onUpdated(update.copy(journalEvent = event))
+    }
+
+    fun setChecklistSection(section: ChecklistSectionState) = task {
+        dependencies.observationRepository.setChecklistSections(listOf(section))
+    }
+
+    fun setObservationScope(scope: ObservationScope) = task {
+        val current = state.value
+        val session = requireNotNull(current.activeSession)
+        val sections = current.checklistDefinitions.filter {
+            session.currentVotingDay in it.votingDayIds && it.observationScope != ObservationScope.SHARED
+        }.map { definition ->
+            val excluded = scope != ObservationScope.SHARED && definition.observationScope != scope
+            current.sectionState(definition).copy(notApplicable = excluded, collapsed = excluded)
+        }
+        dependencies.observationRepository.setChecklistSections(sections)
     }
 
     fun newEventDraft(): JournalEvent {

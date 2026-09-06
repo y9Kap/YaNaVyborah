@@ -5,6 +5,7 @@ import org.yanavybori.core.model.ChecklistDefinition
 import org.yanavybori.core.model.ChecklistItem
 import org.yanavybori.core.model.ChecklistItemState
 import org.yanavybori.core.model.ChecklistStatus
+import org.yanavybori.core.model.ChecklistSectionState
 import org.yanavybori.core.model.Complaint
 import org.yanavybori.core.model.ComplaintStatus
 import org.yanavybori.core.model.ComplaintTemplate
@@ -73,6 +74,8 @@ interface ObservationRepository {
     suspend fun setDeletionPassword(sessionId: String, password: String)
     suspend fun deleteSession(sessionId: String, password: String)
     fun observeChecklistStates(sessionId: String, votingDayId: String): Flow<List<ChecklistItemState>>
+    fun observeChecklistSections(sessionId: String, votingDayId: String): Flow<List<ChecklistSectionState>>
+    suspend fun setChecklistSections(sections: List<ChecklistSectionState>)
     suspend fun setChecklistState(
         sessionId: String,
         votingDayId: String,

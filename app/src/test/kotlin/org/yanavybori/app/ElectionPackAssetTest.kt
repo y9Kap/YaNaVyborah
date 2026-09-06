@@ -19,8 +19,8 @@ class ElectionPackAssetTest {
         val pack = findPackDirectory()
         val manifest = parseObject(pack.resolve("manifest.json"))
 
-        assertEquals("2026.09.02-roadmap-2026.09.18-20", manifest.string("version"))
-        assertEquals(6, manifest.int("contentVersion"))
+        assertEquals("2026.09.06-observer-kit", manifest.string("version"))
+        assertEquals(7, manifest.int("contentVersion"))
         assertEquals("2026-09-18", manifest.string("validFrom"))
         assertEquals("2026-09-20", manifest.string("validUntil"))
         assertTrue("Приоритетный источник" in manifest.string("publisher"))
@@ -65,6 +65,22 @@ class ElectionPackAssetTest {
         assertEquals(listOf("SUM_LESS_OR_EQUAL", "SUM_EQUALS_SUM", "SUM_EQUALS_SUM", "EQUAL"), ruleTypes)
 
         val documents = parseArray(pack.resolve("reference_documents/documents.json")).map { it.jsonObject }
+        val originals = documents.mapNotNull { it["original"]?.jsonObject }
+        assertEquals(4, originals.size)
+        originals.forEach { original ->
+            val originalFile = pack.resolve(original.string("path"))
+            assertTrue(originalFile.length() > 1000)
+            assertTrue(manifest.array("files").any { it.jsonObject.string("path") == original.string("path") })
+        }
+        assertEquals("dc806ab8f7f48b41a9e4425c115dba07963b7e362d63767ed188d2fe6c7ac162",
+            sha256(pack.resolve("reference_documents/originals/roadmap.pdf")))
+        val instruction = pack.resolve("reference_documents/source_party_instruction.txt").readText()
+        assertTrue(instruction.indexOf("решение принимает суд") < instruction.indexOf("ДАЛЕЕ — ИСХОДНЫЙ"))
+        assertTrue(instruction.contains("При расхождениях используйте дорожную карту"))
+        val definitions = parseArray(pack.resolve("checklists/definitions.json")).map { it.jsonObject }
+        assertEquals(3, definitions.count { it.optionalString("observationScope") == "HOME" })
+        assertTrue(definitions.filter { it.string("id").contains("protocol") }
+            .all { it.optionalString("observationScope") == "SHARED" })
         assertFalse(documents.any { "конспект" in it.string("description").lowercase() })
         assertEquals("reference_documents/source_roadmap.txt",
             documents.single { it.string("id") == "reference-roadmap" }.string("contentPath"))

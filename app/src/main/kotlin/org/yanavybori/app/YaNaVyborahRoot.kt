@@ -33,6 +33,7 @@ import kotlinx.coroutines.launch
 import org.yanavybori.core.model.ElectionPackManifest
 import org.yanavybori.core.navigation.RootRoute
 import org.yanavybori.core.ui.AppCard
+import org.yanavybori.core.ui.AppHelpButton
 import org.yanavybori.core.ui.DemoBanner
 import org.yanavybori.feature.observer.ObserverFeature
 import org.yanavybori.feature.settings.SettingsScreen
@@ -100,6 +101,7 @@ private fun HomeScreen(manifest: ElectionPackManifest?, navigate: (RootRoute) ->
             TopAppBar(
                 title = { Text(stringResource(R.string.app_name), fontWeight = FontWeight.Bold) },
                 actions = {
+                    AppHelpButton()
                     IconButton(onClick = { navigate(RootRoute.SETTINGS) }) {
                         Icon(Icons.Outlined.Settings, contentDescription = "Настройки")
                     }

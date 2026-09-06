@@ -35,6 +35,7 @@ import org.yanavybori.core.common.SystemClock
 import org.yanavybori.core.common.UuidGenerator
 import org.yanavybori.core.model.ChecklistItemState
 import org.yanavybori.core.model.ChecklistStatus
+import org.yanavybori.core.model.ChecklistSectionState
 import org.yanavybori.core.model.Complaint
 import org.yanavybori.core.model.ComplaintStatus
 import org.yanavybori.core.model.CounterMark
@@ -256,6 +257,20 @@ class RoomObservationRepository(
 
     override fun observeChecklistStates(sessionId: String, votingDayId: String): Flow<List<ChecklistItemState>> =
         checklistStateDao.observe(sessionId, votingDayId).map { rows -> rows.map { it.toModel() } }
+
+    override fun observeChecklistSections(sessionId: String, votingDayId: String): Flow<List<ChecklistSectionState>> =
+        checklistStateDao.observeSections(sessionId, votingDayId).map { rows ->
+            rows.map { ChecklistSectionState(it.sessionId, it.votingDayId, it.definitionId, it.collapsed, it.notApplicable) }
+        }
+
+    override suspend fun setChecklistSections(sections: List<ChecklistSectionState>) {
+        sections.map { it.sessionId }.distinct().forEach {
+            requireNotNull(observationDao.get(it)) { "Сессия наблюдения не найдена" }
+        }
+        checklistStateDao.upsertSections(sections.map {
+            ChecklistSectionEntity(it.sessionId, it.votingDayId, it.definitionId, it.collapsed, it.notApplicable)
+        })
+    }
 
     override suspend fun setChecklistState(
         sessionId: String,

@@ -1,13 +1,13 @@
 {
   "id": "ru-observer-methodical-pack",
   "name": "Дорожная карта наблюдателя: 18–20 сентября 2026",
-  "version": "2026.09.02-roadmap-2026.09.18-20",
+  "version": "2026.09.06-observer-kit",
   "locale": "ru-RU",
   "jurisdiction": "RU",
   "electionType": "THREE_DAY_MANUAL_COUNT",
   "validFrom": "2026-09-18",
   "validUntil": "2026-09-20",
-  "contentVersion": 6,
+  "contentVersion": 7,
   "schemaVersion": 2,
   "publisher": "Приоритетный источник: «Дорожная карта наблюдателя» от 31.08.2026 для голосования 18–20.09.2026; остальные материалы пакета вспомогательные",
   "isDemo": false,
@@ -34,7 +34,7 @@
     },
     {
       "path": "checklists/definitions.json",
-      "sha256": "426e96293243d2d8b5e5c0e6fd36809d9e98b45b90c6f642e62fa02bbed03475"
+      "sha256": "a876799f491546074f1a20584578039b0c0098a5b5de9f03e005d9cd30007545"
     },
     {
       "path": "checklists/items.json",
@@ -50,7 +50,7 @@
     },
     {
       "path": "complaint_templates/templates.json",
-      "sha256": "5ad07578fca0b083ea0439138d41ddb3d87922adf339c579801818f06d918c3a"
+      "sha256": "07d61194474412bbb998bc51dc82ce160178101264aa9b6ce8a93e2f08d1e178"
     },
     {
       "path": "reconciliation_rules/forms.json",
@@ -58,7 +58,7 @@
     },
     {
       "path": "reference_documents/documents.json",
-      "sha256": "9b61a6f4c2f0609fd8f74c785ef5c0e69dd412b7c032c51787a59b977b5d723d"
+      "sha256": "2f206de8d2e3bede49cce7292135b79efcb80aa362c4f0ce8ebc010511e59103"
     },
     {
       "path": "reference_documents/source_conflict_guide.txt",
@@ -109,17 +109,52 @@
       "path": "reference_documents/source_roadmap.txt",
       "sha256": "638c7b5e9dfbd8e8979319d102ed78a6af5b6214e7497115bc0c8e92ba8defa0",
       "mediaType": "text/plain"
+    },
+    {
+      "path": "reference_documents/source_first_statement.txt",
+      "sha256": "929f276f7705b579095a5a08242238fa8b288843448d2ac3bb6c9ee0d16620f2",
+      "mediaType": "text/plain"
+    },
+    {
+      "path": "reference_documents/source_general_complaint.txt",
+      "sha256": "96f2536d861c7b81f4f5365dfe40a09e8d1db4d95b19793c5bb1a7ca3609840d",
+      "mediaType": "text/plain"
+    },
+    {
+      "path": "reference_documents/source_party_instruction.txt",
+      "sha256": "e55bae4608f8010aeabdf38a61584ff8c4220fb1c8db660e9a774b5b0a1d4ebc",
+      "mediaType": "text/plain"
+    },
+    {
+      "path": "reference_documents/originals/roadmap.pdf",
+      "sha256": "dc806ab8f7f48b41a9e4425c115dba07963b7e362d63767ed188d2fe6c7ac162",
+      "mediaType": "application/pdf"
+    },
+    {
+      "path": "reference_documents/originals/first_statement.pdf",
+      "sha256": "926b40120f234fa81e879a8e2ce0d85431351462063dc7d7ea506c11f4f8a918",
+      "mediaType": "application/pdf"
+    },
+    {
+      "path": "reference_documents/originals/general_complaint.pdf",
+      "sha256": "8279d5dcad9add328cf9afbcb7bf423e376b995d88af80e558f7387e0317d8cd",
+      "mediaType": "application/pdf"
+    },
+    {
+      "path": "reference_documents/originals/instruction.docx",
+      "sha256": "4847deb09fc95ca2e05a105ecca9d75f0397a162246fee5408a10395a2de34d6",
+      "mediaType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     }
   ],
   "hashes": {
     "voting_days.json": "00093b98604c8c8971fbf87aa0be764489e129d8250e53624471a0c444652a16",
-    "checklists/definitions.json": "426e96293243d2d8b5e5c0e6fd36809d9e98b45b90c6f642e62fa02bbed03475",
+    "checklists/definitions.json": "a876799f491546074f1a20584578039b0c0098a5b5de9f03e005d9cd30007545",
     "checklists/items.json": "93fee1a0f01d246c52584fbd3437850dc774d35b9bbe44064b05bce9a2304f08",
     "situations/situations.json": "7c2d08c8c8e908532665ee36a03f41b145bb102d642867713c3de88c439dc865",
     "laws/laws.json": "ee440130c846fa8d51e6304a98de5552477a2877f87e25f4de6e981a2cfc6819",
-    "complaint_templates/templates.json": "5ad07578fca0b083ea0439138d41ddb3d87922adf339c579801818f06d918c3a",
+    "complaint_templates/templates.json": "07d61194474412bbb998bc51dc82ce160178101264aa9b6ce8a93e2f08d1e178",
     "reconciliation_rules/forms.json": "135a8184e0b87a1b3db20ad15b80bc8e9bb67cf3b28968cb8c87db077df2de5f",
-    "reference_documents/documents.json": "9b61a6f4c2f0609fd8f74c785ef5c0e69dd412b7c032c51787a59b977b5d723d",
+    "reference_documents/documents.json": "2f206de8d2e3bede49cce7292135b79efcb80aa362c4f0ce8ebc010511e59103",
     "reference_documents/source_conflict_guide.txt": "0b0e8a681636ea749424fcd1cbbd6066899e68ea64d8ad3d910c759bebe3eb8f",
     "reference_documents/source_multiday_guide.txt": "72a248f01f944e0ebbf4df0483a4779070d1fecf19f79c41f8f2477f277285ca",
     "reference_documents/source_general_guide.txt": "7307729c14ff4737d312bb5f817711dc15da0d7830522a65bfc9994bd4681876",
@@ -129,7 +164,14 @@
     "reference_documents/source_counting_checklist.txt": "094b22c42fc15accb365b1b8f0872e8f22fab9323a1ea4e3b5368a29161cdafb",
     "reference_documents/source_preparation_checklist.txt": "7fc71afd59a78f1de5b870b1a01e39e50ed50688e8cdd207119524fa227ff6f2",
     "reference_documents/source_home_checklist.txt": "cd4643c28663cce30f2f7ec8eeb768b8728116311c970de72f138c3309b9ef77",
-    "reference_documents/source_roadmap.txt": "638c7b5e9dfbd8e8979319d102ed78a6af5b6214e7497115bc0c8e92ba8defa0"
+    "reference_documents/source_roadmap.txt": "638c7b5e9dfbd8e8979319d102ed78a6af5b6214e7497115bc0c8e92ba8defa0",
+    "reference_documents/source_first_statement.txt": "929f276f7705b579095a5a08242238fa8b288843448d2ac3bb6c9ee0d16620f2",
+    "reference_documents/source_general_complaint.txt": "96f2536d861c7b81f4f5365dfe40a09e8d1db4d95b19793c5bb1a7ca3609840d",
+    "reference_documents/source_party_instruction.txt": "e55bae4608f8010aeabdf38a61584ff8c4220fb1c8db660e9a774b5b0a1d4ebc",
+    "reference_documents/originals/roadmap.pdf": "dc806ab8f7f48b41a9e4425c115dba07963b7e362d63767ed188d2fe6c7ac162",
+    "reference_documents/originals/first_statement.pdf": "926b40120f234fa81e879a8e2ce0d85431351462063dc7d7ea506c11f4f8a918",
+    "reference_documents/originals/general_complaint.pdf": "8279d5dcad9add328cf9afbcb7bf423e376b995d88af80e558f7387e0317d8cd",
+    "reference_documents/originals/instruction.docx": "4847deb09fc95ca2e05a105ecca9d75f0397a162246fee5408a10395a2de34d6"
   },
   "optionalSignature": null
 }

@@ -23,7 +23,82 @@
       "протокол",
       "жалоба",
       "горячая линия"
-    ]
+    ],
+    "original": {
+      "path": "reference_documents/originals/roadmap.pdf",
+      "mimeType": "application/pdf",
+      "fileName": "Дорожная карта наблюдателя.pdf"
+    }
+  },
+  {
+    "id": "reference-first-statement",
+    "packId": "ru-observer-methodical-pack",
+    "title": "Первое заявление — копия протокола и уведомление о съёмке",
+    "description": "Бланк из комплекта партии. Совмещает требование о выдаче заверенной копии протокола после подписания и уведомление о съёмке; соответствует пункту прибытия дорожной карты. Укажите используемую аппаратуру, сохраните отметку о принятии на своём экземпляре.",
+    "contentPath": "reference_documents/source_first_statement.txt",
+    "mimeType": "text/plain",
+    "previewLines": [
+      "Подать при прибытии; получить отметку о приёме",
+      "Редактируемый вариант доступен в разделе «Жалобы»"
+    ],
+    "tags": [
+      "комплект",
+      "первое заявление",
+      "съёмка",
+      "копия протокола"
+    ],
+    "original": {
+      "path": "reference_documents/originals/first_statement.pdf",
+      "mimeType": "application/pdf",
+      "fileName": "Первое заявление.pdf"
+    }
+  },
+  {
+    "id": "reference-general-complaint-form",
+    "packId": "ru-observer-methodical-pack",
+    "title": "Жалоба — общая форма из комплекта",
+    "description": "Исходный бланк для сентября 2026 года. Дополняет приоритетный конструктор дорожной карты; просьба о рассмотрении, решении и приложении к протоколу согласуется с ним. Заполняйте только наблюдавшиеся факты; правовую квалификацию проверяйте отдельно.",
+    "contentPath": "reference_documents/source_general_complaint.txt",
+    "mimeType": "text/plain",
+    "previewLines": [
+      "Дата, время, обстоятельства и участники",
+      "Подпись заявителя и отметка о получении",
+      "Редактируемый вариант доступен в разделе «Жалобы»"
+    ],
+    "tags": [
+      "комплект",
+      "жалоба",
+      "форма"
+    ],
+    "original": {
+      "path": "reference_documents/originals/general_complaint.pdf",
+      "mimeType": "application/pdf",
+      "fileName": "Жалоба — общая форма.pdf"
+    }
+  },
+  {
+    "id": "reference-party-instruction",
+    "packId": "ru-observer-methodical-pack",
+    "title": "Инструкция наблюдателя — дополнительный материал с пояснениями",
+    "description": "В исходном документе есть расхождения с дорожной картой: удаление наблюдателя решением УИК, электронный реестр надомников, обобщённое признание бюллетеней недействительными и нумерация строк протокола. Перед использованием и печатью прочитайте пояснения в начале полного текста. Оригинал DOCX сохранён без изменений; рабочий чек-лист по спорным положениям не менялся.",
+    "contentPath": "reference_documents/source_party_instruction.txt",
+    "mimeType": "text/plain",
+    "previewLines": [
+      "Приоритет: дорожная карта 18–20 сентября 2026 года",
+      "Полный текст начинается с пояснений к расхождениям",
+      "Оригинал инструкции не является исправленной редакцией"
+    ],
+    "tags": [
+      "комплект",
+      "инструкция",
+      "вспомогательный",
+      "расхождения"
+    ],
+    "original": {
+      "path": "reference_documents/originals/instruction.docx",
+      "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "fileName": "ИНСТРУКЦИЯ.docx"
+    }
   },
   {
     "id": "reference-conflict",
