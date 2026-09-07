@@ -15,7 +15,8 @@ plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    // Kotlin/Wasm registers Ivy repositories to download its Node.js test tooling.
+    repositoriesMode.set(RepositoriesMode.PREFER_PROJECT)
     repositories {
         google()
         mavenCentral()
@@ -24,6 +25,7 @@ dependencyResolutionManagement {
 
 rootProject.name = "YaNaVyborah"
 include(":app")
+include(":shared")
 include(":core:common")
 include(":core:content")
 include(":core:crypto")

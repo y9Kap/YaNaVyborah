@@ -1,4 +1,4 @@
-name: Android CI
+name: KMP and Android CI
 
 on:
   push:
@@ -33,5 +33,5 @@ jobs:
         with:
           packages: "platform-tools platforms;android-36"
 
-      - name: Test and build debug APK
-        run: ./gradlew testDebugUnitTest :app:assembleDebug
+      - name: Test Android and Wasm, compile shared UI, build debug APK
+        run: ./gradlew testAndroidHostTest testDebugUnitTest :shared:compileKotlinWasmJs wasmJsNodeTest :feature:observer:wasmJsBrowserTest :app:assembleDebug

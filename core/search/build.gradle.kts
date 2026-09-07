@@ -1,16 +1,31 @@
-plugins { alias(libs.plugins.android.library) }
-
-android {
-    namespace = "org.yanavybori.core.search"
-    compileSdk { version = release(36) }
-    defaultConfig { minSdk = 24 }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
+plugins {
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.android.kmp.library)
 }
 
-dependencies {
-    api(project(":core:model"))
-    testImplementation(libs.junit)
+kotlin {
+    android {
+        namespace = "org.yanavybori.core.search"
+        compileSdk = 36
+        minSdk = 24
+        withHostTestBuilder {}
+        compilerOptions { jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17) }
+    }
+    @OptIn(org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class)
+    wasmJs {
+        browser()
+        nodejs()
+    }
+    sourceSets {
+        commonMain.dependencies {
+            api(project(":core:model"))
+        }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+            implementation(libs.kotlinx.coroutines.test)
+        }
+        getByName("androidHostTest").dependencies {
+            implementation(libs.junit)
+        }
+    }
 }

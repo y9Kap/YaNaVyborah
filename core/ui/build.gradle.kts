@@ -1,26 +1,41 @@
 plugins {
-    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.android.kmp.library)
+    alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.compose.compiler)
 }
 
-android {
-    namespace = "org.yanavybori.core.ui"
-    compileSdk { version = release(36) }
-    defaultConfig { minSdk = 24 }
-    buildFeatures { compose = true }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+kotlin {
+    android {
+        namespace = "org.yanavybori.core.ui"
+        compileSdk = 36
+        minSdk = 24
+        withHostTestBuilder {}
+        compilerOptions { jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17) }
     }
-}
-
-dependencies {
-    api(platform(libs.compose.bom))
-    api(libs.compose.material3)
-    api(libs.compose.ui)
-    api(libs.compose.ui.tooling.preview)
-    implementation(libs.compose.foundation)
-    implementation(libs.androidx.activity.compose)
-    implementation(libs.compose.material.icons)
-    debugImplementation(libs.compose.ui.tooling)
+    @OptIn(org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class)
+    wasmJs {
+        browser {
+            testTask { useKarma { useChromeHeadless() } }
+        }
+    }
+    sourceSets {
+        commonMain.dependencies {
+            api(project(":core:model"))
+            api(libs.cmp.runtime)
+            api(libs.cmp.foundation)
+            api(libs.cmp.ui)
+            api(libs.cmp.material3)
+            implementation(libs.cmp.material.icons)
+            implementation(libs.cmp.lifecycle.runtime.compose)
+        }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+            implementation(libs.kotlinx.coroutines.test)
+        }
+        getByName("androidHostTest").dependencies {
+            implementation(libs.junit)
+        }
+        androidMain.dependencies { implementation(libs.androidx.activity.compose) }
+    }
 }

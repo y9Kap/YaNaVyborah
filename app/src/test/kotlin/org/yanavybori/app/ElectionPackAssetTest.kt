@@ -96,8 +96,8 @@ class ElectionPackAssetTest {
     private fun findPackDirectory(): File {
         val workingDirectory = File(requireNotNull(System.getProperty("user.dir")))
         return sequenceOf(
-            workingDirectory.resolve("src/main/assets/demo-election-pack"),
-            workingDirectory.resolve("app/src/main/assets/demo-election-pack"),
+            workingDirectory.resolve("../shared/src/commonMain/resources/demo-election-pack"),
+            workingDirectory.resolve("shared/src/commonMain/resources/demo-election-pack"),
         ).firstOrNull(File::isDirectory)
             ?: error("Не найден demo-election-pack из ${workingDirectory.absolutePath}")
     }

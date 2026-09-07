@@ -1,16 +1,31 @@
-plugins { alias(libs.plugins.android.library) }
-
-android {
-    namespace = "org.yanavybori.core.crypto"
-    compileSdk { version = release(36) }
-    defaultConfig { minSdk = 24 }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
+plugins {
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.android.kmp.library)
 }
 
-dependencies {
-    implementation(libs.androidx.core.ktx)
-    testImplementation(libs.junit)
+kotlin {
+    android {
+        namespace = "org.yanavybori.core.crypto"
+        compileSdk = 36
+        minSdk = 24
+        withHostTestBuilder {}
+        compilerOptions { jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17) }
+    }
+    @OptIn(org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class)
+    wasmJs {
+        browser()
+        nodejs()
+    }
+    sourceSets {
+        commonMain.dependencies {
+            implementation(libs.okio)
+        }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+            implementation(libs.kotlinx.coroutines.test)
+        }
+        getByName("androidHostTest").dependencies {
+            implementation(libs.junit)
+        }
+    }
 }

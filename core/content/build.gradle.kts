@@ -1,33 +1,43 @@
 plugins {
-    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.android.kmp.library)
     alias(libs.plugins.kotlin.serialization)
 }
 
-android {
-    namespace = "org.yanavybori.core.content"
-    compileSdk { version = release(36) }
-    defaultConfig {
+kotlin {
+    android {
+        namespace = "org.yanavybori.core.content"
+        compileSdk = 36
         minSdk = 24
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        withHostTestBuilder {}
+        withDeviceTestBuilder { sourceSetTreeName = "test" }.configure {
+            instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        }
+        compilerOptions { jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17) }
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+    @OptIn(org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class)
+    wasmJs {
+        browser()
+        nodejs()
     }
-}
-
-dependencies {
-    implementation(project(":core:common"))
-    implementation(project(":core:crypto"))
-    implementation(project(":core:model"))
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.kotlinx.coroutines.core)
-    implementation(libs.kotlinx.serialization.json)
-    testImplementation(libs.junit)
-    testImplementation(libs.kotlinx.coroutines.test)
-    androidTestImplementation(project(":core:database"))
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.test.core)
-    androidTestImplementation(libs.androidx.room.runtime)
-    androidTestImplementation(libs.kotlinx.coroutines.test)
+    sourceSets {
+        commonMain.dependencies {
+            api(project(":core:common"))
+            implementation(project(":core:crypto"))
+            implementation(libs.kotlinx.serialization.json)
+        }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+            implementation(libs.kotlinx.coroutines.test)
+        }
+        getByName("androidHostTest").dependencies {
+            implementation(libs.junit)
+        }
+        getByName("androidDeviceTest").dependencies {
+            implementation(libs.androidx.junit)
+            implementation(libs.androidx.test.core)
+            implementation(project(":core:database"))
+            implementation(libs.androidx.room.runtime)
+        }
+    }
 }

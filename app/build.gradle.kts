@@ -58,6 +58,7 @@ android {
             signingConfigs.findByName("release")?.let { signingConfig = it }
         }
     }
+    sourceSets.getByName("main").assets.srcDir("../shared/src/commonMain/resources")
     buildFeatures { compose = true }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -67,19 +68,14 @@ android {
 }
 
 dependencies {
+    implementation(project(":shared"))
     implementation(project(":core:common"))
     implementation(project(":core:content"))
     implementation(project(":core:crypto"))
     implementation(project(":core:database"))
     implementation(project(":core:files"))
-    implementation(project(":core:model"))
-    implementation(project(":core:navigation"))
-    implementation(project(":core:search"))
     implementation(project(":core:ui"))
     implementation(project(":feature:observer"))
-    implementation(project(":feature:settings"))
-    implementation(project(":feature:voter"))
-    implementation(project(":feature:workpressure"))
 
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.ktx)

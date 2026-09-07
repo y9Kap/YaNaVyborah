@@ -15,7 +15,8 @@
 `local.properties` нужен только для локального пути `sdk.dir`, игнорируется Git и не должен содержать ключи подписи или другие секреты.
 
 ```bash
-./gradlew testDebugUnitTest
+./gradlew testAndroidHostTest testDebugUnitTest
+./gradlew :shared:compileKotlinWasmJs wasmJsNodeTest :feature:observer:wasmJsBrowserTest
 ./gradlew :app:assembleDebug
 ```
 
@@ -25,31 +26,29 @@ Device-тесты требуют запущенный эмулятор или у
 
 ```bash
 ./gradlew :core:database:connectedDebugAndroidTest \
-  :core:content:connectedDebugAndroidTest
+  :core:content:connectedAndroidDeviceTest \
+  :feature:observer:connectedAndroidDeviceTest \
+  :app:connectedDebugAndroidTest
 ```
 
-Перед слиянием изменения рекомендуется как минимум выполнить `testDebugUnitTest` и `:app:assembleDebug`. Для изменений Room также обязательны migration/integration tests, а для пользовательского сценария — ручная проверка на устройстве.
+Перед слиянием изменения рекомендуется как минимум выполнить `testAndroidHostTest testDebugUnitTest`, `:shared:compileKotlinWasmJs wasmJsNodeTest :feature:observer:wasmJsBrowserTest` и `:app:assembleDebug`. Для изменений Room также обязательны migration/integration tests, а для пользовательского сценария — ручная проверка на устройстве.
 
 ## Архитектура
 
-```text
-app                         composition root и корневой UI
-core:model                  Android/UI-независимые модели
-core:common                 repository API и domain services
-core:database               Room, DataStore и реализации repository
-core:content                проверяемый атомарный импорт Election Pack
-core:crypto                 SHA-256, AES-GCM и Android Keystore
-core:files                  приватный импорт медиа и PrivacyScanner
-core:search                 локальный поиск
-core:ui                     тема и общие Compose-компоненты
-core:navigation             маршруты
-feature:observer            основной рабочий сценарий наблюдателя
-feature:voter               точка расширения
-feature:workpressure        точка расширения
-feature:settings            сведения о приложении и пакете
-```
+Общие модели, бизнес-логика, импорт контента, Compose UI, навигация и ViewModel
+размещены в KMP-модулях с `commonMain` / `commonTest`. `shared` содержит корневой
+UI и загрузку приложения. `app` — Android-host, `core:database` и `core:files` —
+Android-адаптеры хранения. Точная схема и контракт подключения будущего веб-host
+описаны в [ARCHITECTURE.md](ARCHITECTURE.md).
 
-Feature-модули не зависят друг от друга. `app` связывает реализации вручную через `AppContainer`; Compose работает с repository-интерфейсами через `ObserverViewModel`, а не обращается к DAO напрямую. Подробнее — в [ARCHITECTURE.md](ARCHITECTURE.md), текущее покрытие фаз — в [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md).
+`testAndroidHostTest` запускает общие и Android host тесты KMP-модулей;
+`testDebugUnitTest` — оставшиеся Android-модули. `wasmJsNodeTest` запускает тесты ядра в Node.js.
+`:feature:observer:wasmJsBrowserTest` проверяет CSV, разбор шаблонов и UI-helper
+функции в Chrome Headless: графическая библиотека Skiko требует браузер.
+Для браузерных тестов нужен установленный Google Chrome (при нестандартном пути
+задайте `CHROME_BIN`); Gradle загружает Node.js и Karma самостоятельно. `:shared:compileKotlinWasmJs` компилирует весь общий
+UI для будущего браузерного клиента, не создавая сайт. Device-тесты KMP находятся
+в `androidDeviceTest`, JVM-тесты с файловым I/O — в `androidHostTest`.
 
 ## Правила безопасных изменений
 

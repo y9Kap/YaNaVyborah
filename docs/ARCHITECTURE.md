@@ -1,4 +1,4 @@
-# Архитектура каркаса
+# Kotlin Multiplatform архитектура
 
 ## Границы данных
 
@@ -8,21 +8,71 @@
 
 Выбранная `ObservationSession` хранится в Preferences DataStore. Остальные данные UI получает как `Flow` через repository-интерфейсы из `core:common`; Compose не обращается к DAO.
 
-## Поток зависимостей
+## Модули и платформы
+
+`shared`, `core:model`, `core:common`, `core:content`, `core:crypto`, `core:search`,
+`core:navigation`, `core:ui` и все `feature:*` — KMP-библиотеки с целями Android и
+`wasmJs`. Общий код и тесты находятся в `commonMain` / `commonTest`.
+Compose Multiplatform разделяет существующие экраны, тему, навигацию и ViewModel.
+Веб-приложение, HTML, сервер и публикация сайта на этом этапе не создаются.
 
 ```text
-feature:* -> core:common -> core:model
-feature:* -> core:ui / core:navigation
-
-app -> feature:*
-app -> Room repository implementations / importer / private files
-
-core:database -> core:common + core:model
-core:content  -> core:common + core:model + core:crypto
-core:files    -> core:common + core:model + core:database + core:crypto
+app (Android Activity, Application, сборка APK)
+  -> shared (SharedAppContainer, bootstrap, YaNaVyborahRoot)
+       -> feature:* -> core:common -> core:model
+       -> core:content -> core:crypto (SHA-256)
+       -> core:ui / core:navigation
+  -> core:database (Android Room + DataStore)
+  -> core:files (Android приватные файлы + обработка изображений)
+  -> core:crypto/androidMain (Android Keystore + потоковый AES-GCM)
+  -> core:ui/androidMain (AndroidPlatformUi)
 ```
 
-Ручной `AppContainer` является composition root. Это dependency injection без code generation: feature Observer получает только набор интерфейсов `ObserverDependencies`.
+Android использует официальный `com.android.kotlin.multiplatform.library` в KMP
+библиотеках и `com.android.application` в `app`. `core:database` и `core:files`
+сохраняют `com.android.library`: это Android-адаптеры, их API не импортируется
+общими экранами. Room-схемы, имена БД, настройки DataStore, application ID,
+ключ Keystore и формат шифрованных файлов сохранены.
+
+`AppContainer` создаёт Android-репозитории и передаёт их интерфейсы через
+`ObserverDependencies` в `SharedAppContainer`. Последний отвечает за импорт
+пакета и состояние загрузки; Android Application запускает его bootstrap.
+Закрывает платформенные базы их владелец — Android `AppContainer`.
+
+`PlatformUi` отделяет выбор медиа, создание и запись документов, камеру,
+телефон, декодирование изображений, чтение комплектных файлов, системный Back,
+удержание экрана включённым, видимость клавиатуры и защиту форм от автозаполнения. Android Activity предоставляет
+`AndroidPlatformUi` через `LocalPlatformUi`. URI/дескрипторы передаются как
+непрозрачные строки, байты — как `ByteArray`. CSV и проверка SHA-256 оригиналов
+остаются в общем коде. Системный диалог позволяет отменить экспорт.
+
+Комплектные материалы и гайд имеют один источник:
+`shared/src/commonMain/resources`. Android подключает каталог как assets.
+`AssetElectionPackSource` находится в `core:content/androidMain`; проверка и
+разбор пакета в `commonMain` принимают любой `ElectionPackSource`.
+
+## Подключение будущего сайта
+
+Будущий Kotlin/Wasm host подключит `:shared` и предоставит:
+
+1. Реализации repository-интерфейсов из `core:common` для постоянного браузерного
+   хранилища, включая атомарную замену контента, пароль удаления, каскадное
+   удаление записей и медиа. Room и DataStore в браузере не используются.
+2. `MediaRepository` для защищённых медиа и `PlatformUi` для браузерных файлов,
+   камеры, ссылок, истории навигации и защиты ввода паролей.
+3. `ElectionPackSource` и чтение материалов из того же каталога ресурсов.
+4. `SharedAppContainer`, вызов bootstrap и CompositionLocalProvider с
+   `PlatformUi`, затем `YaNaVyborahTheme { YaNaVyborahRoot(container) }`.
+
+Браузерные адаптеры сейчас намеренно не реализованы; подмены постоянного
+хранилища in-memory репозиториями нет. Компиляция всех общих экранов под Wasm
+проверяет переносимость кода, но не означает готовность сайта или его
+функциональное тестирование. Обе платформы используют один набор бизнес-правил,
+экранов и методического контента; пользовательские данные остаются раздельными,
+синхронизации между устройствами нет.
+
+Основа конфигурации: [Android KMP plugin](https://developer.android.com/kotlin/multiplatform/plugin)
+и [Compose Multiplatform](https://kotlinlang.org/docs/multiplatform/whats-new-compose-111.html).
 
 ## Однонаправленный UI
 
