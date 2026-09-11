@@ -131,7 +131,7 @@ private fun HomeScreen(manifest: ElectionPackManifest?, navigate: (RootRoute) ->
             item {
                 AppCard(
                     "Давление на работе",
-                    "Фиксация требований и подготовка обращения — архитектурный каркас.",
+                    "Безопасные шаги, шаблоны обращений, законы и официальные приёмные.",
                     { navigate(RootRoute.WORK_PRESSURE) },
                 )
             }

@@ -3,11 +3,11 @@ plugins {
     alias(libs.plugins.compose.compiler)
 }
 
-val configuredVersionName = providers.gradleProperty("VERSION_NAME").orNull ?: "0.3.0"
+val configuredVersionName = providers.gradleProperty("VERSION_NAME").orNull ?: "0.4.0"
 val configuredVersionCode = providers.gradleProperty("VERSION_CODE").orNull?.let { value ->
     value.toIntOrNull()?.takeIf { it > 0 }
         ?: error("VERSION_CODE должен быть положительным целым числом")
-} ?: 3
+} ?: 4
 
 val releaseKeystorePath = providers.environmentVariable("YANAVYBORAH_KEYSTORE_FILE").orNull
 val releaseKeystorePassword = providers.environmentVariable("YANAVYBORAH_KEYSTORE_PASSWORD").orNull
@@ -91,6 +91,7 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.serialization.json)
     androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.test.runner)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.compose.ui.test.junit4)

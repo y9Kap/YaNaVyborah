@@ -47,6 +47,7 @@ kotlin {
         getByName("androidDeviceTest").dependencies {
             implementation(libs.androidx.junit)
             implementation(libs.androidx.test.core)
+            implementation(libs.androidx.test.runner)
             implementation(project.dependencies.platform(libs.compose.bom))
             implementation(libs.compose.ui.test.junit4)
             implementation(libs.compose.ui.test.manifest)

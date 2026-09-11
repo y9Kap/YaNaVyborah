@@ -1,6 +1,8 @@
 package org.yanavybori.core.ui
 
 import android.content.ActivityNotFoundException
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
@@ -94,6 +96,25 @@ class AndroidPlatformUi(private val context: Context) : PlatformUi {
         } catch (_: ActivityNotFoundException) {
             Toast.makeText(context, "На устройстве не найдено приложение телефона", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    override fun openExternalLink(url: String) {
+        val uri = Uri.parse(url)
+        if (uri.scheme !in setOf("http", "https")) {
+            Toast.makeText(context, "Некорректная ссылка", Toast.LENGTH_SHORT).show()
+            return
+        }
+        try {
+            context.startActivity(Intent(Intent.ACTION_VIEW, uri))
+        } catch (_: ActivityNotFoundException) {
+            Toast.makeText(context, "Не найдено приложение для открытия ссылки", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    override fun copyText(text: String) {
+        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        clipboard.setPrimaryClip(ClipData.newPlainText("Шаблон обращения", text))
+        Toast.makeText(context, "Шаблон скопирован", Toast.LENGTH_SHORT).show()
     }
 
     override fun decodeImage(bytes: ByteArray): ImageBitmap? =

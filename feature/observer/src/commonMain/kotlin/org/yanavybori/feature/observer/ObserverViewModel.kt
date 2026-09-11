@@ -270,9 +270,11 @@ class ObserverViewModel(
         val current = state.value
         val session = requireNotNull(current.activeSession)
         val sections = current.checklistDefinitions.filter {
-            session.currentVotingDay in it.votingDayIds && it.observationScope != ObservationScope.SHARED
+            session.currentVotingDay in it.votingDayIds
         }.map { definition ->
-            val excluded = scope != ObservationScope.SHARED && definition.observationScope != scope
+            val excluded = scope != ObservationScope.SHARED &&
+                definition.observationScope != ObservationScope.SHARED &&
+                definition.observationScope != scope
             current.sectionState(definition).copy(notApplicable = excluded, collapsed = excluded)
         }
         dependencies.observationRepository.setChecklistSections(sections)

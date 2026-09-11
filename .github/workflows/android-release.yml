@@ -82,7 +82,7 @@ jobs:
           YANAVYBORAH_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           YANAVYBORAH_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: >-
-          ./gradlew testAndroidHostTest testDebugUnitTest :shared:compileKotlinWasmJs wasmJsNodeTest :feature:observer:wasmJsBrowserTest :app:assembleRelease
+          ./gradlew testAndroidHostTest testDebugUnitTest :shared:compileKotlinWasmJs wasmJsNodeTest :feature:observer:wasmJsBrowserTest :feature:workpressure:wasmJsBrowserTest :webApp:wasmJsBrowserTest :webApp:wasmJsBrowserDistribution :app:assembleRelease
           -PVERSION_NAME="${{ steps.version.outputs.name }}"
           -PVERSION_CODE="${{ steps.version.outputs.code }}"
 

@@ -14,10 +14,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.ExpandLess
+import androidx.compose.material.icons.outlined.ExpandMore
+import androidx.compose.material.icons.outlined.Visibility
+import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -32,6 +42,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -65,7 +76,6 @@ internal fun ChecklistScreen(
             definition.itemIds.mapNotNull(itemsById::get).minOfOrNull(ChecklistItem::order) ?: Int.MAX_VALUE
         }
     val statuses = state.checklistStates.associateBy { it.checklistItemId }
-    var showObservationSettings by rememberSaveable(session.id, dayId) { mutableStateOf(false) }
     var problemTargetItemId by rememberSaveable { mutableStateOf<String?>(null) }
     var problemTargetEvent by remember { mutableStateOf<JournalEvent?>(null) }
     var showComplaintTemplates by rememberSaveable { mutableStateOf(false) }
@@ -88,30 +98,46 @@ internal fun ChecklistScreen(
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         item {
-            Text(
-                "Выберите статус и нажмите «Зафиксировать». «Не выполнено» останется незавершённым; остальные статусы также добавят запись в журнал.",
-                style = MaterialTheme.typography.bodyMedium,
-            )
-        }
-        item {
-            Card(Modifier.fillMaxWidth()) {
-                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Моё наблюдение в этот день", style = MaterialTheme.typography.titleMedium)
-                    Text("Не применимы разделы: ${visibleDefinitions.count { state.sectionState(it).notApplicable }} из ${visibleDefinitions.size}")
-                    TextButton(onClick = { showObservationSettings = !showObservationSettings }) {
-                        Text(if (showObservationSettings) "Скрыть настройки" else "На участке / На дому — настроить")
-                    }
-                    if (showObservationSettings) {
-                        Text("Выберите, где наблюдаете. Разделы другого места станут «Не применимо». Подготовка, хранение и подсчёт остаются доступны; любой раздел можно настроить отдельно. Уже сделанные отметки сохранятся.")
-                        OutlinedButton(onClick = { viewModel.setObservationScope(ObservationScope.PRECINCT) }, modifier = Modifier.fillMaxWidth()) {
-                            Text("Остаюсь на участке")
+            Card(
+                Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+            ) {
+                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text("Какие разделы показывать?", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Text(
+                        "Выберите место наблюдения или скрывайте отдельные разделы значком глаза. Отметки в скрытых разделах сохраняются.",
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                    val selectedScope = state.selectedObservationScope(visibleDefinitions)
+                    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        item {
+                            FilterChip(
+                                selected = selectedScope == ObservationScope.PRECINCT,
+                                onClick = { viewModel.setObservationScope(ObservationScope.PRECINCT) },
+                                label = { Text("На участке") },
+                            )
                         }
-                        OutlinedButton(onClick = { viewModel.setObservationScope(ObservationScope.HOME) }, modifier = Modifier.fillMaxWidth()) {
-                            Text("Еду на дом")
+                        item {
+                            FilterChip(
+                                selected = selectedScope == ObservationScope.HOME,
+                                onClick = { viewModel.setObservationScope(ObservationScope.HOME) },
+                                label = { Text("На дому") },
+                            )
                         }
-                        TextButton(onClick = { viewModel.setObservationScope(ObservationScope.SHARED) }) { Text("Наблюдаю и там, и там") }
-                        Text("При трёхдневном голосовании рекомендуем оставаться на участке, если выезд не поручен вам отдельно: здесь важен непрерывный контроль ящиков, хранения бюллетеней и подсчёта. Утверждение, что нарушения на дому встречаются реже, не подтверждено материалами комплекта. Распределите наблюдение со своей командой.", style = MaterialTheme.typography.bodySmall)
+                        item {
+                            FilterChip(
+                                selected = selectedScope == ObservationScope.SHARED,
+                                onClick = { viewModel.setObservationScope(ObservationScope.SHARED) },
+                                label = { Text("Все разделы") },
+                            )
+                        }
                     }
+                    val hiddenCount = visibleDefinitions.count { state.sectionState(it).notApplicable }
+                    Text(
+                        if (hiddenCount == 0) "Сейчас видны все ${visibleDefinitions.size} разделов"
+                        else "Скрыто разделов: $hiddenCount из ${visibleDefinitions.size}",
+                        style = MaterialTheme.typography.labelLarge,
+                    )
                 }
             }
         }
@@ -129,16 +155,24 @@ internal fun ChecklistScreen(
         visibleDefinitions.forEach { definition ->
             val section = state.sectionState(definition)
             item(key = "section:${definition.id}") {
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text(definition.title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                    Text(if (section.notApplicable) "Раздел не применим в этот день • ${definition.itemIds.size} пунктов" else "${definition.itemIds.size} пунктов")
-                    if (!section.notApplicable) TextButton(onClick = {
+                ChecklistSectionHeader(
+                    title = definition.title,
+                    itemCount = definition.itemIds.size,
+                    progress = state.checklistSectionProgress(definition),
+                    collapsed = section.collapsed,
+                    hidden = section.notApplicable,
+                    onToggleCollapsed = {
                         viewModel.setChecklistSection(section.copy(collapsed = !section.collapsed))
-                    }) { Text(if (section.collapsed) "Развернуть раздел" else "Свернуть раздел") }
-                    TextButton(onClick = {
-                        viewModel.setChecklistSection(section.copy(notApplicable = !section.notApplicable, collapsed = !section.notApplicable))
-                    }) { Text(if (section.notApplicable) "Вернуть раздел" else "Весь раздел не применим") }
-                }
+                    },
+                    onToggleHidden = {
+                        viewModel.setChecklistSection(
+                            section.copy(
+                                notApplicable = !section.notApplicable,
+                                collapsed = !section.notApplicable,
+                            ),
+                        )
+                    },
+                )
             }
             val sectionItems = definition.itemIds.mapNotNull(itemsById::get).sortedBy { it.order }
             if (!section.collapsed && !section.notApplicable) items(sectionItems, key = { it.id }) { item ->
@@ -222,6 +256,60 @@ internal fun ChecklistScreen(
 }
 
 @Composable
+private fun ChecklistSectionHeader(
+    title: String,
+    itemCount: Int,
+    progress: ChecklistSectionProgress,
+    collapsed: Boolean,
+    hidden: Boolean,
+    onToggleCollapsed: () -> Unit,
+    onToggleHidden: () -> Unit,
+) {
+    Card(
+        Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = if (hidden) MaterialTheme.colorScheme.surfaceContainerLow
+            else MaterialTheme.colorScheme.surfaceContainerHigh,
+        ),
+    ) {
+        Row(
+            Modifier.fillMaxWidth().padding(start = 16.dp, top = 14.dp, bottom = 14.dp, end = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text(title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                Text(
+                    if (hidden) "Скрыт • ${formatChecklistItemCount(itemCount)} • отметки сохранены"
+                    else "Проверено ${progress.checked} из ${progress.total}",
+                    style = MaterialTheme.typography.bodySmall,
+                )
+                if (!hidden && progress.total > 0) {
+                    LinearProgressIndicator(
+                        progress = { progress.checked.toFloat() / progress.total },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+            }
+            if (!hidden) {
+                IconButton(onClick = onToggleCollapsed) {
+                    Icon(
+                        if (collapsed) Icons.Outlined.ExpandMore else Icons.Outlined.ExpandLess,
+                        contentDescription = if (collapsed) "Развернуть раздел" else "Свернуть раздел",
+                    )
+                }
+            }
+            IconButton(onClick = onToggleHidden) {
+                Icon(
+                    if (hidden) Icons.Outlined.VisibilityOff else Icons.Outlined.Visibility,
+                    contentDescription = if (hidden) "Показать раздел" else "Скрыть раздел",
+                )
+            }
+        }
+    }
+}
+
+@Composable
 private fun ChecklistItemCard(
     item: ChecklistItem,
     status: ChecklistStatus,
@@ -236,9 +324,26 @@ private fun ChecklistItemCard(
     val hasUnconfirmedStatus = pendingStatus != status
     val isApplied = !hasUnconfirmedStatus && status != ChecklistStatus.NOT_CHECKED
     val appliedColor = Color(0xFF16803A)
-    Card(Modifier.fillMaxWidth()) {
+    Card(
+        Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+    ) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text(item.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Row(
+                Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.Top,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Text(
+                    item.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.weight(1f),
+                )
+                if (status != ChecklistStatus.NOT_CHECKED) {
+                    StatusPill(status.label(), statusColor(status))
+                }
+            }
             Text(item.shortExplanation)
             LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 items(ChecklistStatus.entries) { option ->
@@ -246,6 +351,10 @@ private fun ChecklistItemCard(
                         selected = pendingStatus == option,
                         onClick = { pendingStatusName = option.name },
                         label = { Text(option.label()) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = statusColor(option).copy(alpha = 0.18f),
+                            selectedLabelColor = statusColor(option),
+                        ),
                     )
                 }
             }
@@ -258,30 +367,37 @@ private fun ChecklistItemCard(
                 style = MaterialTheme.typography.bodySmall,
             )
             if (expanded) {
-                Text("Когда: ${item.whenToCheck}", fontWeight = FontWeight.SemiBold)
-                Text("Что проверить", fontWeight = FontWeight.SemiBold)
-                item.whatToCheck.forEach { Text("• $it") }
-                if (item.possibleProblems.isNotEmpty()) {
-                    Text("Возможные проблемы", fontWeight = FontWeight.SemiBold)
-                    item.possibleProblems.forEach { Text("• $it") }
-                }
-                if (item.legalBasis.isNotBlank()) {
-                    Text("Правовое основание", fontWeight = FontWeight.SemiBold)
-                    Text(item.legalBasis)
-                }
-                if (item.liability.isNotBlank()) {
-                    Text("Норма об ответственности", fontWeight = FontWeight.SemiBold)
-                    Text(item.liability)
-                }
-                if (item.sourceDocumentId != null) {
-                    Text(
-                        "Источник: Дорожная карта наблюдателя" +
-                            item.sourcePage?.let { ", страница $it" }.orEmpty(),
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                }
-                if (item.lawReferenceIds.isNotEmpty()) {
-                    TextButton(onClick = onOpenLaws) { Text("Открыть связанные справки") }
+                Surface(
+                    color = MaterialTheme.colorScheme.surfaceContainer,
+                    shape = MaterialTheme.shapes.large,
+                ) {
+                    Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text("Когда: ${item.whenToCheck}", fontWeight = FontWeight.SemiBold)
+                        Text("Что проверить", fontWeight = FontWeight.SemiBold)
+                        item.whatToCheck.forEach { Text("• $it") }
+                        if (item.possibleProblems.isNotEmpty()) {
+                            Text("Возможные проблемы", fontWeight = FontWeight.SemiBold)
+                            item.possibleProblems.forEach { Text("• $it") }
+                        }
+                        if (item.legalBasis.isNotBlank()) {
+                            Text("Правовое основание", fontWeight = FontWeight.SemiBold)
+                            Text(item.legalBasis)
+                        }
+                        if (item.liability.isNotBlank()) {
+                            Text("Норма об ответственности", fontWeight = FontWeight.SemiBold)
+                            Text(item.liability)
+                        }
+                        if (item.sourceDocumentId != null) {
+                            Text(
+                                "Источник: Дорожная карта наблюдателя" +
+                                    item.sourcePage?.let { ", страница $it" }.orEmpty(),
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                        }
+                        if (item.lawReferenceIds.isNotEmpty()) {
+                            TextButton(onClick = onOpenLaws) { Text("Открыть связанные справки") }
+                        }
+                    }
                 }
             }
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -714,6 +830,14 @@ private fun ChecklistStatus.label(): String = when (this) {
     ChecklistStatus.OK -> "Всё нормально"
     ChecklistStatus.PROBLEM -> "Проблема"
     ChecklistStatus.NOT_APPLICABLE -> "Не применимо"
+}
+
+@Composable
+private fun statusColor(status: ChecklistStatus): Color = when (status) {
+    ChecklistStatus.NOT_CHECKED -> MaterialTheme.colorScheme.onSurfaceVariant
+    ChecklistStatus.OK -> Color(0xFF16803A)
+    ChecklistStatus.PROBLEM -> MaterialTheme.colorScheme.error
+    ChecklistStatus.NOT_APPLICABLE -> MaterialTheme.colorScheme.secondary
 }
 
 internal fun JournalCategory.label(): String = when (this) {

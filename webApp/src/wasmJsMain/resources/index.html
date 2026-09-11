@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#1d5d4f">
+    <meta name="description" content="Офлайн-помощник наблюдателя на избирательном участке">
+    <link rel="icon" type="image/png" href="app-icon-source.png">
+    <title>Я на выборах</title>
+    <style>
+        :root {
+            color-scheme: light dark;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: #dfe8e3;
+        }
+
+        html, body {
+            width: 100%;
+            min-height: 100%;
+            margin: 0;
+            overscroll-behavior: none;
+        }
+
+        body {
+            position: fixed;
+            inset: 0;
+            width: min(100%, 780px);
+            margin-inline: auto;
+            background: #f7fbf7;
+            box-shadow: 0 0 48px rgb(19 55 46 / 18%);
+        }
+
+        canvas {
+            display: block;
+            outline: none;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root { background: #071511; }
+            body { background: #0f1513; box-shadow: 0 0 48px rgb(0 0 0 / 45%); }
+        }
+    </style>
+</head>
+<body>
+<noscript>Для работы приложения нужно включить JavaScript.</noscript>
+<script src="webApp.js"></script>
+<script>
+    (() => {
+        const context = document.modelContext;
+        if (!context?.registerTool) return;
+
+        const readStatus = () => {
+            const raw = localStorage.getItem("yanavyborah.user-data.v1");
+            if (!raw) return { active: false, counters: [], checklistCompleted: 0 };
+            const state = JSON.parse(raw);
+            const session = state.sessions?.find(item => item.id === state.activeSessionId);
+            if (!session) return { active: false, counters: [], checklistCompleted: 0 };
+            const counters = (state.counters || [])
+                .filter(item => item.observationSessionId === session.id && item.votingDayId === session.currentVotingDay)
+                .map(item => ({ label: item.label, value: Number(item.currentValue), active: item.stoppedAt == null }));
+            const checklistCompleted = (state.checklistStates || [])
+                .filter(item => item.sessionId === session.id && item.votingDayId === session.currentVotingDay && item.status !== "NOT_CHECKED")
+                .length;
+            return {
+                active: true,
+                precinctNumber: session.precinctNumber,
+                votingDayId: session.currentVotingDay,
+                checklistCompleted,
+                journalEvents: (state.journalEvents || []).filter(item => item.sessionId === session.id).length,
+                counters,
+            };
+        };
+
+        Promise.resolve(context.registerTool({
+            name: "read_observation_status",
+            title: "Статус наблюдения",
+            description: "Показывает текущий локальный статус сессии наблюдения, чек-листа, журнала и счётчиков.",
+            inputSchema: {
+                type: "object",
+                properties: { scope: { type: "string", enum: ["current"] } },
+                required: ["scope"],
+                additionalProperties: false,
+            },
+            annotations: { readOnlyHint: true, untrustedContentHint: false },
+            execute(input) {
+                if (!input || typeof input !== "object" || Array.isArray(input) || input.scope !== "current") {
+                    throw new Error("Параметр scope должен иметь значение current");
+                }
+                return readStatus();
+            },
+        })).catch(error => console.warn("WebMCP tool registration failed", error));
+    })();
+</script>
+</body>
+</html>

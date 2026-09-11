@@ -16,7 +16,8 @@
 
 ```bash
 ./gradlew testAndroidHostTest testDebugUnitTest
-./gradlew :shared:compileKotlinWasmJs wasmJsNodeTest :feature:observer:wasmJsBrowserTest
+./gradlew :shared:compileKotlinWasmJs wasmJsNodeTest :feature:observer:wasmJsBrowserTest :feature:workpressure:wasmJsBrowserTest
+./gradlew :webApp:wasmJsBrowserTest :webApp:wasmJsBrowserDistribution
 ./gradlew :app:assembleDebug
 ```
 
@@ -45,6 +46,11 @@ Android-адаптеры хранения. Точная схема и контр
 `testDebugUnitTest` — оставшиеся Android-модули. `wasmJsNodeTest` запускает тесты ядра в Node.js.
 `:feature:observer:wasmJsBrowserTest` проверяет CSV, разбор шаблонов и UI-helper
 функции в Chrome Headless: графическая библиотека Skiko требует браузер.
+`:feature:workpressure:wasmJsBrowserTest` проверяет полноту офлайн-шаблонов,
+правовых справок и ссылок на официальные приёмные.
+`:webApp:wasmJsBrowserTest` проверяет браузерное хранилище сессии, чек-листа и
+счётчиков, а `:webApp:wasmJsBrowserDistribution` собирает статический сайт в
+`webApp/build/dist/wasmJs/productionExecutable`.
 Для браузерных тестов нужен установленный Google Chrome (при нестандартном пути
 задайте `CHROME_BIN`); Gradle загружает Node.js и Karma самостоятельно. `:shared:compileKotlinWasmJs` компилирует весь общий
 UI для будущего браузерного клиента, не создавая сайт. Device-тесты KMP находятся

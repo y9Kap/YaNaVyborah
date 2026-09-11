@@ -14,6 +14,8 @@ interface PlatformUi {
     @Composable fun rememberDocumentCreator(onResult: (String?) -> Unit): DocumentCreator
     fun openCamera()
     fun openDialer(phone: String)
+    fun openExternalLink(url: String)
+    fun copyText(text: String)
     fun decodeImage(bytes: ByteArray): ImageBitmap?
     suspend fun writeDocument(handle: String, bytes: ByteArray)
     suspend fun readBundledFile(path: String): ByteArray

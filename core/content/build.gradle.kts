@@ -36,6 +36,7 @@ kotlin {
         getByName("androidDeviceTest").dependencies {
             implementation(libs.androidx.junit)
             implementation(libs.androidx.test.core)
+            implementation(libs.androidx.test.runner)
             implementation(project(":core:database"))
             implementation(libs.androidx.room.runtime)
         }
