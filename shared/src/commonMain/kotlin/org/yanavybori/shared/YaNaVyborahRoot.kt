@@ -124,7 +124,7 @@ private fun HomeScreen(manifest: ElectionPackManifest?, navigate: (RootRoute) ->
             item {
                 AppCard(
                     "Избиратель",
-                    "Права, типовые ситуации и журнал — архитектурный каркас.",
+                    "Права и безопасность, личный план и сравнение импортированных списков рекомендаций.",
                     { navigate(RootRoute.VOTER) },
                 )
             }

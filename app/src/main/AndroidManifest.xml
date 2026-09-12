@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- Используется только для загрузки JSON-рекомендаций по явному действию пользователя. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:name=".YaNaVyborahApplication"
         android:allowBackup="false"

@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.android.kmp.library)
     alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 kotlin {
@@ -21,6 +22,7 @@ kotlin {
     }
     sourceSets {
         commonMain.dependencies {
+            implementation(project(":core:crypto"))
             implementation(project(":core:ui"))
             api(libs.cmp.runtime)
             api(libs.cmp.foundation)
@@ -28,6 +30,7 @@ kotlin {
             api(libs.cmp.material3)
             implementation(libs.cmp.material.icons)
             implementation(libs.cmp.lifecycle.runtime.compose)
+            implementation(libs.kotlinx.serialization.json)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

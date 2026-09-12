@@ -11,19 +11,26 @@ interface PlatformUi {
     @Composable fun KeepScreenOn()
     @Composable fun isKeyboardVisible(): Boolean
     @Composable fun rememberMediaPicker(onResult: (String?) -> Unit): MediaPicker
+    @Composable fun rememberJsonDocumentPicker(onResult: (String?) -> Unit): JsonDocumentPicker
     @Composable fun rememberDocumentCreator(onResult: (String?) -> Unit): DocumentCreator
     fun openCamera()
     fun openDialer(phone: String)
     fun openExternalLink(url: String)
     fun copyText(text: String)
     fun decodeImage(bytes: ByteArray): ImageBitmap?
+    fun loadPrivateText(key: String): String?
+    fun savePrivateText(key: String, value: String)
+    suspend fun readPickedDocument(handle: String, maxBytes: Int): PickedDocument
+    suspend fun fetchHttpsText(url: String, maxBytes: Int): String
     suspend fun writeDocument(handle: String, bytes: ByteArray)
     suspend fun readBundledFile(path: String): ByteArray
 }
 
 fun interface MediaPicker { fun launch(imagesOnly: Boolean) }
+fun interface JsonDocumentPicker { fun launch() }
 fun interface DocumentCreator { fun launch(request: DocumentRequest) }
 data class DocumentRequest(val fileName: String, val mimeType: String)
+data class PickedDocument(val name: String, val bytes: ByteArray)
 
 val LocalPlatformUi = staticCompositionLocalOf<PlatformUi> {
     error("The application host must provide PlatformUi")

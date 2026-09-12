@@ -32,4 +32,9 @@ class WorkPressureContentTest {
         assertEquals(workPressureContacts.size, workPressureContacts.map { it.url }.toSet().size)
         workPressureContacts.forEach { assertTrue(it.url.startsWith("http")) }
     }
+
+    @Test
+    fun ovd_info_source_is_explicit_and_https() {
+        assertTrue(OVD_INFO_ELECTION_GUIDE_URL.startsWith("https://ovdinfo.legal/"))
+    }
 }

@@ -2,26 +2,743 @@ package org.yanavybori.feature.voter
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.OpenInNew
+import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Download
+import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.Shield
+import androidx.compose.material.icons.outlined.UploadFile
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import org.yanavybori.core.ui.DemoBanner
+import kotlinx.coroutines.launch
+import org.yanavybori.core.crypto.Sha256
+import org.yanavybori.core.ui.AppHelpButton
+import org.yanavybori.core.ui.BackHandler
+import org.yanavybori.core.ui.LocalPlatformUi
 
+private enum class VoterSection(val label: String) {
+    RECOMMENDATIONS("Рекомендации"),
+    MY_PLAN("Мой выбор"),
+    GUIDE("Безопасность и права"),
+}
+
+private enum class ImportMode(val label: String) {
+    FILE("Файл JSON"),
+    URL("HTTPS-ссылка"),
+}
+
+internal data class VoterGuideSection(val title: String, val points: List<String>)
+
+internal val voterGuideSections = listOf(
+    VoterGuideSection(
+        "Подготовьтесь заранее",
+        listOf(
+            "Уточните свой избирательный участок и возьмите паспорт или заменяющий его документ.",
+            "Зарядите телефон, возьмите пауэрбанк, обновите систему и приложения; используйте длинный пароль, а не только отпечаток или лицо.",
+            "Выберите доверенного человека и заранее договоритесь, что он делает, если вы перестанете выходить на связь.",
+            "При высоком риске задержания заранее найдите защитника; основной телефон безопаснее выключить и оставить дома.",
+            "Возьмите необходимые лекарства, воду и небольшой перекус.",
+        ),
+    ),
+    VoterGuideSection(
+        "Ваши права на участке",
+        listOf(
+            "Участие добровольное, а голосование тайное. Никто, включая работодателя и полицию, не вправе требовать показать выбор, фото бюллетеня или скриншот электронного голосования.",
+            "Если вы имеете право голосовать на участке, комиссия выдаёт бюллетень под подпись. Даже при наличии терминала можно попросить бумажный бюллетень.",
+            "Случайно испорченный бюллетень можно заменить: старый должна погасить комиссия, класть его в ящик не нужно.",
+            "На участке должен быть нейтральный информационный стенд о кандидатах; агитация в помещении для голосования запрещена.",
+            "Ошибку или отказ во включении в список можно потребовать исправить и оформить письменно, а решение — обжаловать.",
+        ),
+    ),
+    VoterGuideSection(
+        "Если право нарушают",
+        listOf(
+            "Спокойно обратитесь к члену комиссии. Если это не помогло, позовите председателя и подайте письменную жалобу с описанием времени и обстоятельств.",
+            "Попросите зарегистрировать жалобу и оставьте себе копию с отметкой о принятии.",
+            "Обратитесь к независимому наблюдателю, если он есть, либо подайте жалобу в вышестоящую комиссию или сразу в суд.",
+            "Запишите ход событий, данные участников и свидетелей. Съёмку прекращайте, если она повышает риск для вас.",
+            "Телефонный звонок на горячую линию сам по себе не заменяет формально поданную жалобу.",
+        ),
+    ),
+    VoterGuideSection(
+        "Полиция и задержание",
+        listOf(
+            "Говорите спокойно, не оказывайте физического сопротивления и не прикасайтесь к сотрудникам.",
+            "Попросите сотрудника представиться, показать удостоверение и объяснить причину обращения. Если вам не дают уйти, спросите, задержаны ли вы.",
+            "При первой возможности сообщите доверенному человеку, где вы, и зафиксируйте фактическое время задержания.",
+            "При изъятии телефона просите указать основание, составить протокол и выдать его копию. Вы вправе не сообщать пароль и воспользоваться статьёй 51 Конституции.",
+            "Прочитайте протокол до подписи, внесите замечания и потребуйте копию. Просите допустить выбранного защитника.",
+        ),
+    ),
+    VoterGuideSection(
+        "Фото и бюллетень",
+        listOf(
+            "Не снимайте чужой заполненный бюллетень и голосование другого человека в кабинке; не мешайте проходу и работе комиссии.",
+            "Публикацию фото собственного заполненного бюллетеня в дни голосования могут попытаться квалифицировать как незаконную агитацию.",
+            "Сделать свой бюллетень недействительным само по себе не запрещено, но надпись или рисунок могут создать отдельный правовой риск.",
+            "Не повреждайте ящик и чужие бюллетени: за это возможна административная или уголовная ответственность.",
+        ),
+    ),
+)
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VoterScreen(onBack: () -> Unit) {
-    Column(
-        Modifier.fillMaxSize().padding(20.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-    ) {
-        Text("Избиратель", style = MaterialTheme.typography.headlineMedium)
-        DemoBanner()
-        Text("Архитектурная точка расширения: главная, справочник, дерево ситуаций и журнал.")
-        Text("Функциональный сценарий первой контрольной точки реализован в модуле наблюдателя.")
-        Button(onClick = onBack) { Text("Назад") }
+    BackHandler(onBack = onBack)
+    val platform = LocalPlatformUi.current
+    val scope = rememberCoroutineScope()
+    val snackbar = remember { SnackbarHostState() }
+    val loadedState = remember(platform) {
+        runCatching { RecommendationJson.decodeState(platform.loadPrivateText(VOTER_STATE_KEY)) }
+    }
+    var state by remember { mutableStateOf(loadedState.getOrDefault(VoterLocalState())) }
+    var selectedName by rememberSaveable { mutableStateOf(VoterSection.RECOMMENDATIONS.name) }
+    var showImport by rememberSaveable { mutableStateOf(false) }
+    var importModeName by rememberSaveable { mutableStateOf(ImportMode.FILE.name) }
+    var importDisplayName by rememberSaveable { mutableStateOf("") }
+    var importUrl by rememberSaveable { mutableStateOf("") }
+    var importSha256 by rememberSaveable { mutableStateOf("") }
+    var importing by remember { mutableStateOf(false) }
+    var deleteSetId by rememberSaveable { mutableStateOf<String?>(null) }
+
+    var region by rememberSaveable { mutableStateOf("") }
+    var city by rememberSaveable { mutableStateOf("") }
+    var district by rememberSaveable { mutableStateOf("") }
+    var precinct by rememberSaveable { mutableStateOf("") }
+    var ballotType by rememberSaveable { mutableStateOf("") }
+
+    val commit: (VoterLocalState) -> Unit = { next ->
+        runCatching { platform.savePrivateText(VOTER_STATE_KEY, RecommendationJson.encodeState(next)) }
+            .onSuccess { state = next }
+            .onFailure { error -> scope.launch { snackbar.showSnackbar(error.userMessage("Не удалось сохранить данные")) } }
+    }
+
+    fun addImported(raw: String, source: String, displayName: String, expectedHash: String) {
+        runCatching { RecommendationJson.import(raw, displayName, source, expectedHash) }
+            .onSuccess { imported ->
+                val next = state.copy(
+                    recommendationSets = state.recommendationSets.filterNot { it.id == imported.id } + imported,
+                )
+                commit(next)
+                showImport = false
+                scope.launch { snackbar.showSnackbar("Набор «${imported.displayName}» добавлен") }
+            }
+            .onFailure { error -> scope.launch { snackbar.showSnackbar(error.userMessage("Не удалось импортировать JSON")) } }
+        importing = false
+    }
+
+    val jsonPicker = platform.rememberJsonDocumentPicker { handle ->
+        if (handle != null) {
+            importing = true
+            scope.launch {
+                runCatching { platform.readPickedDocument(handle, MAX_RECOMMENDATION_JSON_BYTES) }
+                    .onSuccess { document ->
+                        runCatching { document.bytes.decodeToString(throwOnInvalidSequence = true) }
+                            .onSuccess { raw ->
+                                addImported(raw, "Файл: ${document.name}", importDisplayName, importSha256)
+                            }
+                            .onFailure { error ->
+                                importing = false
+                                snackbar.showSnackbar(error.userMessage("Файл должен быть в UTF-8"))
+                            }
+                    }
+                    .onFailure { error ->
+                        importing = false
+                        snackbar.showSnackbar(error.userMessage("Не удалось прочитать файл"))
+                    }
+            }
+        }
+    }
+
+    LaunchedEffect(loadedState.isFailure) {
+        if (loadedState.isFailure) snackbar.showSnackbar("Локальные списки повреждены и не были открыты")
+    }
+
+    if (showImport) {
+        ImportDialog(
+            mode = ImportMode.valueOf(importModeName),
+            displayName = importDisplayName,
+            url = importUrl,
+            sha256 = importSha256,
+            importing = importing,
+            onModeChange = { importModeName = it.name },
+            onDisplayNameChange = { importDisplayName = it },
+            onUrlChange = { importUrl = it },
+            onSha256Change = { importSha256 = it },
+            onDismiss = { if (!importing) showImport = false },
+            onPickFile = { jsonPicker.launch() },
+            onDownload = {
+                importing = true
+                scope.launch {
+                    runCatching { platform.fetchHttpsText(importUrl, MAX_RECOMMENDATION_JSON_BYTES) }
+                        .onSuccess { raw -> addImported(raw, importUrl.trim(), importDisplayName, importSha256) }
+                        .onFailure { error ->
+                            importing = false
+                            snackbar.showSnackbar(error.userMessage("Не удалось скачать JSON"))
+                        }
+                }
+            },
+        )
+    }
+
+    deleteSetId?.let { id ->
+        val set = state.recommendationSets.firstOrNull { it.id == id }
+        if (set != null) {
+            AlertDialog(
+                onDismissRequest = { deleteSetId = null },
+                title = { Text("Удалить набор?") },
+                text = { Text("«${set.displayName}» будет удалён только с этого устройства.") },
+                confirmButton = {
+                    TextButton(onClick = {
+                        commit(state.copy(recommendationSets = state.recommendationSets.filterNot { it.id == id }))
+                        deleteSetId = null
+                    }) { Text("Удалить") }
+                },
+                dismissButton = { TextButton(onClick = { deleteSetId = null }) { Text("Отмена") } },
+            )
+        }
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Избиратель") },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "Назад")
+                    }
+                },
+                actions = { AppHelpButton() },
+            )
+        },
+        snackbarHost = { SnackbarHost(snackbar) },
+    ) { padding ->
+        LazyColumn(
+            Modifier.fillMaxSize().padding(padding).padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            item { LocalOnlyNotice() }
+            item {
+                LazyRow(
+                    Modifier.fillMaxWidth().selectableGroup(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    items(VoterSection.entries) { section ->
+                        FilterChip(
+                            selected = selectedName == section.name,
+                            onClick = { selectedName = section.name },
+                            label = { Text(section.label) },
+                        )
+                    }
+                }
+            }
+
+            when (VoterSection.valueOf(selectedName)) {
+                VoterSection.RECOMMENDATIONS -> recommendationsContent(
+                    state = state,
+                    region = region,
+                    city = city,
+                    district = district,
+                    precinct = precinct,
+                    ballotType = ballotType,
+                    onRegionChange = { region = it },
+                    onCityChange = { city = it },
+                    onDistrictChange = { district = it },
+                    onPrecinctChange = { precinct = it },
+                    onBallotTypeChange = { ballotType = it },
+                    onImport = {
+                        importDisplayName = ""
+                        importUrl = ""
+                        importSha256 = ""
+                        showImport = true
+                    },
+                    onDelete = { deleteSetId = it },
+                    onAddToPlan = { set, recommendation ->
+                        val choice = PersonalVoteChoice(
+                            id = personalChoiceId(recommendation, set.displayName),
+                            region = recommendation.region,
+                            city = recommendation.city,
+                            district = recommendation.district,
+                            ballotType = recommendation.ballotType,
+                            choice = recommendation.choice,
+                            note = listOfNotNull(
+                                "Из набора «${set.displayName}»",
+                                recommendation.note,
+                            ).joinToString(". "),
+                        )
+                        commit(state.copy(personalChoices = state.personalChoices.filterNot { it.id == choice.id } + choice))
+                        scope.launch { snackbar.showSnackbar("Добавлено в «Мой выбор»") }
+                    },
+                )
+
+                VoterSection.MY_PLAN -> personalPlanContent(
+                    state = state,
+                    defaultRegion = region,
+                    defaultCity = city,
+                    defaultDistrict = district,
+                    defaultBallotType = ballotType,
+                    onAdd = { choice -> commit(state.copy(personalChoices = state.personalChoices.filterNot { it.id == choice.id } + choice)) },
+                    onDelete = { id -> commit(state.copy(personalChoices = state.personalChoices.filterNot { it.id == id })) },
+                )
+
+                VoterSection.GUIDE -> guideContent(platform::openExternalLink)
+            }
+            item { Spacer(Modifier.height(24.dp)) }
+        }
     }
 }
+
+private fun androidx.compose.foundation.lazy.LazyListScope.recommendationsContent(
+    state: VoterLocalState,
+    region: String,
+    city: String,
+    district: String,
+    precinct: String,
+    ballotType: String,
+    onRegionChange: (String) -> Unit,
+    onCityChange: (String) -> Unit,
+    onDistrictChange: (String) -> Unit,
+    onPrecinctChange: (String) -> Unit,
+    onBallotTypeChange: (String) -> Unit,
+    onImport: () -> Unit,
+    onDelete: (String) -> Unit,
+    onAddToPlan: (ImportedRecommendationSet, VoteRecommendation) -> Unit,
+) {
+    item {
+        Text(
+            "Сравнивайте предложения разных политических акторов. Приложение не рекомендует источник и не выбирает за вас.",
+            style = MaterialTheme.typography.bodyMedium,
+        )
+    }
+    item {
+        Button(onClick = onImport, modifier = Modifier.fillMaxWidth()) {
+            Icon(Icons.Outlined.Add, contentDescription = null)
+            Text("Добавить список", Modifier.padding(start = 8.dp))
+        }
+    }
+    item {
+        LocationFilters(
+            region,
+            city,
+            district,
+            precinct,
+            ballotType,
+            onRegionChange,
+            onCityChange,
+            onDistrictChange,
+            onPrecinctChange,
+            onBallotTypeChange,
+        )
+    }
+    if (state.recommendationSets.isEmpty()) {
+        item {
+            InfoCard(
+                "Списков пока нет",
+                "Загрузите JSON, который вы уже проверили, или вставьте HTTPS-ссылку. Загрузка начнётся только после нажатия кнопки.",
+            )
+        }
+    } else {
+        items(state.recommendationSets, key = { it.id }) { set ->
+            RecommendationSetCard(
+                set = set,
+                filtered = set.pack.recommendations.filter {
+                    it.matches(region, city, district, precinct, ballotType)
+                },
+                onDelete = { onDelete(set.id) },
+                onAddToPlan = { onAddToPlan(set, it) },
+            )
+        }
+    }
+}
+
+@Composable
+private fun LocalOnlyNotice() {
+    Surface(
+        color = MaterialTheme.colorScheme.secondaryContainer,
+        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+        shape = MaterialTheme.shapes.large,
+    ) {
+        Row(
+            Modifier.fillMaxWidth().padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.Top,
+        ) {
+            Icon(Icons.Outlined.Lock, contentDescription = null)
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text("Решаете только вы", fontWeight = FontWeight.Bold)
+                Text(
+                    "Списки и ваш план хранятся локально. Приложение ничего не отправляет и обращается к сети только когда вы подтверждаете загрузку HTTPS-ссылки.",
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun LocationFilters(
+    region: String,
+    city: String,
+    district: String,
+    precinct: String,
+    ballotType: String,
+    onRegionChange: (String) -> Unit,
+    onCityChange: (String) -> Unit,
+    onDistrictChange: (String) -> Unit,
+    onPrecinctChange: (String) -> Unit,
+    onBallotTypeChange: (String) -> Unit,
+) {
+    Card(Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text("Найти рекомендации для себя", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text("Пустые поля показывают всё. Значение «*» в JSON означает любую территорию.", style = MaterialTheme.typography.bodySmall)
+            OutlinedTextField(region, onRegionChange, label = { Text("Регион") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+            OutlinedTextField(city, onCityChange, label = { Text("Город / поселение") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+            OutlinedTextField(district, onDistrictChange, label = { Text("Округ") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+            OutlinedTextField(precinct, onPrecinctChange, label = { Text("Участок, если нужен") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+            Text("Тип бюллетеня", style = MaterialTheme.typography.labelLarge)
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                item {
+                    FilterChip(selected = ballotType.isBlank(), onClick = { onBallotTypeChange("") }, label = { Text("Все") })
+                }
+                items(knownBallotTypes.entries.toList()) { (value, label) ->
+                    FilterChip(selected = ballotType == value, onClick = { onBallotTypeChange(value) }, label = { Text(label) })
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun RecommendationSetCard(
+    set: ImportedRecommendationSet,
+    filtered: List<VoteRecommendation>,
+    onDelete: () -> Unit,
+    onAddToPlan: (VoteRecommendation) -> Unit,
+) {
+    Card(
+        Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+    ) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                    Text(set.displayName, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                    set.pack.publisher?.let { Text("Автор списка: $it", style = MaterialTheme.typography.labelLarge) }
+                    set.pack.election?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
+                    set.pack.publishedAt?.let { Text("Дата набора: $it", style = MaterialTheme.typography.bodySmall) }
+                }
+                IconButton(onClick = onDelete) { Icon(Icons.Outlined.Delete, contentDescription = "Удалить набор") }
+            }
+            Text("Источник импорта: ${set.source}", style = MaterialTheme.typography.bodySmall)
+            Text("SHA-256 файла: ${set.rawSha256}", style = MaterialTheme.typography.bodySmall)
+            if (set.expectedSha256 != null || set.pack.contentSha256 != null) {
+                Text("Контрольная сумма проверена", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.SemiBold)
+            } else {
+                Text("Внешняя контрольная сумма не была указана", style = MaterialTheme.typography.bodySmall)
+            }
+            HorizontalDivider()
+            if (filtered.isEmpty()) {
+                Text("Для выбранных фильтров рекомендаций нет.")
+            } else {
+                Text("Найдено: ${filtered.size}", style = MaterialTheme.typography.labelLarge)
+                filtered.forEach { item -> RecommendationCard(item, onAddToPlan) }
+            }
+        }
+    }
+}
+
+@Composable
+private fun RecommendationCard(item: VoteRecommendation, onAddToPlan: (VoteRecommendation) -> Unit) {
+    Card(Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Text(ballotTypeLabel(item.ballotType), color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
+            Text(item.choice, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            item.party?.let { Text("Партия / объединение: $it") }
+            item.candidateNumber?.let { Text("Номер: $it") }
+            Text(scopeLabel(item), style = MaterialTheme.typography.bodySmall)
+            item.note?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
+            OutlinedButton(onClick = { onAddToPlan(item) }, modifier = Modifier.fillMaxWidth()) {
+                Text("Добавить в мой выбор")
+            }
+        }
+    }
+}
+
+private fun androidx.compose.foundation.lazy.LazyListScope.personalPlanContent(
+    state: VoterLocalState,
+    defaultRegion: String,
+    defaultCity: String,
+    defaultDistrict: String,
+    defaultBallotType: String,
+    onAdd: (PersonalVoteChoice) -> Unit,
+    onDelete: (String) -> Unit,
+) {
+    item {
+        PersonalChoiceForm(defaultRegion, defaultCity, defaultDistrict, defaultBallotType, onAdd)
+    }
+    if (state.personalChoices.isEmpty()) {
+        item { InfoCard("Ваш план пуст", "Добавьте свой вариант или перенесите рекомендацию из любого загруженного набора.") }
+    } else {
+        items(state.personalChoices, key = { it.id }) { choice ->
+            Card(Modifier.fillMaxWidth()) {
+                Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.Top) {
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text(ballotTypeLabel(choice.ballotType), color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
+                        Text(choice.choice, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text(
+                            listOfNotNull(choice.region, choice.city, choice.district).joinToString(" · ").ifBlank { "Любая территория" },
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                        choice.note?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
+                    }
+                    IconButton(onClick = { onDelete(choice.id) }) {
+                        Icon(Icons.Outlined.Delete, contentDescription = "Удалить из моего выбора")
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PersonalChoiceForm(
+    defaultRegion: String,
+    defaultCity: String,
+    defaultDistrict: String,
+    defaultBallotType: String,
+    onAdd: (PersonalVoteChoice) -> Unit,
+) {
+    var choice by rememberSaveable { mutableStateOf("") }
+    var note by rememberSaveable { mutableStateOf("") }
+    var region by rememberSaveable(defaultRegion) { mutableStateOf(defaultRegion) }
+    var city by rememberSaveable(defaultCity) { mutableStateOf(defaultCity) }
+    var district by rememberSaveable(defaultDistrict) { mutableStateOf(defaultDistrict) }
+    var ballotType by rememberSaveable(defaultBallotType) {
+        mutableStateOf(defaultBallotType.ifBlank { "other" })
+    }
+    Card(Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text("Добавить свой вариант", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            OutlinedTextField(choice, { choice = it }, label = { Text("Кандидат, партия или другой выбор") }, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(note, { note = it }, label = { Text("Заметка, необязательно") }, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(region, { region = it }, label = { Text("Регион") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+            OutlinedTextField(city, { city = it }, label = { Text("Город") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+            OutlinedTextField(district, { district = it }, label = { Text("Округ") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+            Text("Тип бюллетеня", style = MaterialTheme.typography.labelLarge)
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                items(knownBallotTypes.entries.toList()) { (value, label) ->
+                    FilterChip(selected = ballotType == value, onClick = { ballotType = value }, label = { Text(label) })
+                }
+            }
+            Button(
+                onClick = {
+                    val newChoice = PersonalVoteChoice(
+                        id = Sha256.digest("$region|$city|$district|$ballotType|$choice|$note".encodeToByteArray()),
+                        region = region.trim().takeIf(String::isNotBlank),
+                        city = city.trim().takeIf(String::isNotBlank),
+                        district = district.trim().takeIf(String::isNotBlank),
+                        ballotType = ballotType,
+                        choice = choice.trim(),
+                        note = note.trim().takeIf(String::isNotBlank),
+                    )
+                    onAdd(newChoice)
+                    choice = ""
+                    note = ""
+                },
+                enabled = choice.isNotBlank(),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Icon(Icons.Outlined.Add, contentDescription = null)
+                Text("Добавить", Modifier.padding(start = 8.dp))
+            }
+        }
+    }
+}
+
+private fun androidx.compose.foundation.lazy.LazyListScope.guideContent(openLink: (String) -> Unit) {
+    item { OvdInfoSourceCard(openLink) }
+    items(voterGuideSections) { section ->
+        Card(Modifier.fillMaxWidth()) {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(section.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                section.points.forEach { Text("• $it") }
+            }
+        }
+    }
+}
+
+@Composable
+private fun OvdInfoSourceCard(openLink: (String) -> Unit) {
+    Card(
+        Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
+    ) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.Top) {
+                Icon(Icons.Outlined.Shield, contentDescription = null)
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text("Источник и предупреждение", fontWeight = FontWeight.Bold)
+                    Text(
+                        "Краткое изложение инструкции ОВД-Инфо, обновлённой 11 сентября 2026 года. Медиапроект «ОВД-Инфо» включён Минюстом РФ в перечень экстремистских организаций. Учитывайте риск хранения материалов и переписки на устройстве.",
+                    )
+                }
+            }
+            Text("Это справка, а не юридическая консультация. Нормы и практика могут измениться.", style = MaterialTheme.typography.bodySmall)
+            OutlinedButton(onClick = { openLink(OVD_INFO_ELECTION_GUIDE_URL) }, modifier = Modifier.fillMaxWidth()) {
+                Icon(Icons.AutoMirrored.Outlined.OpenInNew, contentDescription = null)
+                Text("Открыть оригинал по моему действию", Modifier.padding(start = 8.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun ImportDialog(
+    mode: ImportMode,
+    displayName: String,
+    url: String,
+    sha256: String,
+    importing: Boolean,
+    onModeChange: (ImportMode) -> Unit,
+    onDisplayNameChange: (String) -> Unit,
+    onUrlChange: (String) -> Unit,
+    onSha256Change: (String) -> Unit,
+    onDismiss: () -> Unit,
+    onPickFile: () -> Unit,
+    onDownload: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Добавить список") },
+        text = {
+            Column(
+                Modifier.verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                Text("Приложение сначала проверит структуру и контрольную сумму, затем сохранит набор локально.")
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    ImportMode.entries.forEach { item ->
+                        FilterChip(selected = mode == item, onClick = { onModeChange(item) }, label = { Text(item.label) })
+                    }
+                }
+                OutlinedTextField(
+                    displayName,
+                    onDisplayNameChange,
+                    label = { Text("Ваше название, необязательно") },
+                    supportingText = { Text("Например: «Предложение ФБК» или «Список Максима Каца»") },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !importing,
+                )
+                if (mode == ImportMode.URL) {
+                    OutlinedTextField(
+                        url,
+                        onUrlChange,
+                        label = { Text("HTTPS-ссылка на JSON") },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !importing,
+                        singleLine = true,
+                    )
+                }
+                OutlinedTextField(
+                    sha256,
+                    onSha256Change,
+                    label = { Text("SHA-256 файла, рекомендуется") },
+                    supportingText = { Text("64 символа. Возьмите хэш из отдельного доверенного канала.") },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !importing,
+                    singleLine = true,
+                )
+                Text(
+                    if (mode == ImportMode.URL) {
+                        "Будет выполнен один HTTPS GET-запрос без cookies и учётных данных. В браузере сервер должен разрешать CORS."
+                    } else {
+                        "Выберите уже скачанный JSON-файл размером не более 2 МБ."
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = if (mode == ImportMode.URL) onDownload else onPickFile,
+                enabled = !importing && (mode == ImportMode.FILE || url.trim().startsWith("https://")),
+            ) {
+                Icon(
+                    if (mode == ImportMode.URL) Icons.Outlined.Download else Icons.Outlined.UploadFile,
+                    contentDescription = null,
+                )
+                Text(if (importing) "Проверяем…" else if (mode == ImportMode.URL) "Скачать и добавить" else "Выбрать файл")
+            }
+        },
+        dismissButton = { TextButton(onClick = onDismiss, enabled = !importing) { Text("Отмена") } },
+    )
+}
+
+@Composable
+private fun InfoCard(title: String, text: String) {
+    Card(Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(text)
+        }
+    }
+}
+
+private fun scopeLabel(item: VoteRecommendation): String = listOfNotNull(
+    item.region?.let { "Регион: $it" },
+    item.city?.let { "Город: $it" },
+    item.district?.let { "Округ: $it" },
+    item.precinct?.let { "Участок: $it" },
+).joinToString(" · ").ifBlank { "Для любой территории" }
+
+private fun personalChoiceId(item: VoteRecommendation, sourceName: String): String = Sha256.digest(
+    "$sourceName|${item.region}|${item.city}|${item.district}|${item.precinct}|${item.ballotType}|${item.choice}"
+        .encodeToByteArray(),
+)
+
+private fun Throwable.userMessage(fallback: String): String =
+    message?.takeIf(String::isNotBlank)?.let { "$fallback: $it" } ?: fallback

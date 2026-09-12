@@ -9,6 +9,7 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import android.provider.OpenableColumns
 import android.view.View
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -25,6 +26,9 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
+import java.net.URI
+import javax.net.ssl.HttpsURLConnection
 
 class AndroidPlatformUi(private val context: Context) : PlatformUi {
     @Composable
@@ -76,6 +80,16 @@ class AndroidPlatformUi(private val context: Context) : PlatformUi {
     }
 
     @Composable
+    override fun rememberJsonDocumentPicker(onResult: (String?) -> Unit): JsonDocumentPicker {
+        val launcher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) {
+            onResult(it?.toString())
+        }
+        return remember(launcher) {
+            JsonDocumentPicker { launcher.launch(arrayOf("application/json", "text/json", "text/plain")) }
+        }
+    }
+
+    @Composable
     override fun rememberDocumentCreator(onResult: (String?) -> Unit): DocumentCreator {
         val launcher = rememberLauncherForActivityResult(CreateDocument()) { onResult(it?.toString()) }
         return remember(launcher) { DocumentCreator { launcher.launch(it) } }
@@ -120,6 +134,63 @@ class AndroidPlatformUi(private val context: Context) : PlatformUi {
     override fun decodeImage(bytes: ByteArray): ImageBitmap? =
         BitmapFactory.decodeByteArray(bytes, 0, bytes.size)?.asImageBitmap()
 
+    override fun loadPrivateText(key: String): String? =
+        context.getSharedPreferences(PRIVATE_TEXT_STORE, Context.MODE_PRIVATE).getString(key, null)
+
+    override fun savePrivateText(key: String, value: String) {
+        context.getSharedPreferences(PRIVATE_TEXT_STORE, Context.MODE_PRIVATE)
+            .edit()
+            .putString(key, value)
+            .apply()
+    }
+
+    override suspend fun readPickedDocument(handle: String, maxBytes: Int): PickedDocument =
+        withContext(Dispatchers.IO) {
+            require(maxBytes > 0)
+            val uri = Uri.parse(handle)
+            val name = context.contentResolver.query(
+                uri,
+                arrayOf(OpenableColumns.DISPLAY_NAME),
+                null,
+                null,
+                null,
+            )?.use { cursor ->
+                if (cursor.moveToFirst()) cursor.getString(0) else null
+            } ?: "recommendations.json"
+            val bytes = requireNotNull(context.contentResolver.openInputStream(uri)) {
+                "Не удалось открыть выбранный файл"
+            }.use { input -> input.readWithLimit(maxBytes) }
+            PickedDocument(name, bytes)
+        }
+
+    override suspend fun fetchHttpsText(url: String, maxBytes: Int): String = withContext(Dispatchers.IO) {
+        require(maxBytes > 0)
+        val uri = URI(url.trim())
+        require(uri.scheme.equals("https", ignoreCase = true) && uri.host != null && uri.userInfo == null) {
+            "Разрешены только HTTPS-ссылки без логина и пароля"
+        }
+        val connection = uri.toURL().openConnection() as HttpsURLConnection
+        try {
+            connection.requestMethod = "GET"
+            connection.connectTimeout = 12_000
+            connection.readTimeout = 18_000
+            connection.instanceFollowRedirects = true
+            connection.setRequestProperty("Accept", "application/json, text/plain;q=0.8")
+            connection.setRequestProperty("Accept-Encoding", "identity")
+            val status = connection.responseCode
+            require(status in 200..299) { "Сервер ответил кодом $status" }
+            require(connection.url.protocol.equals("https", ignoreCase = true)) {
+                "Ссылка перенаправила на небезопасный адрес"
+            }
+            val declaredLength = connection.contentLengthLong
+            require(declaredLength < 0 || declaredLength <= maxBytes) { "Файл слишком большой" }
+            connection.inputStream.use { it.readWithLimit(maxBytes) }
+                .decodeToString(throwOnInvalidSequence = true)
+        } finally {
+            connection.disconnect()
+        }
+    }
+
     override suspend fun writeDocument(handle: String, bytes: ByteArray): Unit = withContext(Dispatchers.IO) {
         requireNotNull(context.contentResolver.openOutputStream(Uri.parse(handle), "wt")) {
             "Не удалось открыть выбранный файл"
@@ -130,6 +201,22 @@ class AndroidPlatformUi(private val context: Context) : PlatformUi {
         require(path.isNotBlank() && !path.startsWith('/') && !path.contains("..") && !path.contains('\\'))
         context.assets.open(path).use { it.readBytes() }
     }
+}
+
+private const val PRIVATE_TEXT_STORE = "yanavyborah-private-text"
+
+private fun java.io.InputStream.readWithLimit(maxBytes: Int): ByteArray {
+    val output = ByteArrayOutputStream(minOf(maxBytes, 16 * 1024))
+    val buffer = ByteArray(8 * 1024)
+    var total = 0
+    while (true) {
+        val read = read(buffer)
+        if (read < 0) break
+        total += read
+        require(total <= maxBytes) { "Файл слишком большой" }
+        output.write(buffer, 0, read)
+    }
+    return output.toByteArray()
 }
 
 private class CreateDocument : ActivityResultContract<DocumentRequest, Uri?>() {

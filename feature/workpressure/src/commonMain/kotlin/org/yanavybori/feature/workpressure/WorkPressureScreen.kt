@@ -54,6 +54,9 @@ private enum class HelpSection(val label: String) {
     CONTACTS("Куда обратиться"),
 }
 
+internal const val OVD_INFO_ELECTION_GUIDE_URL =
+    "https://ovdinfo.legal/instruction/ya-khochu-poyti-na-vybory-kak-podgotovitsya-i-obezopasit-sebya"
+
 internal data class WorkPressureTemplate(
     val id: String,
     val title: String,
@@ -101,6 +104,7 @@ fun WorkPressureScreen(onBack: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             item { VotingReminder() }
+            item { OvdInfoWorkPressureSource() }
             item {
                 Text(
                     "Помощник работает офлайн. Он не отправляет жалобу автоматически и не заменяет помощь юриста.",
@@ -166,6 +170,17 @@ fun WorkPressureScreen(onBack: () -> Unit) {
 
 private fun androidx.compose.foundation.lazy.LazyListScope.firstSteps() {
     item {
+        ChecklistCard(
+            "Что важно помнить избирателю на работе",
+            listOf(
+                "Работодатель не вправе требовать голосовать онлайн, приходить на участок в определённый день или выбирать конкретного кандидата.",
+                "Вы не обязаны показывать заполненный бюллетень, фотографию, скриншот электронного голосования или иначе доказывать свой выбор.",
+                "Участие в голосовании добровольное, а волеизъявление тайное — требование отчёта не меняет этих правил.",
+                "Если давление связано с вашим рабочим телефоном или аккаунтом, учитывайте, что устройство и переписка могут контролироваться работодателем.",
+            ),
+        )
+    }
+    item {
         AdviceCard(
             "Если угроза непосредственная",
             "Уйдите в безопасное место и звоните 112. Не спорьте в одиночку, если это повышает риск для вас.",
@@ -208,6 +223,32 @@ private fun androidx.compose.foundation.lazy.LazyListScope.firstSteps() {
                 "Дата, подпись и перечень приложений; при личной подаче — отметка о принятии на вашей копии.",
             ),
         )
+    }
+}
+
+@Composable
+private fun OvdInfoWorkPressureSource() {
+    val platform = LocalPlatformUi.current
+    Card(
+        Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
+    ) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("Источник и предупреждение", fontWeight = FontWeight.Bold)
+            Text(
+                "Часть памятки — краткое изложение инструкции ОВД-Инфо, обновлённой 11 сентября 2026 года. " +
+                    "Медиапроект «ОВД-Инфо» включён Минюстом РФ в перечень экстремистских организаций. " +
+                    "Учитывайте риск хранения материалов и переписки на устройстве.",
+            )
+            Text("Приложение не открывает источник и ничего не отправляет без вашего действия.", style = MaterialTheme.typography.bodySmall)
+            OutlinedButton(
+                onClick = { platform.openExternalLink(OVD_INFO_ELECTION_GUIDE_URL) },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Icon(Icons.AutoMirrored.Outlined.OpenInNew, contentDescription = null)
+                Text("Открыть оригинал по моему действию", Modifier.padding(start = 8.dp))
+            }
+        }
     }
 }
 

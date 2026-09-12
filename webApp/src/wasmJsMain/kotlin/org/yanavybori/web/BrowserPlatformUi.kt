@@ -24,7 +24,9 @@ import org.w3c.dom.events.KeyboardEvent
 import kotlinx.browser.window
 import org.yanavybori.core.ui.DocumentCreator
 import org.yanavybori.core.ui.DocumentRequest
+import org.yanavybori.core.ui.JsonDocumentPicker
 import org.yanavybori.core.ui.MediaPicker
+import org.yanavybori.core.ui.PickedDocument
 import org.yanavybori.core.ui.PlatformUi
 
 @JsFun("""(accept, capture) => new Promise((resolve, reject) => {
@@ -71,6 +73,31 @@ private external fun pickBrowserFile(accept: JsString, capture: Boolean): Promis
     return btoa(binary);
 })""")
 private external fun fetchBase64(path: JsString): Promise<JsString>
+
+@JsFun("""(url, maxBytes) => fetch(url, {
+    method: 'GET',
+    credentials: 'omit',
+    cache: 'no-store',
+    redirect: 'follow',
+    referrerPolicy: 'no-referrer',
+    headers: { 'Accept': 'application/json, text/plain;q=0.8' }
+}).then(response => {
+    if (!response.ok) throw new Error('Сервер ответил кодом ' + response.status);
+    if (!String(response.url).startsWith('https://')) throw new Error('Ссылка перенаправила на небезопасный адрес');
+    const declared = Number(response.headers.get('content-length'));
+    if (Number.isFinite(declared) && declared > maxBytes) throw new Error('Файл слишком большой');
+    return response.arrayBuffer();
+}).then(buffer => {
+    if (buffer.byteLength > maxBytes) throw new Error('Файл слишком большой');
+    const bytes = new Uint8Array(buffer);
+    let binary = '';
+    const chunk = 0x8000;
+    for (let i = 0; i < bytes.length; i += chunk) {
+        binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
+    }
+    return btoa(binary);
+})""")
+private external fun fetchRemoteBase64(url: JsString, maxBytes: Int): Promise<JsString>
 
 @JsFun("""(base64, fileName, mimeType) => {
     const binary = atob(base64);
@@ -151,6 +178,26 @@ internal class BrowserPlatformUi : PlatformUi {
     }
 
     @Composable
+    override fun rememberJsonDocumentPicker(onResult: (String?) -> Unit): JsonDocumentPicker {
+        val scope = rememberCoroutineScope()
+        val currentOnResult = rememberUpdatedState(onResult)
+        return remember(scope) {
+            JsonDocumentPicker {
+                scope.launch {
+                    runCatching {
+                        pickBrowserFile("application/json,.json,text/plain".toJsString(), false)
+                            .await<JsString?>()?.toString()
+                            ?.let { raw -> BrowserFileRegistry.put(json.decodeFromString<PickedBrowserFile>(raw)) }
+                    }.fold(
+                        onSuccess = { currentOnResult.value(it) },
+                        onFailure = { currentOnResult.value(null) },
+                    )
+                }
+            }
+        }
+    }
+
+    @Composable
     override fun rememberDocumentCreator(onResult: (String?) -> Unit): DocumentCreator {
         val currentOnResult = rememberUpdatedState(onResult)
         return remember {
@@ -184,6 +231,32 @@ internal class BrowserPlatformUi : PlatformUi {
     override fun decodeImage(bytes: ByteArray): ImageBitmap? = runCatching {
         Image.makeFromEncoded(bytes).toComposeImageBitmap()
     }.getOrNull()
+
+    override fun loadPrivateText(key: String): String? =
+        window.localStorage.getItem("yanavyborah.private.$key")
+
+    override fun savePrivateText(key: String, value: String) {
+        window.localStorage.setItem("yanavyborah.private.$key", value)
+    }
+
+    @OptIn(ExperimentalEncodingApi::class)
+    override suspend fun readPickedDocument(handle: String, maxBytes: Int): PickedDocument {
+        require(maxBytes > 0)
+        val file = requireNotNull(BrowserFileRegistry.take(handle)) { "Выбранный файл больше недоступен" }
+        val bytes = Base64.decode(file.base64)
+        require(bytes.size <= maxBytes) { "Файл слишком большой" }
+        return PickedDocument(file.name, bytes)
+    }
+
+    @OptIn(ExperimentalEncodingApi::class)
+    override suspend fun fetchHttpsText(url: String, maxBytes: Int): String {
+        val normalized = url.trim()
+        require(normalized.startsWith("https://") && !normalized.substringAfter("https://").substringBefore('/').contains('@')) {
+            "Разрешены только HTTPS-ссылки без логина и пароля"
+        }
+        val encoded = fetchRemoteBase64(normalized.toJsString(), maxBytes).await<JsString>().toString()
+        return Base64.decode(encoded).decodeToString(throwOnInvalidSequence = true)
+    }
 
     @OptIn(ExperimentalEncodingApi::class)
     override suspend fun writeDocument(handle: String, bytes: ByteArray) {

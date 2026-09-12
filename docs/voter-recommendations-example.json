@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "title": "Демонстрационный список рекомендаций",
+  "publisher": "Название автора рекомендаций",
+  "election": "Выборы 2026",
+  "publishedAt": "2026-09-12",
+  "sourceUrl": "https://example.org/recommendations.json",
+  "recommendations": [
+    {
+      "region": "Москва",
+      "city": "Москва",
+      "district": "Округ 1",
+      "ballotType": "federal_party_list",
+      "choice": "Партия или список",
+      "candidateNumber": "7",
+      "note": "Пояснение автора списка"
+    },
+    {
+      "region": "Москва",
+      "city": "Москва",
+      "district": "Округ 1",
+      "ballotType": "federal_single_mandate",
+      "choice": "Имя кандидата",
+      "party": "Партия или самовыдвижение"
+    },
+    {
+      "region": "*",
+      "ballotType": "regional_party_list",
+      "choice": "Вариант для всех городов региона"
+    }
+  ]
+}
