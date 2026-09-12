@@ -1,0 +1,117 @@
+[
+  {
+    "id": "observer-preparation",
+    "packId": "ru-observer-methodical-pack",
+    "order": 0,
+    "title": "Подготовка до 18 сентября 2026 года",
+    "shortTitle": "Подготовка",
+    "description": "Вспомогательные материалы до прибытия. При расхождении с дорожной картой приоритет имеет дорожная карта.",
+    "stages": [
+      {
+        "id": "preparation-documents",
+        "title": "Документы и прибытие",
+        "order": 1
+      },
+      {
+        "id": "preparation-room",
+        "title": "Помещение и оборудование",
+        "order": 2
+      }
+    ]
+  },
+  {
+    "id": "observer-voting-day-1",
+    "packId": "ru-observer-methodical-pack",
+    "order": 1,
+    "title": "Пятница, 18 сентября 2026 года — первый день",
+    "shortTitle": "18 сентября",
+    "description": "Первый день трёхдневного голосования: открытие в 08:00, голосование, выезды, дополнительная форма и сохранность бюллетеней.",
+    "stages": [
+      {
+        "id": "day-1-opening",
+        "title": "Прибытие и открытие",
+        "order": 1
+      },
+      {
+        "id": "day-1-voting",
+        "title": "Голосование в помещении",
+        "order": 2
+      },
+      {
+        "id": "day-1-home-voting",
+        "title": "Выезды и дополнительная форма",
+        "order": 3
+      },
+      {
+        "id": "day-1-storage",
+        "title": "Завершение дня и хранение",
+        "order": 4
+      }
+    ]
+  },
+  {
+    "id": "observer-voting-day-2",
+    "packId": "ru-observer-methodical-pack",
+    "order": 2,
+    "title": "Суббота, 19 сентября 2026 года — второй день",
+    "shortTitle": "19 сентября",
+    "description": "Проверка сохранности, открытие в 08:00, голосование, выезды, дополнительная форма и повторное помещение бюллетеней на хранение.",
+    "stages": [
+      {
+        "id": "day-2-opening",
+        "title": "Проверка сохранности и открытие",
+        "order": 1
+      },
+      {
+        "id": "day-2-voting",
+        "title": "Голосование в помещении",
+        "order": 2
+      },
+      {
+        "id": "day-2-home-voting",
+        "title": "Выезды и дополнительная форма",
+        "order": 3
+      },
+      {
+        "id": "day-2-storage",
+        "title": "Завершение дня и хранение",
+        "order": 4
+      }
+    ]
+  },
+  {
+    "id": "observer-final-day",
+    "packId": "ru-observer-methodical-pack",
+    "order": 3,
+    "title": "Воскресенье, 20 сентября 2026 года — финальный день",
+    "shortTitle": "20 сентября",
+    "description": "Открытие в 08:00, приём надомных обращений до 14:00, голосование, ручной подсчёт, итоговое заседание и копия протокола.",
+    "stages": [
+      {
+        "id": "final-day-opening",
+        "title": "Проверка сохранности и открытие",
+        "order": 1
+      },
+      {
+        "id": "final-day-voting",
+        "title": "Голосование",
+        "order": 2
+      },
+      {
+        "id": "final-day-home-voting",
+        "title": "Голосование на дому",
+        "order": 3
+      },
+      {
+        "id": "final-day-counting",
+        "title": "Ручной подсчёт голосов",
+        "order": 4
+      },
+      {
+        "id": "final-day-protocol",
+        "title": "Итоговое заседание и протокол",
+        "order": 5
+      }
+    ]
+  }
+]
