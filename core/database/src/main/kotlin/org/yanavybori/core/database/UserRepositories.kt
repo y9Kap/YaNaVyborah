@@ -32,6 +32,7 @@ import org.yanavybori.core.common.ProtocolRepository
 import org.yanavybori.core.common.ReconciliationRepository
 import org.yanavybori.core.common.SESSION_DELETION_PASSWORD_MIN_LENGTH
 import org.yanavybori.core.common.SystemClock
+import org.yanavybori.core.common.UserDataRepository
 import org.yanavybori.core.common.UuidGenerator
 import org.yanavybori.core.model.ChecklistItemState
 import org.yanavybori.core.model.ChecklistStatus
@@ -52,6 +53,7 @@ import org.yanavybori.core.model.PrivacyStatus
 import org.yanavybori.core.model.ProtocolSnapshot
 import org.yanavybori.core.model.ReconciliationResult
 import org.yanavybori.core.model.ReconciliationSession
+import org.yanavybori.core.model.UserDataSnapshot
 
 private val userJson = Json { ignoreUnknownKeys = true; encodeDefaults = true }
 private val Context.activeSessionDataStore by preferencesDataStore(name = "active_observation")
@@ -367,6 +369,35 @@ class RoomProtocolRepository(private val dao: ProtocolDao) : ProtocolRepository 
     override fun observeSnapshots(observationSessionId: String): Flow<List<ProtocolSnapshot>> =
         dao.observe(observationSessionId).map { rows -> rows.map { it.toModel() } }
     override suspend fun save(snapshot: ProtocolSnapshot) = dao.upsert(snapshot.toEntity())
+}
+
+class RoomUserDataRepository(
+    private val observationDao: ObservationDao,
+    private val checklistStateDao: ChecklistStateDao,
+    private val journalDao: JournalDao,
+    private val complaintDao: ComplaintDao,
+    private val counterDao: CounterDao,
+    private val reconciliationDao: ReconciliationDao,
+    private val protocolDao: ProtocolDao,
+    private val mediaDao: MediaDao,
+    private val activeSessionStore: ActiveSessionStore,
+) : UserDataRepository {
+    override suspend fun snapshot() = UserDataSnapshot(
+        activeSessionId = activeSessionStore.activeId.first(),
+        observationSessions = observationDao.exportAll().map { it.toModel() },
+        checklistStates = checklistStateDao.exportAllStates().map { it.toModel() },
+        checklistSections = checklistStateDao.exportAllSections().map {
+            ChecklistSectionState(it.sessionId, it.votingDayId, it.definitionId, it.collapsed, it.notApplicable)
+        },
+        journalEvents = journalDao.exportAll().map { it.toModel() },
+        complaints = complaintDao.exportAll().map { it.toModel() },
+        counterSessions = counterDao.exportAllCounters().map { it.toModel() },
+        counterMarks = counterDao.exportAllMarks().map { it.toModel() },
+        reconciliationSessions = reconciliationDao.exportAll().map { it.toModel() },
+        protocolSnapshots = protocolDao.exportAll().map { it.toModel() },
+        mediaAssets = mediaDao.exportAll().map { it.toModel().copy(encryptedStoragePath = "") },
+        privacyReports = mediaDao.exportAllPrivacyReports().map { it.toModel() },
+    )
 }
 
 private fun ObservationSessionEntity.toModel() = ObservationSession(

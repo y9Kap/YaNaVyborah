@@ -9,6 +9,7 @@ import kotlinx.coroutines.sync.withLock
 import org.yanavybori.core.content.ElectionPackImporter
 import org.yanavybori.core.content.ElectionPackSource
 import org.yanavybori.feature.observer.ObserverDependencies
+import org.yanavybori.core.common.UserDataRepository
 
 sealed interface BootstrapState {
     data object Loading : BootstrapState
@@ -20,6 +21,8 @@ sealed interface BootstrapState {
 class SharedAppContainer(
     val observerDependencies: ObserverDependencies,
     private val electionPackSource: ElectionPackSource,
+    val userDataRepository: UserDataRepository,
+    val applicationVersion: String,
 ) {
     val electionPackRepository = observerDependencies.electionPackRepository
     private val importer = ElectionPackImporter(electionPackRepository)

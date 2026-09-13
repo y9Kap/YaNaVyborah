@@ -3,7 +3,7 @@ plugins {
     alias(libs.plugins.compose.compiler)
 }
 
-val configuredVersionName = providers.gradleProperty("VERSION_NAME").orNull ?: "5.1.0"
+val configuredVersionName = providers.gradleProperty("VERSION_NAME").orNull ?: "0.5.2"
 val configuredVersionCode = providers.gradleProperty("VERSION_CODE").orNull?.let { value ->
     value.toIntOrNull()?.takeIf { it > 0 }
         ?: error("VERSION_CODE должен быть положительным целым числом")
@@ -59,7 +59,10 @@ android {
         }
     }
     sourceSets.getByName("main").assets.srcDir("../shared/src/commonMain/resources")
-    buildFeatures { compose = true }
+    buildFeatures {
+        compose = true
+        buildConfig = true
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17

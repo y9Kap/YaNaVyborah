@@ -9,7 +9,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.yanavybori.core.content.ElectionPackSource
 import org.yanavybori.core.ui.LocalPlatformUi
-import org.yanavybori.core.ui.YaNaVyborahTheme
 import org.yanavybori.feature.observer.ObserverDependencies
 import org.yanavybori.shared.SharedAppContainer
 import org.yanavybori.shared.YaNaVyborahRoot
@@ -33,11 +32,11 @@ fun main() {
         mediaRepository = store,
         readPackFile = { path -> source.read(path) },
     )
-    val container = SharedAppContainer(dependencies, source)
+    val container = SharedAppContainer(dependencies, source, store, "0.5.2")
 
     ComposeViewport(document.body!!) {
         CompositionLocalProvider(LocalPlatformUi provides platformUi) {
-            YaNaVyborahTheme { YaNaVyborahRoot(container) }
+            YaNaVyborahRoot(container)
         }
     }
     CoroutineScope(Dispatchers.Default).launch { container.bootstrapElectionPack() }

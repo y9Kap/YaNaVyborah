@@ -175,6 +175,23 @@ data class PrivacyFinding(
     val description: String,
 )
 
+/** Complete user-created state. Password hashes and internal storage paths are deliberately excluded. */
+@Serializable
+data class UserDataSnapshot(
+    val activeSessionId: String? = null,
+    val observationSessions: List<ObservationSession> = emptyList(),
+    val checklistStates: List<ChecklistItemState> = emptyList(),
+    val checklistSections: List<ChecklistSectionState> = emptyList(),
+    val journalEvents: List<JournalEvent> = emptyList(),
+    val complaints: List<Complaint> = emptyList(),
+    val counterSessions: List<CounterSession> = emptyList(),
+    val counterMarks: List<CounterMark> = emptyList(),
+    val reconciliationSessions: List<ReconciliationSession> = emptyList(),
+    val protocolSnapshots: List<ProtocolSnapshot> = emptyList(),
+    val mediaAssets: List<MediaAsset> = emptyList(),
+    val privacyReports: List<PrivacyReport> = emptyList(),
+)
+
 @Serializable
 enum class PrivacyFindingType {
     TEXT,

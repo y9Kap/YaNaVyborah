@@ -1,6 +1,5 @@
 package org.yanavybori.core.ui
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
@@ -25,11 +24,25 @@ private val DarkColors = darkColorScheme(
     primaryContainer = Color(0xFF005142),
     secondary = Color(0xFFB1CCC2),
     secondaryContainer = Color(0xFF334B43),
+    error = Color(0xFFFFB4AB),
+    background = Color(0xFF101412),
+    surface = Color(0xFF101412),
 )
+
+const val APP_THEME_PREFERENCE_KEY = "app-theme.v1"
+
+enum class AppThemeMode {
+    LIGHT,
+    DARK;
+
+    companion object {
+        fun fromStored(value: String?): AppThemeMode = entries.firstOrNull { it.name == value } ?: LIGHT
+    }
+}
 
 @Composable
 fun YaNaVyborahTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean = false,
     content: @Composable () -> Unit,
 ) {
     MaterialTheme(

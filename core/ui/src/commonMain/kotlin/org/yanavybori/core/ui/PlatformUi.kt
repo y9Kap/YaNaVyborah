@@ -6,6 +6,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 
 /** Operations supplied by the application host. Handles are opaque to shared UI. */
 interface PlatformUi {
+    fun applyTheme(darkTheme: Boolean)
     @Composable fun BackHandler(enabled: Boolean, onBack: () -> Unit)
     @Composable fun DisableAutofill()
     @Composable fun KeepScreenOn()

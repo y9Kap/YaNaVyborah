@@ -159,6 +159,8 @@ data class PrivacyReportEntity(
 abstract class ObservationDao {
     @Query("SELECT * FROM observation_sessions ORDER BY startedAt DESC")
     abstract fun observeAll(): Flow<List<ObservationSessionEntity>>
+    @Query("SELECT * FROM observation_sessions ORDER BY startedAt")
+    abstract suspend fun exportAll(): List<ObservationSessionEntity>
     @Query("SELECT * FROM observation_sessions WHERE id = :id")
     abstract fun observeById(id: String): Flow<ObservationSessionEntity?>
     @Query("SELECT * FROM observation_sessions WHERE id = :id")
@@ -201,6 +203,10 @@ abstract class ObservationDao {
 
 @Dao
 interface ChecklistStateDao {
+    @Query("SELECT * FROM checklist_sections ORDER BY sessionId, votingDayId, definitionId")
+    suspend fun exportAllSections(): List<ChecklistSectionEntity>
+    @Query("SELECT * FROM checklist_states ORDER BY updatedAt, id")
+    suspend fun exportAllStates(): List<ChecklistStateEntity>
     @Query("SELECT * FROM checklist_sections WHERE sessionId = :sessionId AND votingDayId = :votingDayId")
     fun observeSections(sessionId: String, votingDayId: String): Flow<List<ChecklistSectionEntity>>
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -213,6 +219,8 @@ interface ChecklistStateDao {
 
 @Dao
 interface JournalDao {
+    @Query("SELECT * FROM journal_events ORDER BY timestamp, id")
+    suspend fun exportAll(): List<JournalEventEntity>
     @Query("SELECT * FROM journal_events WHERE sessionId = :sessionId ORDER BY timestamp DESC")
     fun observe(sessionId: String): Flow<List<JournalEventEntity>>
     @Query("SELECT * FROM journal_events WHERE id = :id")
@@ -223,6 +231,8 @@ interface JournalDao {
 
 @Dao
 interface ComplaintDao {
+    @Query("SELECT * FROM complaints ORDER BY createdAt, id")
+    suspend fun exportAll(): List<ComplaintEntity>
     @Query("SELECT * FROM complaints WHERE sessionId = :sessionId ORDER BY createdAt DESC")
     fun observe(sessionId: String): Flow<List<ComplaintEntity>>
     @Query("SELECT * FROM complaints WHERE id = :id")
@@ -233,6 +243,10 @@ interface ComplaintDao {
 
 @Dao
 abstract class CounterDao {
+    @Query("SELECT * FROM counter_sessions ORDER BY startedAt, id")
+    abstract suspend fun exportAllCounters(): List<CounterSessionEntity>
+    @Query("SELECT * FROM counter_marks ORDER BY timestamp, id")
+    abstract suspend fun exportAllMarks(): List<CounterMarkEntity>
     @Query("SELECT * FROM counter_sessions WHERE observationSessionId = :sessionId AND votingDayId = :votingDayId ORDER BY startedAt")
     abstract fun observeCounters(sessionId: String, votingDayId: String): Flow<List<CounterSessionEntity>>
     @Query("SELECT * FROM counter_marks WHERE counterSessionId = :counterId ORDER BY timestamp, rowid")
@@ -296,6 +310,8 @@ abstract class CounterDao {
 
 @Dao
 interface ReconciliationDao {
+    @Query("SELECT * FROM reconciliation_sessions ORDER BY createdAt, id")
+    suspend fun exportAll(): List<ReconciliationSessionEntity>
     @Query("SELECT * FROM reconciliation_sessions WHERE observationSessionId = :sessionId ORDER BY updatedAt DESC")
     fun observe(sessionId: String): Flow<List<ReconciliationSessionEntity>>
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -304,6 +320,8 @@ interface ReconciliationDao {
 
 @Dao
 interface ProtocolDao {
+    @Query("SELECT * FROM protocol_snapshots ORDER BY capturedAt, id")
+    suspend fun exportAll(): List<ProtocolSnapshotEntity>
     @Query("SELECT * FROM protocol_snapshots WHERE observationSessionId = :sessionId ORDER BY capturedAt DESC")
     fun observe(sessionId: String): Flow<List<ProtocolSnapshotEntity>>
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -312,6 +330,10 @@ interface ProtocolDao {
 
 @Dao
 interface MediaDao {
+    @Query("SELECT * FROM media_assets ORDER BY importedAt, id")
+    suspend fun exportAll(): List<MediaAssetEntity>
+    @Query("SELECT * FROM privacy_reports ORDER BY scannedAt, id")
+    suspend fun exportAllPrivacyReports(): List<PrivacyReportEntity>
     @Query("SELECT * FROM media_assets ORDER BY importedAt DESC")
     fun observeAll(): Flow<List<MediaAssetEntity>>
     @Query("SELECT * FROM media_assets WHERE id = :id")

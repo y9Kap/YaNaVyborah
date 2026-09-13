@@ -212,6 +212,10 @@ internal class BrowserPlatformUi : PlatformUi {
     private val json = Json { ignoreUnknownKeys = true }
     private val documentRequests = mutableMapOf<String, DocumentRequest>()
 
+    override fun applyTheme(darkTheme: Boolean) {
+        window.document.documentElement?.setAttribute("data-color-scheme", if (darkTheme) "dark" else "light")
+    }
+
     @Composable
     override fun BackHandler(enabled: Boolean, onBack: () -> Unit) {
         val currentOnBack = rememberUpdatedState(onBack)

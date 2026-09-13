@@ -14,6 +14,9 @@ import android.provider.OpenableColumns
 import android.view.View
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
@@ -38,6 +41,16 @@ import kotlin.io.encoding.ExperimentalEncodingApi
 import javax.net.ssl.HttpsURLConnection
 
 class AndroidPlatformUi(private val context: Context) : PlatformUi {
+    override fun applyTheme(darkTheme: Boolean) {
+        val activity = context as? ComponentActivity ?: return
+        val style = if (darkTheme) {
+            SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
+        } else {
+            SystemBarStyle.light(android.graphics.Color.TRANSPARENT, android.graphics.Color.TRANSPARENT)
+        }
+        activity.enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
+    }
+
     @Composable
     override fun BackHandler(enabled: Boolean, onBack: () -> Unit) {
         androidx.activity.compose.BackHandler(enabled, onBack)

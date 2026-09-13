@@ -148,6 +148,16 @@ class PrivateMediaRepository(
             }
         }
 
+    override suspend fun loadOriginal(id: String): ByteArray? = withContext(Dispatchers.IO) {
+        val asset = mediaDao.get(id)?.toModel() ?: return@withContext null
+        val encrypted = File(asset.encryptedStoragePath)
+        if (!encrypted.isFile) return@withContext null
+        ByteArrayOutputStream().use { output ->
+            FileInputStream(encrypted).use { input -> cryptoManager.decrypt(input, output) }
+            output.toByteArray()
+        }
+    }
+
     override suspend fun privacyReport(mediaAssetId: String): PrivacyReport? =
         mediaDao.privacyReport(mediaAssetId)?.toModel()
 

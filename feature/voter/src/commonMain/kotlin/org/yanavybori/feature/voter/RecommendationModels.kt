@@ -5,7 +5,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.yanavybori.core.crypto.Sha256
 
-internal const val VOTER_STATE_KEY = "voter-recommendations.v1"
+const val VOTER_STATE_KEY = "voter-recommendations.v1"
 internal const val MAX_RECOMMENDATION_JSON_BYTES = 2 * 1024 * 1024
 internal const val OVD_INFO_ELECTION_GUIDE_URL =
     "https://ovdinfo.legal/instruction/ya-khochu-poyti-na-vybory-kak-podgotovitsya-i-obezopasit-sebya"
@@ -177,6 +177,10 @@ internal object RecommendationJson {
     private val SHA_256 = Regex("^[0-9a-f]{64}$")
     private const val MAX_TEXT_LENGTH = 2_000
 }
+
+fun voterBallotPhotoStorageKeys(raw: String?): List<String> = runCatching {
+    RecommendationJson.decodeState(raw).ballotRecords.map { it.photoStorageKey }.distinct()
+}.getOrDefault(emptyList())
 
 internal val knownBallotTypes = linkedMapOf(
     "federal_party_list" to "Федеральный партийный список",

@@ -9,7 +9,6 @@ import org.yanavybori.shared.YaNaVyborahRoot
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import org.yanavybori.core.ui.YaNaVyborahTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,9 +18,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val platform = remember { AndroidPlatformUi(this@MainActivity) }
             CompositionLocalProvider(LocalPlatformUi provides platform) {
-                YaNaVyborahTheme {
-                    YaNaVyborahRoot(container.shared)
-                }
+                YaNaVyborahRoot(container.shared)
             }
         }
     }

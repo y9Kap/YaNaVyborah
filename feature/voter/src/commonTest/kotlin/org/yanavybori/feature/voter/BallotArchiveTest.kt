@@ -9,6 +9,17 @@ import org.yanavybori.core.crypto.Sha256
 import org.yanavybori.core.ui.AnonymousSignature
 
 class BallotArchiveTest {
+    @Test
+    fun findsEveryStoredBallotPhotoForFullDataExport() {
+        val state = VoterLocalState(
+            ballotRecords = listOf(sampleRecord(), sampleRecord().copy(id = "second", photoStorageKey = "second.jpg")),
+        )
+
+        assertEquals(
+            listOf(sampleRecord().photoStorageKey, "second.jpg"),
+            voterBallotPhotoStorageKeys(RecommendationJson.encodeState(state)),
+        )
+    }
     private val photo = "sanitized-jpeg-placeholder".encodeToByteArray()
     private val signature = AnonymousSignature(
         algorithm = "ECDSA-P256-SHA256",
@@ -17,6 +28,14 @@ class BallotArchiveTest {
         publicKeyBase64 = "cHVibGlj",
         signatureBase64 = "c2lnbmF0dXJl",
     )
+
+    private fun sampleRecord(): SavedBallotRecord {
+        val payload = BallotArchiveJson.normalizedPayload(
+            BallotDraft("Выборы", "Регион", "77", "other", "Вариант"),
+            Sha256.digest(photo),
+        )
+        return BallotArchiveJson.createRecord(payload, photo.size, signature)
+    }
 
     @Test
     fun exportContainsOnlyAnonymousElectionDataAndIntegrityFields() {

@@ -22,7 +22,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -32,8 +34,12 @@ import kotlinx.coroutines.launch
 import org.yanavybori.core.model.ElectionPackManifest
 import org.yanavybori.core.navigation.RootRoute
 import org.yanavybori.core.ui.AppCard
+import org.yanavybori.core.ui.APP_THEME_PREFERENCE_KEY
+import org.yanavybori.core.ui.AppThemeMode
 import org.yanavybori.core.ui.AppHelpButton
 import org.yanavybori.core.ui.DemoBanner
+import org.yanavybori.core.ui.LocalPlatformUi
+import org.yanavybori.core.ui.YaNaVyborahTheme
 import org.yanavybori.feature.observer.ObserverFeature
 import org.yanavybori.feature.settings.SettingsScreen
 import org.yanavybori.feature.voter.VoterScreen
@@ -41,6 +47,31 @@ import org.yanavybori.feature.workpressure.WorkPressureScreen
 
 @Composable
 fun YaNaVyborahRoot(container: SharedAppContainer) {
+    val platform = LocalPlatformUi.current
+    var themeMode by remember(platform) {
+        mutableStateOf(AppThemeMode.fromStored(platform.loadPrivateText(APP_THEME_PREFERENCE_KEY)))
+    }
+    SideEffect { platform.applyTheme(themeMode == AppThemeMode.DARK) }
+
+    YaNaVyborahTheme(darkTheme = themeMode == AppThemeMode.DARK) {
+        RootContent(
+            container = container,
+            themeMode = themeMode,
+            onThemeChange = { mode ->
+                platform.savePrivateText(APP_THEME_PREFERENCE_KEY, mode.name)
+                themeMode = mode
+            },
+        )
+    }
+}
+
+@Composable
+private fun RootContent(
+    container: SharedAppContainer,
+    themeMode: AppThemeMode,
+    onThemeChange: (AppThemeMode) -> Unit,
+) {
+    val platform = LocalPlatformUi.current
     val bootstrap by container.bootstrapState.collectAsStateWithLifecycle()
     val manifest by container.electionPackRepository.observeActiveManifest()
         .collectAsStateWithLifecycle(initialValue = null)
@@ -65,7 +96,17 @@ fun YaNaVyborahRoot(container: SharedAppContainer) {
                 onWorkPressure = { routeName = RootRoute.WORK_PRESSURE.name },
             )
             RootRoute.WORK_PRESSURE -> WorkPressureScreen { routeName = RootRoute.HOME.name }
-            RootRoute.SETTINGS -> SettingsScreen(manifest) { routeName = RootRoute.HOME.name }
+            RootRoute.SETTINGS -> SettingsScreen(
+                manifest = manifest,
+                applicationVersion = container.applicationVersion,
+                themeMode = themeMode,
+                onThemeChange = onThemeChange,
+                exportFileName = ::userDataExportFileName,
+                buildExport = { exportedAt ->
+                    container.buildUserDataExport(platform, exportedAt)
+                },
+                onBack = { routeName = RootRoute.HOME.name },
+            )
         }
     }
 }

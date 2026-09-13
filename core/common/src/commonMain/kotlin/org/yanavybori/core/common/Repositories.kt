@@ -27,6 +27,7 @@ import org.yanavybori.core.model.SearchResult
 import org.yanavybori.core.model.Situation
 import org.yanavybori.core.model.SituationAudience
 import org.yanavybori.core.model.VotingDayDefinition
+import org.yanavybori.core.model.UserDataSnapshot
 
 const val SESSION_DELETION_PASSWORD_MIN_LENGTH = 4
 
@@ -132,8 +133,14 @@ interface MediaRepository {
     suspend fun import(request: MediaImportRequest): MediaAsset
     suspend fun get(id: String): MediaAsset?
     suspend fun loadImagePreview(id: String, maxDimension: Int = 1200): ByteArray?
+    /** Returns the exact user-imported bytes after decrypting host storage. */
+    suspend fun loadOriginal(id: String): ByteArray?
     suspend fun privacyReport(mediaAssetId: String): PrivacyReport?
     suspend fun delete(id: String)
+}
+
+interface UserDataRepository {
+    suspend fun snapshot(): UserDataSnapshot
 }
 
 interface PrivacyScanner {

@@ -14,6 +14,7 @@ import org.yanavybori.core.database.RoomKnowledgeRepository
 import org.yanavybori.core.database.RoomObservationRepository
 import org.yanavybori.core.database.RoomProtocolRepository
 import org.yanavybori.core.database.RoomReconciliationRepository
+import org.yanavybori.core.database.RoomUserDataRepository
 import org.yanavybori.core.database.UserDatabase
 import org.yanavybori.core.files.LocalPrivacyScanner
 import org.yanavybori.core.files.PrivateMediaRepository
@@ -23,6 +24,7 @@ class AppContainer(context: Context) {
     private val appContext = context.applicationContext
     private val contentDatabase = ContentDatabase.create(appContext)
     private val userDatabase = UserDatabase.create(appContext)
+    private val activeSessionStore = ActiveSessionStore(appContext)
 
     val electionPackRepository = RoomElectionPackRepository(contentDatabase.contentDao())
     private val knowledgeRepository = RoomKnowledgeRepository(contentDatabase.contentDao())
@@ -30,7 +32,7 @@ class AppContainer(context: Context) {
         userDatabase.observationDao(),
         userDatabase.checklistStateDao(),
         userDatabase.journalDao(),
-        ActiveSessionStore(appContext),
+        activeSessionStore,
     )
     private val journalRepository = RoomJournalRepository(userDatabase.journalDao())
     private val complaintRepository = RoomComplaintRepository(userDatabase.complaintDao())
@@ -42,6 +44,17 @@ class AppContainer(context: Context) {
         userDatabase.mediaDao(),
         AndroidKeystoreCryptoManager(),
         LocalPrivacyScanner(),
+    )
+    private val userDataRepository = RoomUserDataRepository(
+        userDatabase.observationDao(),
+        userDatabase.checklistStateDao(),
+        userDatabase.journalDao(),
+        userDatabase.complaintDao(),
+        userDatabase.counterDao(),
+        userDatabase.reconciliationDao(),
+        userDatabase.protocolDao(),
+        userDatabase.mediaDao(),
+        activeSessionStore,
     )
 
     val observerDependencies = ObserverDependencies(
@@ -61,6 +74,8 @@ class AppContainer(context: Context) {
     val shared = org.yanavybori.shared.SharedAppContainer(
         observerDependencies,
         AssetElectionPackSource(appContext, "demo-election-pack"),
+        userDataRepository,
+        BuildConfig.VERSION_NAME,
     )
 
     suspend fun bootstrapElectionPack() = shared.bootstrapElectionPack()

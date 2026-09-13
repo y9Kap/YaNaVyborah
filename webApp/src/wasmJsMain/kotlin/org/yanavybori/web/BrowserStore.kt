@@ -26,6 +26,7 @@ import org.yanavybori.core.common.ReconciliationRepository
 import org.yanavybori.core.common.SESSION_DELETION_PASSWORD_MIN_LENGTH
 import org.yanavybori.core.common.SystemClock
 import org.yanavybori.core.common.UuidGenerator
+import org.yanavybori.core.common.UserDataRepository
 import org.yanavybori.core.crypto.Sha256
 import org.yanavybori.core.model.ChecklistDefinition
 import org.yanavybori.core.model.ChecklistItem
@@ -54,6 +55,7 @@ import org.yanavybori.core.model.SearchResultType
 import org.yanavybori.core.model.Situation
 import org.yanavybori.core.model.SituationAudience
 import org.yanavybori.core.model.VotingDayDefinition
+import org.yanavybori.core.model.UserDataSnapshot
 
 @Serializable
 internal data class BrowserUserData(
@@ -92,7 +94,8 @@ internal class BrowserStore :
     CounterRepository,
     ReconciliationRepository,
     ProtocolRepository,
-    MediaRepository {
+    MediaRepository,
+    UserDataRepository {
 
     private val json = Json { ignoreUnknownKeys = true; encodeDefaults = true }
     private val content = MutableStateFlow<ElectionPackContent?>(null)
@@ -343,11 +346,26 @@ internal class BrowserStore :
     }
     override suspend fun get(id: String): MediaAsset? = media.value.firstOrNull { it.id == id }
     override suspend fun loadImagePreview(id: String, maxDimension: Int): ByteArray? = mediaBytes[id]
+    override suspend fun loadOriginal(id: String): ByteArray? = mediaBytes[id]
     override suspend fun privacyReport(mediaAssetId: String): PrivacyReport? = null
     override suspend fun delete(id: String) {
         mediaBytes.remove(id)
         media.value = media.value.filterNot { it.id == id }
     }
+
+    override suspend fun snapshot() = UserDataSnapshot(
+        activeSessionId = user.value.activeSessionId,
+        observationSessions = user.value.sessions,
+        checklistStates = user.value.checklistStates,
+        checklistSections = user.value.checklistSections,
+        journalEvents = user.value.journalEvents,
+        complaints = user.value.complaints,
+        counterSessions = user.value.counters,
+        counterMarks = user.value.counterMarks,
+        reconciliationSessions = user.value.reconciliations,
+        protocolSnapshots = user.value.protocols,
+        mediaAssets = media.value.map { it.copy(encryptedStoragePath = "") },
+    )
 
     private suspend fun changeCounter(counterSessionId: String, delta: Int): CounterMark {
         val counter = requireNotNull(user.value.counters.firstOrNull { it.id == counterSessionId })
