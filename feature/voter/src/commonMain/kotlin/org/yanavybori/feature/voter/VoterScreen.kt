@@ -20,13 +20,17 @@ import androidx.compose.material.icons.automirrored.outlined.OpenInNew
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Download
+import androidx.compose.material.icons.outlined.HowToVote
 import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.PhotoCamera
 import androidx.compose.material.icons.outlined.Shield
+import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material.icons.outlined.UploadFile
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
@@ -58,11 +62,13 @@ import kotlinx.coroutines.launch
 import org.yanavybori.core.crypto.Sha256
 import org.yanavybori.core.ui.AppHelpButton
 import org.yanavybori.core.ui.BackHandler
+import org.yanavybori.core.ui.DocumentRequest
 import org.yanavybori.core.ui.LocalPlatformUi
 
 private enum class VoterSection(val label: String) {
     RECOMMENDATIONS("Рекомендации"),
     MY_PLAN("Мой выбор"),
+    BALLOT_ARCHIVE("Мой бюллетень"),
     GUIDE("Безопасность и права"),
 }
 
@@ -127,7 +133,7 @@ internal val voterGuideSections = listOf(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun VoterScreen(onBack: () -> Unit) {
+fun VoterScreen(onBack: () -> Unit, onWorkPressure: () -> Unit) {
     BackHandler(onBack = onBack)
     val platform = LocalPlatformUi.current
     val scope = rememberCoroutineScope()
@@ -144,6 +150,11 @@ fun VoterScreen(onBack: () -> Unit) {
     var importSha256 by rememberSaveable { mutableStateOf("") }
     var importing by remember { mutableStateOf(false) }
     var deleteSetId by rememberSaveable { mutableStateOf<String?>(null) }
+    var pendingBallotDraft by remember { mutableStateOf<BallotDraft?>(null) }
+    var savingBallot by remember { mutableStateOf(false) }
+    var ballotStatus by rememberSaveable { mutableStateOf<String?>(null) }
+    var exportBallotId by rememberSaveable { mutableStateOf<String?>(null) }
+    var deleteBallotId by rememberSaveable { mutableStateOf<String?>(null) }
 
     var region by rememberSaveable { mutableStateOf("") }
     var city by rememberSaveable { mutableStateOf("") }
@@ -194,6 +205,57 @@ fun VoterScreen(onBack: () -> Unit) {
         }
     }
 
+    val ballotPhotoPicker = platform.rememberMediaPicker { handle ->
+        val draft = pendingBallotDraft
+        pendingBallotDraft = null
+        if (handle != null && draft != null) scope.launch {
+            savingBallot = true
+            ballotStatus = null
+            var savedStorageKey: String? = null
+            val result = runCatching {
+                val selected = platform.readPickedDocument(handle, MAX_BALLOT_PHOTO_SOURCE_BYTES)
+                val photo = platform.sanitizeImage(selected.bytes, BALLOT_PHOTO_MAX_DIMENSION)
+                require(photo.size <= MAX_BALLOT_PHOTO_STORED_BYTES) {
+                    "После очистки фотография всё ещё слишком большая"
+                }
+                val payload = BallotArchiveJson.normalizedPayload(draft, Sha256.digest(photo))
+                val signature = platform.signAnonymously(BallotArchiveJson.signingBytes(payload))
+                val record = BallotArchiveJson.createRecord(payload, photo.size, signature)
+                platform.savePrivateBytes(record.photoStorageKey, photo)
+                savedStorageKey = record.photoStorageKey
+                val next = state.copy(ballotRecords = state.ballotRecords.filterNot { it.id == record.id } + record)
+                platform.savePrivateText(VOTER_STATE_KEY, RecommendationJson.encodeState(next))
+                state = next
+                record
+            }
+            result.onSuccess {
+                ballotStatus = "Фото очищено от метаданных, подписано и сохранено локально"
+            }.onFailure { error ->
+                savedStorageKey?.takeIf { key -> state.ballotRecords.none { it.photoStorageKey == key } }
+                    ?.let { key -> runCatching { platform.deletePrivateBytes(key) } }
+                ballotStatus = error.userMessage("Не удалось сохранить бюллетень")
+            }
+            savingBallot = false
+        }
+    }
+
+    val ballotExportLauncher = platform.rememberDocumentCreator { handle ->
+        val record = state.ballotRecords.firstOrNull { it.id == exportBallotId }
+        exportBallotId = null
+        if (handle != null && record != null) scope.launch {
+            val result = runCatching {
+                val photo = requireNotNull(platform.loadPrivateBytes(record.photoStorageKey)) {
+                    "Сохранённая фотография не найдена"
+                }
+                platform.writeDocument(handle, BallotArchiveJson.export(record, photo))
+            }
+            ballotStatus = result.fold(
+                onSuccess = { "Анонимный подписанный пакет сохранён" },
+                onFailure = { it.userMessage("Не удалось выгрузить пакет") },
+            )
+        }
+    }
+
     LaunchedEffect(loadedState.isFailure) {
         if (loadedState.isFailure) snackbar.showSnackbar("Локальные списки повреждены и не были открыты")
     }
@@ -239,6 +301,34 @@ fun VoterScreen(onBack: () -> Unit) {
                     }) { Text("Удалить") }
                 },
                 dismissButton = { TextButton(onClick = { deleteSetId = null }) { Text("Отмена") } },
+            )
+        }
+    }
+
+
+    deleteBallotId?.let { id ->
+        val record = state.ballotRecords.firstOrNull { it.id == id }
+        if (record != null) {
+            AlertDialog(
+                onDismissRequest = { deleteBallotId = null },
+                title = { Text("Удалить фото бюллетеня?") },
+                text = { Text("Локальная запись и фотография будут удалены с этого устройства.") },
+                confirmButton = {
+                    TextButton(onClick = {
+                        deleteBallotId = null
+                        scope.launch {
+                            runCatching {
+                                platform.deletePrivateBytes(record.photoStorageKey)
+                                val next = state.copy(ballotRecords = state.ballotRecords.filterNot { it.id == id })
+                                platform.savePrivateText(VOTER_STATE_KEY, RecommendationJson.encodeState(next))
+                                state = next
+                            }.onFailure { error ->
+                                snackbar.showSnackbar(error.userMessage("Не удалось удалить запись"))
+                            }
+                        }
+                    }) { Text("Удалить") }
+                },
+                dismissButton = { TextButton(onClick = { deleteBallotId = null }) { Text("Отмена") } },
             )
         }
     }
@@ -323,6 +413,27 @@ fun VoterScreen(onBack: () -> Unit) {
                     defaultBallotType = ballotType,
                     onAdd = { choice -> commit(state.copy(personalChoices = state.personalChoices.filterNot { it.id == choice.id } + choice)) },
                     onDelete = { id -> commit(state.copy(personalChoices = state.personalChoices.filterNot { it.id == id })) },
+                )
+
+                VoterSection.BALLOT_ARCHIVE -> ballotArchiveContent(
+                    records = state.ballotRecords,
+                    saving = savingBallot,
+                    status = ballotStatus,
+                    defaultRegion = region,
+                    defaultPrecinct = precinct,
+                    defaultBallotType = ballotType,
+                    onPressureHelp = onWorkPressure,
+                    onAdd = { draft ->
+                        pendingBallotDraft = draft
+                        ballotPhotoPicker.launch(imagesOnly = true)
+                    },
+                    onExport = { record ->
+                        exportBallotId = record.id
+                        ballotExportLauncher.launch(
+                            DocumentRequest(ballotExportFileName(record), "application/json"),
+                        )
+                    },
+                    onDelete = { deleteBallotId = it.id },
                 )
 
                 VoterSection.GUIDE -> guideContent(platform::openExternalLink)
@@ -411,7 +522,7 @@ private fun LocalOnlyNotice() {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text("Решаете только вы", fontWeight = FontWeight.Bold)
                 Text(
-                    "Списки и ваш план хранятся локально. Приложение ничего не отправляет и обращается к сети только когда вы подтверждаете загрузку HTTPS-ссылки.",
+                    "Списки, ваш план и фото бюллетеня хранятся локально. Приложение ничего не отправляет: сеть используется только для подтверждённой загрузки HTTPS-ссылки, а выгрузку файла запускаете вы.",
                 )
             }
         }
@@ -539,6 +650,176 @@ private fun androidx.compose.foundation.lazy.LazyListScope.personalPlanContent(
                         Icon(Icons.Outlined.Delete, contentDescription = "Удалить из моего выбора")
                     }
                 }
+            }
+        }
+    }
+}
+
+private fun androidx.compose.foundation.lazy.LazyListScope.ballotArchiveContent(
+    records: List<SavedBallotRecord>,
+    saving: Boolean,
+    status: String?,
+    defaultRegion: String,
+    defaultPrecinct: String,
+    defaultBallotType: String,
+    onPressureHelp: () -> Unit,
+    onAdd: (BallotDraft) -> Unit,
+    onExport: (SavedBallotRecord) -> Unit,
+    onDelete: (SavedBallotRecord) -> Unit,
+) {
+    item {
+        Card(
+            Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
+        ) {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.Top) {
+                    Icon(Icons.Outlined.Warning, contentDescription = null)
+                    Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                        Text("Фото — только добровольно", fontWeight = FontWeight.Bold)
+                        Text(
+                            "Никто не вправе требовать фото бюллетеня или доказательство вашего выбора. " +
+                                "Если этого требует работодатель, учебное заведение, комиссия или другой человек, " +
+                                "не делайте фото ради отчёта и откройте раздел помощи при давлении.",
+                        )
+                        Text(
+                            "Публикация фото заполненного бюллетеня в дни голосования может создать правовой риск; " +
+                                "самостоятельно выбирайте надёжного получателя выгрузки.",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
+                }
+                Button(onClick = onPressureHelp, modifier = Modifier.fillMaxWidth()) {
+                    Icon(Icons.Outlined.Shield, contentDescription = null)
+                    Text("На меня давят — открыть помощь", Modifier.padding(start = 8.dp))
+                }
+            }
+        }
+    }
+    item {
+        BallotRecordForm(
+            saving = saving,
+            defaultRegion = defaultRegion,
+            defaultPrecinct = defaultPrecinct,
+            defaultBallotType = defaultBallotType,
+            onAdd = onAdd,
+        )
+    }
+    status?.let { message -> item { Text(message, style = MaterialTheme.typography.bodyMedium) } }
+    item {
+        InfoCard(
+            "Что попадёт в выгрузку",
+            "Только выборы, регион, номер УИК, тип и отметка бюллетеня, необязательная дата, очищенное фото и проверяемая подпись. " +
+                "Имя, локальный ID пользователя, имя исходного файла, координаты и точное время не добавляются. " +
+                "Подпись защищает целостность пакета, но сама по себе не доказывает факт голосования.",
+        )
+    }
+    if (records.isEmpty()) {
+        item { InfoCard("Сохранённых бюллетеней нет", "Добровольно выберите фото после заполнения данных УИК.") }
+    } else {
+        items(records, key = { it.id }) { record ->
+            Card(Modifier.fillMaxWidth()) {
+                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
+                        Icon(Icons.Outlined.HowToVote, contentDescription = null)
+                        Column(Modifier.weight(1f).padding(start = 10.dp)) {
+                            Text("УИК № ${record.payload.precinctNumber}", fontWeight = FontWeight.Bold)
+                            Text(record.payload.region)
+                            Text(record.payload.election, style = MaterialTheme.typography.bodySmall)
+                        }
+                        IconButton(onClick = { onDelete(record) }) {
+                            Icon(Icons.Outlined.Delete, contentDescription = "Удалить бюллетень")
+                        }
+                    }
+                    Text(ballotTypeLabel(record.payload.ballotType), color = MaterialTheme.colorScheme.primary)
+                    Text("Отметка: ${record.payload.choice}")
+                    record.payload.votingDate?.let { Text("Дата голосования: $it", style = MaterialTheme.typography.bodySmall) }
+                    Text("SHA-256 фото: ${record.payload.photoSha256}", style = MaterialTheme.typography.bodySmall)
+                    Text("Подпись: ${record.signature.algorithm}", style = MaterialTheme.typography.bodySmall)
+                    OutlinedButton(onClick = { onExport(record) }, modifier = Modifier.fillMaxWidth()) {
+                        Icon(Icons.Outlined.Download, contentDescription = null)
+                        Text("Анонимно выгрузить пакет", Modifier.padding(start = 8.dp))
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun BallotRecordForm(
+    saving: Boolean,
+    defaultRegion: String,
+    defaultPrecinct: String,
+    defaultBallotType: String,
+    onAdd: (BallotDraft) -> Unit,
+) {
+    var election by rememberSaveable { mutableStateOf("") }
+    var region by rememberSaveable(defaultRegion) { mutableStateOf(defaultRegion) }
+    var precinct by rememberSaveable(defaultPrecinct) { mutableStateOf(defaultPrecinct) }
+    var ballotType by rememberSaveable(defaultBallotType) { mutableStateOf(defaultBallotType.ifBlank { "other" }) }
+    var choice by rememberSaveable { mutableStateOf("") }
+    var votingDate by rememberSaveable { mutableStateOf("") }
+    var voluntary by rememberSaveable { mutableStateOf(false) }
+    Card(Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text("Фото и данные бюллетеня", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(
+                "Перед сохранением приложение уменьшит фото, преобразует его в JPEG без EXIF-метаданных и подпишет данные новым одноразовым ключом.",
+                style = MaterialTheme.typography.bodySmall,
+            )
+            OutlinedTextField(election, { election = it }, label = { Text("Выборы") }, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(region, { region = it }, label = { Text("Регион") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+            OutlinedTextField(precinct, { precinct = it }, label = { Text("Номер УИК") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+            Text("Тип бюллетеня", style = MaterialTheme.typography.labelLarge)
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                items(knownBallotTypes.entries.toList()) { (value, label) ->
+                    FilterChip(selected = ballotType == value, onClick = { ballotType = value }, label = { Text(label) })
+                }
+            }
+            OutlinedTextField(
+                choice,
+                { choice = it },
+                label = { Text("Отметка в бюллетене") },
+                supportingText = { Text("Например, кандидат, партия, «против всех» или «недействительный»") },
+                modifier = Modifier.fillMaxWidth(),
+            )
+            OutlinedTextField(
+                votingDate,
+                { votingDate = it },
+                label = { Text("Дата голосования, необязательно") },
+                supportingText = { Text("ГГГГ-ММ-ДД; точное время не сохраняется") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Checkbox(checked = voluntary, onCheckedChange = { voluntary = it })
+                Text("Я делаю это добровольно, фото у меня никто не требует", Modifier.weight(1f))
+            }
+            Text(
+                "Проверьте, что в кадре нет лица, паспорта, списков избирателей и других данных, способных раскрыть вашу личность.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error,
+            )
+            Button(
+                onClick = {
+                    onAdd(
+                        BallotDraft(
+                            election = election,
+                            region = region,
+                            precinctNumber = precinct,
+                            ballotType = ballotType,
+                            choice = choice,
+                            votingDate = votingDate.takeIf(String::isNotBlank),
+                        ),
+                    )
+                },
+                enabled = voluntary && !saving && election.isNotBlank() && region.isNotBlank() &&
+                    precinct.isNotBlank() && ballotType.isNotBlank() && choice.isNotBlank(),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Icon(Icons.Outlined.PhotoCamera, contentDescription = null)
+                Text(if (saving) "Очищаем и подписываем…" else "Выбрать фото и сохранить", Modifier.padding(start = 8.dp))
             }
         }
     }

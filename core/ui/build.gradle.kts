@@ -36,6 +36,9 @@ kotlin {
         getByName("androidHostTest").dependencies {
             implementation(libs.junit)
         }
-        androidMain.dependencies { implementation(libs.androidx.activity.compose) }
+        androidMain.dependencies {
+            implementation(libs.androidx.activity.compose)
+            implementation(libs.androidx.exifinterface)
+        }
     }
 }

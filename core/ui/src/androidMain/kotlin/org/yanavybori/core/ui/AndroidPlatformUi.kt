@@ -6,6 +6,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
+import android.graphics.Matrix
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
@@ -27,7 +28,13 @@ import androidx.compose.ui.platform.LocalView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
+import java.io.File
 import java.net.URI
+import java.security.KeyPairGenerator
+import java.security.Signature
+import java.security.spec.ECGenParameterSpec
+import kotlin.io.encoding.Base64
+import kotlin.io.encoding.ExperimentalEncodingApi
 import javax.net.ssl.HttpsURLConnection
 
 class AndroidPlatformUi(private val context: Context) : PlatformUi {
@@ -144,6 +151,29 @@ class AndroidPlatformUi(private val context: Context) : PlatformUi {
             .apply()
     }
 
+    override suspend fun loadPrivateBytes(key: String): ByteArray? = withContext(Dispatchers.IO) {
+        privateBinaryFile(key).takeIf(File::isFile)?.readBytes()
+    }
+
+    override suspend fun savePrivateBytes(key: String, bytes: ByteArray) = withContext(Dispatchers.IO) {
+        val target = privateBinaryFile(key)
+        target.parentFile?.mkdirs()
+        if (target.isFile && target.readBytes().contentEquals(bytes)) return@withContext
+        val temporary = File.createTempFile("private-", ".tmp", target.parentFile)
+        try {
+            temporary.writeBytes(bytes)
+            if (target.exists()) check(target.delete()) { "Не удалось заменить приватный файл" }
+            check(temporary.renameTo(target)) { "Не удалось сохранить приватный файл" }
+        } finally {
+            temporary.delete()
+        }
+    }
+
+    override suspend fun deletePrivateBytes(key: String) = withContext(Dispatchers.IO) {
+        val target = privateBinaryFile(key)
+        check(!target.exists() || target.delete()) { "Не удалось удалить приватный файл" }
+    }
+
     override suspend fun readPickedDocument(handle: String, maxBytes: Int): PickedDocument =
         withContext(Dispatchers.IO) {
             require(maxBytes > 0)
@@ -162,6 +192,41 @@ class AndroidPlatformUi(private val context: Context) : PlatformUi {
             }.use { input -> input.readWithLimit(maxBytes) }
             PickedDocument(name, bytes)
         }
+
+    override suspend fun sanitizeImage(bytes: ByteArray, maxDimension: Int): ByteArray =
+        withContext(Dispatchers.Default) {
+            require(maxDimension in 256..4096) { "Некорректный размер изображения" }
+            val source = requireNotNull(BitmapFactory.decodeByteArray(bytes, 0, bytes.size)) {
+                "Выбранный файл не является поддерживаемым изображением"
+            }
+            val oriented = source.applyExifOrientation(bytes)
+            val scale = minOf(1f, maxDimension.toFloat() / maxOf(oriented.width, oriented.height))
+            val sanitized = if (scale < 1f) {
+                android.graphics.Bitmap.createScaledBitmap(
+                    oriented,
+                    (oriented.width * scale).toInt().coerceAtLeast(1),
+                    (oriented.height * scale).toInt().coerceAtLeast(1),
+                    true,
+                )
+            } else {
+                oriented
+            }
+            try {
+                ByteArrayOutputStream().use { output ->
+                    check(sanitized.compress(android.graphics.Bitmap.CompressFormat.JPEG, 88, output)) {
+                        "Не удалось очистить фотографию"
+                    }
+                    output.toByteArray()
+                }
+            } finally {
+                if (sanitized !== oriented) sanitized.recycle()
+                if (oriented !== source) oriented.recycle()
+                source.recycle()
+            }
+        }
+
+    override suspend fun signAnonymously(payload: ByteArray): AnonymousSignature =
+        withContext(Dispatchers.Default) { createAnonymousSignature(payload) }
 
     override suspend fun fetchHttpsText(url: String, maxBytes: Int): String = withContext(Dispatchers.IO) {
         require(maxBytes > 0)
@@ -201,9 +266,58 @@ class AndroidPlatformUi(private val context: Context) : PlatformUi {
         require(path.isNotBlank() && !path.startsWith('/') && !path.contains("..") && !path.contains('\\'))
         context.assets.open(path).use { it.readBytes() }
     }
+
+    private fun privateBinaryFile(key: String): File {
+        require(PRIVATE_BINARY_KEY.matches(key)) { "Некорректный ключ приватного файла" }
+        return File(File(context.filesDir, "private_binary"), key)
+    }
+
+    private fun android.graphics.Bitmap.applyExifOrientation(bytes: ByteArray): android.graphics.Bitmap {
+        val orientation = runCatching {
+            androidx.exifinterface.media.ExifInterface(bytes.inputStream()).getAttributeInt(
+                androidx.exifinterface.media.ExifInterface.TAG_ORIENTATION,
+                androidx.exifinterface.media.ExifInterface.ORIENTATION_NORMAL,
+            )
+        }.getOrDefault(androidx.exifinterface.media.ExifInterface.ORIENTATION_NORMAL)
+        val matrix = Matrix().apply {
+            when (orientation) {
+                androidx.exifinterface.media.ExifInterface.ORIENTATION_FLIP_HORIZONTAL -> setScale(-1f, 1f)
+                androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_180 -> setRotate(180f)
+                androidx.exifinterface.media.ExifInterface.ORIENTATION_FLIP_VERTICAL -> setScale(1f, -1f)
+                androidx.exifinterface.media.ExifInterface.ORIENTATION_TRANSPOSE -> { setRotate(90f); postScale(-1f, 1f) }
+                androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_90 -> setRotate(90f)
+                androidx.exifinterface.media.ExifInterface.ORIENTATION_TRANSVERSE -> { setRotate(-90f); postScale(-1f, 1f) }
+                androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_270 -> setRotate(-90f)
+            }
+        }
+        return if (orientation == androidx.exifinterface.media.ExifInterface.ORIENTATION_NORMAL ||
+            orientation == androidx.exifinterface.media.ExifInterface.ORIENTATION_UNDEFINED
+        ) this else android.graphics.Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
+    }
+}
+
+@OptIn(ExperimentalEncodingApi::class)
+internal fun createAnonymousSignature(payload: ByteArray): AnonymousSignature {
+    val generator = KeyPairGenerator.getInstance("EC").apply {
+        initialize(ECGenParameterSpec("secp256r1"))
+    }
+    val keyPair = generator.generateKeyPair()
+    val signature = Signature.getInstance("SHA256withECDSA").run {
+        initSign(keyPair.private)
+        update(payload)
+        sign()
+    }
+    return AnonymousSignature(
+        algorithm = "ECDSA-P256-SHA256",
+        publicKeyFormat = "X.509-SPKI",
+        signatureFormat = "ASN.1-DER",
+        publicKeyBase64 = Base64.encode(keyPair.public.encoded),
+        signatureBase64 = Base64.encode(signature),
+    )
 }
 
 private const val PRIVATE_TEXT_STORE = "yanavyborah-private-text"
+private val PRIVATE_BINARY_KEY = Regex("^[a-zA-Z0-9._-]{1,160}$")
 
 private fun java.io.InputStream.readWithLimit(maxBytes: Int): ByteArray {
     val output = ByteArrayOutputStream(minOf(maxBytes, 16 * 1024))

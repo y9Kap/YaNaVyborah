@@ -60,6 +60,7 @@ internal data class PersonalVoteChoice(
 internal data class VoterLocalState(
     val recommendationSets: List<ImportedRecommendationSet> = emptyList(),
     val personalChoices: List<PersonalVoteChoice> = emptyList(),
+    val ballotRecords: List<SavedBallotRecord> = emptyList(),
 )
 
 internal object RecommendationJson {

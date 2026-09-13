@@ -60,7 +60,10 @@ fun YaNaVyborahRoot(container: SharedAppContainer) {
         BootstrapState.Ready -> when (route) {
             RootRoute.HOME -> HomeScreen(manifest, { routeName = it.name })
             RootRoute.OBSERVER -> ObserverFeature(container.observerDependencies) { routeName = RootRoute.HOME.name }
-            RootRoute.VOTER -> VoterScreen { routeName = RootRoute.HOME.name }
+            RootRoute.VOTER -> VoterScreen(
+                onBack = { routeName = RootRoute.HOME.name },
+                onWorkPressure = { routeName = RootRoute.WORK_PRESSURE.name },
+            )
             RootRoute.WORK_PRESSURE -> WorkPressureScreen { routeName = RootRoute.HOME.name }
             RootRoute.SETTINGS -> SettingsScreen(manifest) { routeName = RootRoute.HOME.name }
         }
@@ -124,7 +127,7 @@ private fun HomeScreen(manifest: ElectionPackManifest?, navigate: (RootRoute) ->
             item {
                 AppCard(
                     "Избиратель",
-                    "Права и безопасность, личный план и сравнение импортированных списков рекомендаций.",
+                    "Права и безопасность, личный план, рекомендации и добровольный анонимный архив бюллетеня.",
                     { navigate(RootRoute.VOTER) },
                 )
             }

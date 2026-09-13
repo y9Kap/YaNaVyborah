@@ -136,6 +136,78 @@ private external fun openBrowserLink(url: JsString)
 }""")
 private external fun copyBrowserText(text: JsString)
 
+@JsFun("""(mode, key, value) => new Promise((resolve, reject) => {
+    const request = indexedDB.open('yanavyborah-private', 1);
+    request.onupgradeneeded = () => {
+        if (!request.result.objectStoreNames.contains('bytes')) request.result.createObjectStore('bytes');
+    };
+    request.onerror = () => reject(request.error || new Error('Не удалось открыть приватное хранилище'));
+    request.onsuccess = () => {
+        const db = request.result;
+        const transaction = db.transaction('bytes', mode === 'get' ? 'readonly' : 'readwrite');
+        const store = transaction.objectStore('bytes');
+        const operation = mode === 'get' ? store.get(key) : mode === 'put' ? store.put(value, key) : store.delete(key);
+        operation.onerror = () => reject(operation.error || new Error('Ошибка приватного хранилища'));
+        operation.onsuccess = () => resolve(mode === 'get' ? (operation.result ?? null) : 'ok');
+        transaction.oncomplete = () => db.close();
+    };
+})""")
+private external fun privateBytesOperation(mode: JsString, key: JsString, value: JsString): Promise<JsString?>
+
+@JsFun("""(base64, maxDimension) => new Promise((resolve, reject) => {
+    const binary = atob(base64);
+    const input = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) input[i] = binary.charCodeAt(i);
+    createImageBitmap(new Blob([input])).then(bitmap => {
+        const scale = Math.min(1, maxDimension / Math.max(bitmap.width, bitmap.height));
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+        canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+        const context = canvas.getContext('2d', { alpha: false });
+        context.fillStyle = '#ffffff';
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+        bitmap.close();
+        canvas.toBlob(blob => {
+            if (!blob) { reject(new Error('Не удалось очистить фотографию')); return; }
+            const reader = new FileReader();
+            reader.onerror = () => reject(reader.error || new Error('Не удалось прочитать фотографию'));
+            reader.onload = () => resolve(String(reader.result).split(',', 2)[1] || '');
+            reader.readAsDataURL(blob);
+        }, 'image/jpeg', 0.88);
+    }).catch(() => reject(new Error('Выбранный файл не является поддерживаемым изображением')));
+})""")
+private external fun sanitizeBrowserImage(base64: JsString, maxDimension: Int): Promise<JsString>
+
+@JsFun("""(base64) => (async () => {
+    if (!globalThis.crypto || !crypto.subtle) throw new Error('Криптографическая подпись недоступна в этом браузере');
+    const binary = atob(base64);
+    const payload = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) payload[i] = binary.charCodeAt(i);
+    const keys = await crypto.subtle.generateKey({ name: 'ECDSA', namedCurve: 'P-256' }, true, ['sign', 'verify']);
+    const rawSignature = new Uint8Array(await crypto.subtle.sign({ name: 'ECDSA', hash: 'SHA-256' }, keys.privateKey, payload));
+    if (rawSignature.length !== 64) throw new Error('Неожиданный формат криптографической подписи');
+    const derInteger = source => {
+        let offset = 0;
+        while (offset < source.length - 1 && source[offset] === 0) offset++;
+        let value = source.slice(offset);
+        if ((value[0] & 0x80) !== 0) value = Uint8Array.from([0, ...value]);
+        return Uint8Array.from([0x02, value.length, ...value]);
+    };
+    const r = derInteger(rawSignature.slice(0, 32));
+    const s = derInteger(rawSignature.slice(32));
+    const signature = Uint8Array.from([0x30, r.length + s.length, ...r, ...s]);
+    const publicKey = new Uint8Array(await crypto.subtle.exportKey('spki', keys.publicKey));
+    const encode = bytes => {
+        let value = '';
+        const chunk = 0x8000;
+        for (let i = 0; i < bytes.length; i += chunk) value += String.fromCharCode(...bytes.subarray(i, i + chunk));
+        return btoa(value);
+    };
+    return JSON.stringify({ publicKey: encode(publicKey), signature: encode(signature) });
+})()""")
+private external fun signBrowserPayload(base64: JsString): Promise<JsString>
+
 internal class BrowserPlatformUi : PlatformUi {
     private val json = Json { ignoreUnknownKeys = true }
     private val documentRequests = mutableMapOf<String, DocumentRequest>()
@@ -240,12 +312,51 @@ internal class BrowserPlatformUi : PlatformUi {
     }
 
     @OptIn(ExperimentalEncodingApi::class)
+    override suspend fun loadPrivateBytes(key: String): ByteArray? {
+        requirePrivateBinaryKey(key)
+        val encoded = privateBytesOperation("get".toJsString(), key.toJsString(), "".toJsString())
+            .await<JsString?>()?.toString() ?: return null
+        return Base64.decode(encoded)
+    }
+
+    @OptIn(ExperimentalEncodingApi::class)
+    override suspend fun savePrivateBytes(key: String, bytes: ByteArray) {
+        requirePrivateBinaryKey(key)
+        privateBytesOperation("put".toJsString(), key.toJsString(), Base64.encode(bytes).toJsString()).await<JsString?>()
+    }
+
+    override suspend fun deletePrivateBytes(key: String) {
+        requirePrivateBinaryKey(key)
+        privateBytesOperation("delete".toJsString(), key.toJsString(), "".toJsString()).await<JsString?>()
+    }
+
+    @OptIn(ExperimentalEncodingApi::class)
     override suspend fun readPickedDocument(handle: String, maxBytes: Int): PickedDocument {
         require(maxBytes > 0)
         val file = requireNotNull(BrowserFileRegistry.take(handle)) { "Выбранный файл больше недоступен" }
         val bytes = Base64.decode(file.base64)
         require(bytes.size <= maxBytes) { "Файл слишком большой" }
         return PickedDocument(file.name, bytes)
+    }
+
+    @OptIn(ExperimentalEncodingApi::class)
+    override suspend fun sanitizeImage(bytes: ByteArray, maxDimension: Int): ByteArray {
+        require(maxDimension in 256..4096) { "Некорректный размер изображения" }
+        val encoded = sanitizeBrowserImage(Base64.encode(bytes).toJsString(), maxDimension).await<JsString>().toString()
+        return Base64.decode(encoded)
+    }
+
+    @OptIn(ExperimentalEncodingApi::class)
+    override suspend fun signAnonymously(payload: ByteArray): org.yanavybori.core.ui.AnonymousSignature {
+        val raw = signBrowserPayload(Base64.encode(payload).toJsString()).await<JsString>().toString()
+        val result = json.decodeFromString<BrowserAnonymousSignature>(raw)
+        return org.yanavybori.core.ui.AnonymousSignature(
+            algorithm = "ECDSA-P256-SHA256",
+            publicKeyFormat = "X.509-SPKI",
+            signatureFormat = "ASN.1-DER",
+            publicKeyBase64 = result.publicKey,
+            signatureBase64 = result.signature,
+        )
     }
 
     @OptIn(ExperimentalEncodingApi::class)
@@ -274,4 +385,11 @@ internal class BrowserPlatformUi : PlatformUi {
         val encoded = fetchBase64(path.toJsString()).await<JsString>().toString()
         return Base64.decode(encoded)
     }
+
+    private fun requirePrivateBinaryKey(key: String) {
+        require(Regex("^[a-zA-Z0-9._-]{1,160}$").matches(key)) { "Некорректный ключ приватного файла" }
+    }
 }
+
+@kotlinx.serialization.Serializable
+private data class BrowserAnonymousSignature(val publicKey: String, val signature: String)
