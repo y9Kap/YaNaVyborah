@@ -32,12 +32,13 @@ fun main() {
         mediaRepository = store,
         readPackFile = { path -> source.read(path) },
     )
-    val container = SharedAppContainer(dependencies, source, store, "0.5.2")
+    val container = SharedAppContainer(dependencies, source, store, "0.6.0")
 
     ComposeViewport(document.body!!) {
         CompositionLocalProvider(LocalPlatformUi provides platformUi) {
             YaNaVyborahRoot(container)
         }
     }
+    document.getElementById("startup")?.remove()
     CoroutineScope(Dispatchers.Default).launch { container.bootstrapElectionPack() }
 }

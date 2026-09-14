@@ -2,6 +2,7 @@ package org.yanavybori.feature.voter
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectableGroup
@@ -260,6 +260,18 @@ fun VoterScreen(onBack: () -> Unit, onWorkPressure: () -> Unit) {
         if (loadedState.isFailure) snackbar.showSnackbar("Локальные списки повреждены и не были открыты")
     }
 
+    LaunchedEffect(platform, state.bundledRecommendationVersion) {
+        if (state.bundledRecommendationVersion < BUNDLED_RECOMMENDATION_VERSION) {
+            runCatching {
+                val raw = platform.readBundledFile(BUNDLED_RECOMMENDATION_PATH)
+                    .decodeToString(throwOnInvalidSequence = true)
+                RecommendationJson.installBundled(raw, state)
+            }.onSuccess { next -> commit(next) }.onFailure { error ->
+                snackbar.showSnackbar(error.userMessage("Не удалось открыть встроенный список УмГ"))
+            }
+        }
+    }
+
     if (showImport) {
         ImportDialog(
             mode = ImportMode.valueOf(importModeName),
@@ -353,11 +365,12 @@ fun VoterScreen(onBack: () -> Unit, onWorkPressure: () -> Unit) {
         ) {
             item { LocalOnlyNotice() }
             item {
-                LazyRow(
+                FlowRow(
                     Modifier.fillMaxWidth().selectableGroup(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
-                    items(VoterSection.entries) { section ->
+                    VoterSection.entries.forEach { section ->
                         FilterChip(
                             selected = selectedName == section.name,
                             onClick = { selectedName = section.name },
@@ -552,11 +565,12 @@ private fun LocationFilters(
             OutlinedTextField(district, onDistrictChange, label = { Text("Округ") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
             OutlinedTextField(precinct, onPrecinctChange, label = { Text("Участок, если нужен") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
             Text("Тип бюллетеня", style = MaterialTheme.typography.labelLarge)
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                item {
-                    FilterChip(selected = ballotType.isBlank(), onClick = { onBallotTypeChange("") }, label = { Text("Все") })
-                }
-                items(knownBallotTypes.entries.toList()) { (value, label) ->
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                FilterChip(selected = ballotType.isBlank(), onClick = { onBallotTypeChange("") }, label = { Text("Все") })
+                knownBallotTypes.forEach { (value, label) ->
                     FilterChip(selected = ballotType == value, onClick = { onBallotTypeChange(value) }, label = { Text(label) })
                 }
             }
@@ -778,8 +792,11 @@ private fun BallotRecordForm(
             OutlinedTextField(region, { region = it }, label = { Text("Регион") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
             OutlinedTextField(precinct, { precinct = it }, label = { Text("Номер УИК") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
             Text("Тип бюллетеня", style = MaterialTheme.typography.labelLarge)
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(knownBallotTypes.entries.toList()) { (value, label) ->
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                knownBallotTypes.forEach { (value, label) ->
                     FilterChip(selected = ballotType == value, onClick = { ballotType = value }, label = { Text(label) })
                 }
             }
@@ -856,8 +873,11 @@ private fun PersonalChoiceForm(
             OutlinedTextField(city, { city = it }, label = { Text("Город") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
             OutlinedTextField(district, { district = it }, label = { Text("Округ") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
             Text("Тип бюллетеня", style = MaterialTheme.typography.labelLarge)
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(knownBallotTypes.entries.toList()) { (value, label) ->
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                knownBallotTypes.forEach { (value, label) ->
                     FilterChip(selected = ballotType == value, onClick = { ballotType = value }, label = { Text(label) })
                 }
             }

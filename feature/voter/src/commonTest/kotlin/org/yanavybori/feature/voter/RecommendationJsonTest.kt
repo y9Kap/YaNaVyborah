@@ -69,6 +69,19 @@ class RecommendationJsonTest {
     }
 
     @Test
+    fun bundled_recommendation_is_installed_once_and_preserves_local_data() {
+        val localChoice = PersonalVoteChoice(id = "mine", ballotType = "other", choice = "Мой выбор")
+        val initial = VoterLocalState(personalChoices = listOf(localChoice))
+
+        val installed = RecommendationJson.installBundled(sample, initial)
+
+        assertEquals(BUNDLED_RECOMMENDATION_VERSION, installed.bundledRecommendationVersion)
+        assertEquals(listOf(localChoice), installed.personalChoices)
+        assertEquals("Совет автора", installed.recommendationSets.single().displayName)
+        assertEquals(installed, RecommendationJson.installBundled(sample, installed))
+    }
+
+    @Test
     fun bundled_voter_guide_has_attributed_core_sections() {
         assertTrue(OVD_INFO_ELECTION_GUIDE_URL.startsWith("https://ovdinfo.legal/"))
         assertTrue(voterGuideSections.size >= 5)

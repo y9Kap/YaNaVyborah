@@ -26,6 +26,7 @@ kotlin {
         wasmJsMain {
             resources.srcDir("../shared/src/commonMain/resources")
             resources.srcDir("../docs/branding")
+            resources.srcDir("../data")
             dependencies {
                 implementation(project(":shared"))
                 implementation(project(":core:common"))

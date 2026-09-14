@@ -7,6 +7,8 @@ import org.yanavybori.core.crypto.Sha256
 
 const val VOTER_STATE_KEY = "voter-recommendations.v1"
 internal const val MAX_RECOMMENDATION_JSON_BYTES = 2 * 1024 * 1024
+internal const val BUNDLED_RECOMMENDATION_PATH = "recommendations/gosduma-2026-umg.yanavyborah.json"
+internal const val BUNDLED_RECOMMENDATION_VERSION = 1
 internal const val OVD_INFO_ELECTION_GUIDE_URL =
     "https://ovdinfo.legal/instruction/ya-khochu-poyti-na-vybory-kak-podgotovitsya-i-obezopasit-sebya"
 
@@ -63,6 +65,7 @@ internal data class VoterLocalState(
     val recommendationSets: List<ImportedRecommendationSet> = emptyList(),
     val personalChoices: List<PersonalVoteChoice> = emptyList(),
     val ballotRecords: List<SavedBallotRecord> = emptyList(),
+    val bundledRecommendationVersion: Int = 0,
 )
 
 internal object RecommendationJson {
@@ -119,6 +122,19 @@ internal object RecommendationJson {
             ?: VoterLocalState()
 
     fun encodeState(state: VoterLocalState): String = storageJson.encodeToString(state)
+
+    fun installBundled(raw: String, state: VoterLocalState): VoterLocalState {
+        if (state.bundledRecommendationVersion >= BUNDLED_RECOMMENDATION_VERSION) return state
+        val imported = import(
+            raw = raw,
+            displayName = "",
+            source = "Встроенный список приложения",
+        )
+        return state.copy(
+            recommendationSets = state.recommendationSets.filterNot { it.id == imported.id } + imported,
+            bundledRecommendationVersion = BUNDLED_RECOMMENDATION_VERSION,
+        )
+    }
 
     private fun validate(pack: RecommendationPack) {
         require(pack.schemaVersion == 1) { "Поддерживается только schemaVersion 1" }

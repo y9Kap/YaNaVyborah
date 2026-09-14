@@ -3,11 +3,11 @@ plugins {
     alias(libs.plugins.compose.compiler)
 }
 
-val configuredVersionName = providers.gradleProperty("VERSION_NAME").orNull ?: "0.5.2"
+val configuredVersionName = providers.gradleProperty("VERSION_NAME").orNull ?: "0.6.0"
 val configuredVersionCode = providers.gradleProperty("VERSION_CODE").orNull?.let { value ->
     value.toIntOrNull()?.takeIf { it > 0 }
         ?: error("VERSION_CODE должен быть положительным целым числом")
-} ?: 15
+} ?: 18
 
 val releaseKeystorePath = providers.environmentVariable("YANAVYBORAH_KEYSTORE_FILE").orNull
 val releaseKeystorePassword = providers.environmentVariable("YANAVYBORAH_KEYSTORE_PASSWORD").orNull
@@ -59,6 +59,7 @@ android {
         }
     }
     sourceSets.getByName("main").assets.srcDir("../shared/src/commonMain/resources")
+    sourceSets.getByName("main").assets.srcDir("../data")
     buildFeatures {
         compose = true
         buildConfig = true
