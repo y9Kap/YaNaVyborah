@@ -27,6 +27,7 @@ internal data class VoteRecommendation(
     val region: String? = null,
     val city: String? = null,
     val district: String? = null,
+    val districtNumber: String? = null,
     val precinct: String? = null,
     val ballotType: String,
     val choice: String,
@@ -51,6 +52,7 @@ internal data class PersonalVoteChoice(
     val region: String? = null,
     val city: String? = null,
     val district: String? = null,
+    val districtNumber: String? = null,
     val ballotType: String,
     val choice: String,
     val note: String? = null,
@@ -137,6 +139,7 @@ internal object RecommendationJson {
                 item.region,
                 item.city,
                 item.district,
+                item.districtNumber,
                 item.precinct,
                 item.ballotType,
                 item.choice,
@@ -163,6 +166,7 @@ internal object RecommendationJson {
                 region = item.region.clean(),
                 city = item.city.clean(),
                 district = item.district.clean(),
+                districtNumber = item.districtNumber.clean(),
                 precinct = item.precinct.clean(),
                 ballotType = item.ballotType.trim(),
                 choice = item.choice.trim(),
@@ -202,7 +206,7 @@ internal fun VoteRecommendation.matches(
 ): Boolean =
     matchesField(region, regionQuery) &&
         matchesField(city, cityQuery) &&
-        matchesField(district, districtQuery) &&
+        matchesDistrict(district, districtNumber, districtQuery) &&
         matchesField(precinct, precinctQuery) &&
         (ballotTypeQuery.isBlank() || ballotType.equals(ballotTypeQuery, ignoreCase = true))
 
@@ -210,4 +214,12 @@ private fun matchesField(value: String?, query: String): Boolean {
     if (query.isBlank()) return true
     if (value.isNullOrBlank() || value == "*") return true
     return value.contains(query.trim(), ignoreCase = true)
+}
+
+private fun matchesDistrict(name: String?, number: String?, query: String): Boolean {
+    if (query.isBlank()) return true
+    if ((name.isNullOrBlank() || name == "*") && number.isNullOrBlank()) return true
+    val normalized = query.trim()
+    return name?.contains(normalized, ignoreCase = true) == true ||
+        number?.contains(normalized, ignoreCase = true) == true
 }

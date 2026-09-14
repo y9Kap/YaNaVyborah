@@ -393,6 +393,7 @@ fun VoterScreen(onBack: () -> Unit, onWorkPressure: () -> Unit) {
                             region = recommendation.region,
                             city = recommendation.city,
                             district = recommendation.district,
+                            districtNumber = recommendation.districtNumber,
                             ballotType = recommendation.ballotType,
                             choice = recommendation.choice,
                             note = listOfNotNull(
@@ -641,7 +642,12 @@ private fun androidx.compose.foundation.lazy.LazyListScope.personalPlanContent(
                         Text(ballotTypeLabel(choice.ballotType), color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
                         Text(choice.choice, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                         Text(
-                            listOfNotNull(choice.region, choice.city, choice.district).joinToString(" · ").ifBlank { "Любая территория" },
+                            listOfNotNull(
+                                choice.region,
+                                choice.city,
+                                choice.district,
+                                choice.districtNumber?.let { "№ $it" },
+                            ).joinToString(" · ").ifBlank { "Любая территория" },
                             style = MaterialTheme.typography.bodySmall,
                         )
                         choice.note?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
@@ -1013,11 +1019,12 @@ private fun scopeLabel(item: VoteRecommendation): String = listOfNotNull(
     item.region?.let { "Регион: $it" },
     item.city?.let { "Город: $it" },
     item.district?.let { "Округ: $it" },
+    item.districtNumber?.let { "№ $it" },
     item.precinct?.let { "Участок: $it" },
 ).joinToString(" · ").ifBlank { "Для любой территории" }
 
 private fun personalChoiceId(item: VoteRecommendation, sourceName: String): String = Sha256.digest(
-    "$sourceName|${item.region}|${item.city}|${item.district}|${item.precinct}|${item.ballotType}|${item.choice}"
+    "$sourceName|${item.region}|${item.city}|${item.district}|${item.districtNumber}|${item.precinct}|${item.ballotType}|${item.choice}"
         .encodeToByteArray(),
 )
 

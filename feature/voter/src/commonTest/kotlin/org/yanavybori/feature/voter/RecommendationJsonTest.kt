@@ -12,11 +12,13 @@ class RecommendationJsonTest {
           "schemaVersion": 1,
           "title": "Совет автора",
           "publisher": "Автор",
+          "contentSha256": "da6288d830ab74e219839fa94a267594ffdd970296dddee2bf0c831e94311417",
           "recommendations": [
             {
               "region": "Москва",
               "city": "*",
               "district": "Округ 1",
+              "districtNumber": "195",
               "ballotType": "federal_single_mandate",
               "choice": "Кандидат"
             }
@@ -54,6 +56,7 @@ class RecommendationJsonTest {
         val recommendation = RecommendationJson.import(sample, "", "file").pack.recommendations.single()
 
         assertTrue(recommendation.matches("Москва", "Зеленоград", "1", "", "federal_single_mandate"))
+        assertTrue(recommendation.matches("Москва", "", "195", "", "federal_single_mandate"))
         assertTrue(!recommendation.matches("Тула", "", "", "", ""))
     }
 

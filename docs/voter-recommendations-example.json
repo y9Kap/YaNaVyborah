@@ -10,6 +10,7 @@
       "region": "Москва",
       "city": "Москва",
       "district": "Округ 1",
+      "districtNumber": "1",
       "ballotType": "federal_party_list",
       "choice": "Партия или список",
       "candidateNumber": "7",
@@ -19,6 +20,7 @@
       "region": "Москва",
       "city": "Москва",
       "district": "Округ 1",
+      "districtNumber": "1",
       "ballotType": "federal_single_mandate",
       "choice": "Имя кандидата",
       "party": "Партия или самовыдвижение"

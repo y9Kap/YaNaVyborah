@@ -105,6 +105,10 @@ jobs:
           file_name="YaNaVyborah-${{ steps.version.outputs.name }}.apk"
           cp "${apks[0]}" "dist/${file_name}"
           (cd dist && sha256sum "${file_name}") > "dist/${file_name}.sha256"
+          cp data/recommendations/gosduma-2026-umg.source.json dist/
+          cp data/recommendations/gosduma-2026-umg.yanavyborah.json dist/
+          (cd dist && sha256sum gosduma-2026-umg.source.json) > dist/gosduma-2026-umg.source.json.sha256
+          (cd dist && sha256sum gosduma-2026-umg.yanavyborah.json) > dist/gosduma-2026-umg.yanavyborah.json.sha256
           echo "apk=dist/${file_name}" >> "${GITHUB_OUTPUT}"
           echo "checksum=dist/${file_name}.sha256" >> "${GITHUB_OUTPUT}"
 
@@ -117,12 +121,20 @@ jobs:
             gh release create "${GITHUB_REF_NAME}" \
               "${{ steps.artifact.outputs.apk }}" \
               "${{ steps.artifact.outputs.checksum }}" \
+              dist/gosduma-2026-umg.source.json \
+              dist/gosduma-2026-umg.source.json.sha256 \
+              dist/gosduma-2026-umg.yanavyborah.json \
+              dist/gosduma-2026-umg.yanavyborah.json.sha256 \
               --verify-tag --generate-notes --prerelease \
               --title "Я на выборах ${GITHUB_REF_NAME}"
           else
             gh release create "${GITHUB_REF_NAME}" \
               "${{ steps.artifact.outputs.apk }}" \
               "${{ steps.artifact.outputs.checksum }}" \
+              dist/gosduma-2026-umg.source.json \
+              dist/gosduma-2026-umg.source.json.sha256 \
+              dist/gosduma-2026-umg.yanavyborah.json \
+              dist/gosduma-2026-umg.yanavyborah.json.sha256 \
               --verify-tag --generate-notes \
               --title "Я на выборах ${GITHUB_REF_NAME}"
           fi
