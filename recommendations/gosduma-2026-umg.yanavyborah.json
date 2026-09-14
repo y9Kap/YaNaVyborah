@@ -1,0 +1,1742 @@
+{
+  "schemaVersion": 1,
+  "title": "Умное голосование — Госдума 2026",
+  "election": "Выборы в Государственную Думу 2026",
+  "contentSha256": "5abbfdb2a7439894424753c20001e3e0f2be1bea7baabcfbce06503b784719ba",
+  "recommendations": [
+    {
+      "region": "*",
+      "ballotType": "federal_party_list",
+      "choice": "КПРФ, «Новые люди» или ЛДПР",
+      "note": "По спискам: за любую партию, которая имеет шанс пройти барьер в 5% (КПРФ, «Новые люди» или ЛДПР)."
+    },
+    {
+      "region": "Москва",
+      "city": "Москва",
+      "district": "Бабушкинский",
+      "districtNumber": "195",
+      "ballotType": "federal_single_mandate",
+      "choice": "Кузнецова Юлия Вадимовна",
+      "party": "Зелёные"
+    },
+    {
+      "region": "Москва",
+      "city": "Москва",
+      "district": "Кунцевский",
+      "districtNumber": "196",
+      "ballotType": "federal_single_mandate",
+      "choice": "Евтеев Андрей Алексеевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Москва",
+      "city": "Москва",
+      "district": "Ленинградский",
+      "districtNumber": "197",
+      "ballotType": "federal_single_mandate",
+      "choice": "Гришин Григорий Александрович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Москва",
+      "city": "Москва",
+      "district": "Люблинский",
+      "districtNumber": "198",
+      "ballotType": "federal_single_mandate",
+      "choice": "Снеговский Артём Юрьевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Москва",
+      "city": "Москва",
+      "district": "Медведковский",
+      "districtNumber": "199",
+      "ballotType": "federal_single_mandate",
+      "choice": "Лермант Полина Валерьевна",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Москва",
+      "city": "Москва",
+      "district": "Нагатинский",
+      "districtNumber": "200",
+      "ballotType": "federal_single_mandate",
+      "choice": "Чунихин Герман Альбертович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Москва",
+      "city": "Москва",
+      "district": "Новомосковский",
+      "districtNumber": "201",
+      "ballotType": "federal_single_mandate",
+      "choice": "Ковалев Семен Юрьевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Москва",
+      "city": "Москва",
+      "district": "Орехово-Борисовский",
+      "districtNumber": "202",
+      "ballotType": "federal_single_mandate",
+      "choice": "Пархоменко Сергей Дмитриевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Москва",
+      "city": "Москва",
+      "district": "Перовский",
+      "districtNumber": "203",
+      "ballotType": "federal_single_mandate",
+      "choice": "Макаров Максим Владиславович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Москва",
+      "city": "Москва",
+      "district": "Преображенский",
+      "districtNumber": "204",
+      "ballotType": "federal_single_mandate",
+      "choice": "Шатуновская-Бюрно Анна Геннадиевна",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Москва",
+      "city": "Москва",
+      "district": "Тушинский",
+      "districtNumber": "205",
+      "ballotType": "federal_single_mandate",
+      "choice": "Биктуганов Евгений Вячеславович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Москва",
+      "city": "Москва",
+      "district": "Ховринский",
+      "districtNumber": "206",
+      "ballotType": "federal_single_mandate",
+      "choice": "Коган-Ясный Виктор Валентинович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Москва",
+      "city": "Москва",
+      "district": "Центральный",
+      "districtNumber": "207",
+      "ballotType": "federal_single_mandate",
+      "choice": "Митрохин Сергей Сергеевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Москва",
+      "city": "Москва",
+      "district": "Черемушкинский",
+      "districtNumber": "208",
+      "ballotType": "federal_single_mandate",
+      "choice": "Смирнов Алексей Олегович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Москва",
+      "city": "Москва",
+      "district": "Чертановский",
+      "districtNumber": "209",
+      "ballotType": "federal_single_mandate",
+      "choice": "Ганзя Вера Анатольевна",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Москва",
+      "city": "Москва",
+      "district": "Солнцевский",
+      "districtNumber": "210",
+      "ballotType": "federal_single_mandate",
+      "choice": "Рамазанова Марижат Курбановна",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Санкт-Петербург",
+      "city": "Санкт-Петербург",
+      "district": "Восточный",
+      "districtNumber": "211",
+      "ballotType": "federal_single_mandate",
+      "choice": "Кизюкова Анастасия Сергеевна",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Санкт-Петербург",
+      "city": "Санкт-Петербург",
+      "district": "Западный",
+      "districtNumber": "212",
+      "ballotType": "federal_single_mandate",
+      "choice": "Зудин Давид Сергеевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Санкт-Петербург",
+      "city": "Санкт-Петербург",
+      "district": "Северный",
+      "districtNumber": "213",
+      "ballotType": "federal_single_mandate",
+      "choice": "Амосов Михаил Иванович",
+      "party": "Зелёные"
+    },
+    {
+      "region": "Санкт-Петербург",
+      "city": "Санкт-Петербург",
+      "district": "Северо-Восточный",
+      "districtNumber": "214",
+      "ballotType": "federal_single_mandate",
+      "choice": "Панов Дмитрий Вячеславович",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Санкт-Петербург",
+      "city": "Санкт-Петербург",
+      "district": "Северо-Западный",
+      "districtNumber": "215",
+      "ballotType": "federal_single_mandate",
+      "choice": "Юркевич Ольга Изяславовна",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Санкт-Петербург",
+      "city": "Санкт-Петербург",
+      "district": "Центральный",
+      "districtNumber": "216",
+      "ballotType": "federal_single_mandate",
+      "choice": "Анисимов Дмитрий Игоревич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Санкт-Петербург",
+      "city": "Санкт-Петербург",
+      "district": "Юго-Восточный",
+      "districtNumber": "217",
+      "ballotType": "federal_single_mandate",
+      "choice": "Исаков Виталий Михайлович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Санкт-Петербург",
+      "city": "Санкт-Петербург",
+      "district": "Южный",
+      "districtNumber": "218",
+      "ballotType": "federal_single_mandate",
+      "choice": "Хорзов Дмитрий Викторович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Республика Адыгея (Адыгея)",
+      "district": "Адыгейский",
+      "districtNumber": "1",
+      "ballotType": "federal_single_mandate",
+      "choice": "Цахаев Рашид Юрьевич",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Республика Алтай",
+      "district": "Алтайский",
+      "districtNumber": "2",
+      "ballotType": "federal_single_mandate",
+      "choice": "Бакрасов Аржан Иванович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Алтайский край",
+      "district": "Барнаульский",
+      "districtNumber": "44",
+      "ballotType": "federal_single_mandate",
+      "choice": "Чернобай Андрей Борисович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Алтайский край",
+      "district": "Бийский",
+      "districtNumber": "45",
+      "ballotType": "federal_single_mandate",
+      "choice": "Арцибашев Антон Игоревич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Алтайский край",
+      "district": "Славгородский",
+      "districtNumber": "46",
+      "ballotType": "federal_single_mandate",
+      "choice": "Клюшникова Людмила Викторовна",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Амурская область",
+      "district": "Амурский",
+      "districtNumber": "75",
+      "ballotType": "federal_single_mandate",
+      "choice": "Кобызов Роман Александрович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Архангельская область",
+      "district": "Архангельский",
+      "districtNumber": "76",
+      "ballotType": "federal_single_mandate",
+      "choice": "Лаптев Вадим Геннадьевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Архангельская область",
+      "district": "Котласский",
+      "districtNumber": "77",
+      "ballotType": "federal_single_mandate",
+      "choice": "Ивашина Наталья Вячеславовна",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Астраханская область",
+      "district": "Астраханский",
+      "districtNumber": "78",
+      "ballotType": "federal_single_mandate",
+      "choice": "Самодаева Лариса Николаевна",
+      "party": "Партия пенсионеров"
+    },
+    {
+      "region": "Республика Башкортостан",
+      "district": "Уфимский",
+      "districtNumber": "3",
+      "ballotType": "federal_single_mandate",
+      "choice": "Давлетшин Руслан Рамзитович",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Республика Башкортостан",
+      "district": "Благовещенский",
+      "districtNumber": "4",
+      "ballotType": "federal_single_mandate",
+      "choice": "Адельмурдин Азат Вахитович",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Республика Башкортостан",
+      "district": "Белорецкий",
+      "districtNumber": "5",
+      "ballotType": "federal_single_mandate",
+      "choice": "Тимерьянов Ильшат Маратович",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Республика Башкортостан",
+      "district": "Нефтекамский",
+      "districtNumber": "6",
+      "ballotType": "federal_single_mandate",
+      "choice": "Вайсброт Дмитрий Григорьевич",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Республика Башкортостан",
+      "district": "Салаватский",
+      "districtNumber": "7",
+      "ballotType": "federal_single_mandate",
+      "choice": "Гафаров Тагир Анасович",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Республика Башкортостан",
+      "district": "Стерлитамакский",
+      "districtNumber": "8",
+      "ballotType": "federal_single_mandate",
+      "choice": "Смирнов Дмитрий Евгеньевич",
+      "party": "Справедливая Россия"
+    },
+    {
+      "region": "Белгородская область",
+      "district": "Белгородский",
+      "districtNumber": "79",
+      "ballotType": "federal_single_mandate",
+      "choice": "Костюков Илья Романович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Белгородская область",
+      "district": "Старооскольский",
+      "districtNumber": "80",
+      "ballotType": "federal_single_mandate",
+      "choice": "Криводеров Юрий Николаевич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Брянская область",
+      "district": "Брянский",
+      "districtNumber": "81",
+      "ballotType": "federal_single_mandate",
+      "choice": "Филимонов Иван Романович",
+      "party": "Справедливая Россия"
+    },
+    {
+      "region": "Брянская область",
+      "district": "Унечский",
+      "districtNumber": "82",
+      "ballotType": "federal_single_mandate",
+      "choice": "Фирсов Игорь Валерьевич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Республика Бурятия",
+      "district": "Бурятский",
+      "districtNumber": "9",
+      "ballotType": "federal_single_mandate",
+      "choice": "Цыренов Баир Цыденович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Владимирская область",
+      "district": "Владимирский",
+      "districtNumber": "83",
+      "ballotType": "federal_single_mandate",
+      "choice": "Серебров Вадим Анатольевич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Владимирская область",
+      "district": "Суздальский",
+      "districtNumber": "84",
+      "ballotType": "federal_single_mandate",
+      "choice": "Фирсов Алексей Александрович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Волгоградская область",
+      "district": "Волгоградский",
+      "districtNumber": "85",
+      "ballotType": "federal_single_mandate",
+      "choice": "Шевченко Андрей Сергеевич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Волгоградская область",
+      "district": "Михайловский",
+      "districtNumber": "86",
+      "ballotType": "federal_single_mandate",
+      "choice": "Могильный Валерий Федорович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Волгоградская область",
+      "district": "Волжский",
+      "districtNumber": "87",
+      "ballotType": "federal_single_mandate",
+      "choice": "Литвинов Роман Александрович",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Вологодская область",
+      "district": "Вологодский",
+      "districtNumber": "88",
+      "ballotType": "federal_single_mandate",
+      "choice": "Егоров Николай Александрович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Вологодская область",
+      "district": "Череповецкий",
+      "districtNumber": "89",
+      "ballotType": "federal_single_mandate",
+      "choice": "Николаев Владимир Валериевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Воронежская область",
+      "district": "Воронежский",
+      "districtNumber": "90",
+      "ballotType": "federal_single_mandate",
+      "choice": "Андриевских Татьяна Николаевна",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Воронежская область",
+      "district": "Аннинский",
+      "districtNumber": "91",
+      "ballotType": "federal_single_mandate",
+      "choice": "Гуляев Сергей Александрович",
+      "party": "Справедливая Россия"
+    },
+    {
+      "region": "Воронежская область",
+      "district": "Павловский",
+      "districtNumber": "92",
+      "ballotType": "federal_single_mandate",
+      "choice": "Харцызов Роман Александрович",
+      "party": "Справедливая Россия"
+    },
+    {
+      "region": "Республика Дагестан",
+      "district": "Махачкалинский",
+      "districtNumber": "10",
+      "ballotType": "federal_single_mandate",
+      "choice": "Девлетханов Вагид Асретович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Республика Дагестан",
+      "district": "Буйнакский",
+      "districtNumber": "11",
+      "ballotType": "federal_single_mandate",
+      "choice": "Магомедов Магомед Ибрагимович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Республика Дагестан",
+      "district": "Дербентский",
+      "districtNumber": "12",
+      "ballotType": "federal_single_mandate",
+      "choice": "Эседов Альберт Абдурахманович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Еврейская автономная область",
+      "district": "Еврейский",
+      "districtNumber": "220",
+      "ballotType": "federal_single_mandate",
+      "choice": "Конопаткин Евгений Григорьевич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Забайкальский край",
+      "district": "Забайкальский",
+      "districtNumber": "47",
+      "ballotType": "federal_single_mandate",
+      "choice": "Жданов Александр Валерьевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Ивановская область",
+      "district": "Ивановский",
+      "districtNumber": "94",
+      "ballotType": "federal_single_mandate",
+      "choice": "Бойков Александр Дмитриевич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Республика Ингушетия",
+      "district": "Ингушский",
+      "districtNumber": "16",
+      "ballotType": "federal_single_mandate",
+      "choice": "Оздоев Руслан Хусенович",
+      "party": "Справедливая Россия"
+    },
+    {
+      "region": "Иркутская область",
+      "district": "Иркутский",
+      "districtNumber": "95",
+      "ballotType": "federal_single_mandate",
+      "choice": "Файзулин Евгений Ревович",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Иркутская область",
+      "district": "Ангарский",
+      "districtNumber": "96",
+      "ballotType": "federal_single_mandate",
+      "choice": "Ахмадулин Андрей Фанисович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Иркутская область",
+      "district": "Шелеховский",
+      "districtNumber": "97",
+      "ballotType": "federal_single_mandate",
+      "choice": "Сумароков Илья Павлович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Иркутская область",
+      "district": "Братский",
+      "districtNumber": "98",
+      "ballotType": "federal_single_mandate",
+      "choice": "Башкатова Татьяна Борисовна",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Кабардино-Балкарская Республика",
+      "district": "Кабардино-Балкарский",
+      "districtNumber": "17",
+      "ballotType": "federal_single_mandate",
+      "choice": "Таппасханова Аминат Ануаровна",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Калининградская область",
+      "district": "Калининградский",
+      "districtNumber": "99",
+      "ballotType": "federal_single_mandate",
+      "choice": "Сидоров Виктор Владимирович",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Калининградская область",
+      "district": "Центральный",
+      "districtNumber": "100",
+      "ballotType": "federal_single_mandate",
+      "choice": "Морозов Роман Владимирович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Республика Калмыкия",
+      "district": "Калмыцкий",
+      "districtNumber": "18",
+      "ballotType": "federal_single_mandate",
+      "choice": "Мы не смогли определить кандидата"
+    },
+    {
+      "region": "Калужская область",
+      "district": "Калужский",
+      "districtNumber": "101",
+      "ballotType": "federal_single_mandate",
+      "choice": "Яшкин Николай Иванович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Камчатский край",
+      "district": "Камчатский",
+      "districtNumber": "48",
+      "ballotType": "federal_single_mandate",
+      "choice": "Литвинов Роман Демьянович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Карачаево-Черкесская Республика",
+      "district": "Карачаево-Черкесский",
+      "districtNumber": "19",
+      "ballotType": "federal_single_mandate",
+      "choice": "Абазов Ахмед Назирович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Республика Карелия",
+      "district": "Карельский",
+      "districtNumber": "20",
+      "ballotType": "federal_single_mandate",
+      "choice": "Павлова Анна Валерьевна",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Кемеровская область - Кузбасс",
+      "district": "Кемеровский",
+      "districtNumber": "102",
+      "ballotType": "federal_single_mandate",
+      "choice": "Смольников Евгений Эдуардович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Кемеровская область - Кузбасс",
+      "district": "Прокопьевский",
+      "districtNumber": "103",
+      "ballotType": "federal_single_mandate",
+      "choice": "Альшевич Глеб Сергеевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Кемеровская область - Кузбасс",
+      "district": "Заводский",
+      "districtNumber": "104",
+      "ballotType": "federal_single_mandate",
+      "choice": "Терзицкая Олеся Викторовна",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Кемеровская область - Кузбасс",
+      "district": "Новокузнецкий",
+      "districtNumber": "105",
+      "ballotType": "federal_single_mandate",
+      "choice": "Калиногорский Николай Алексеевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Кировская область",
+      "district": "Кировский",
+      "districtNumber": "106",
+      "ballotType": "federal_single_mandate",
+      "choice": "Мамаев Сергей Павлинович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Кировская область",
+      "district": "Кирово-Чепецкий",
+      "districtNumber": "107",
+      "ballotType": "federal_single_mandate",
+      "choice": "Альминова Анна Александровна",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Республика Коми",
+      "district": "Сыктывкарский",
+      "districtNumber": "21",
+      "ballotType": "federal_single_mandate",
+      "choice": "Михайлов Олег Алексеевич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Костромская область",
+      "district": "Костромской",
+      "districtNumber": "108",
+      "ballotType": "federal_single_mandate",
+      "choice": "Тарасов Андрей Леонидович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Краснодарский край",
+      "district": "Центральный",
+      "districtNumber": "49",
+      "ballotType": "federal_single_mandate",
+      "choice": "Бесленей Ахмед Шамилевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Краснодарский край",
+      "district": "Северо-Западный",
+      "districtNumber": "50",
+      "ballotType": "federal_single_mandate",
+      "choice": "Шибалкин Игорь Владимирович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Краснодарский край",
+      "district": "Юго-Западный",
+      "districtNumber": "51",
+      "ballotType": "federal_single_mandate",
+      "choice": "Виноградов Игорь Валерьевич",
+      "party": "Справедливая Россия"
+    },
+    {
+      "region": "Краснодарский край",
+      "district": "Западный",
+      "districtNumber": "52",
+      "ballotType": "federal_single_mandate",
+      "choice": "Игнатов Игорь Борисович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Краснодарский край",
+      "district": "Черноморский",
+      "districtNumber": "53",
+      "ballotType": "federal_single_mandate",
+      "choice": "Пронькин Виталий Владимирович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Краснодарский край",
+      "district": "Южный",
+      "districtNumber": "54",
+      "ballotType": "federal_single_mandate",
+      "choice": "Мы не смогли определить кандидата"
+    },
+    {
+      "region": "Краснодарский край",
+      "district": "Юго-Восточный",
+      "districtNumber": "55",
+      "ballotType": "federal_single_mandate",
+      "choice": "Дедочев Роман Иванович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Краснодарский край",
+      "district": "Восточный",
+      "districtNumber": "56",
+      "ballotType": "federal_single_mandate",
+      "choice": "Мы не смогли определить кандидата"
+    },
+    {
+      "region": "Краснодарский край",
+      "district": "Северный",
+      "districtNumber": "57",
+      "ballotType": "federal_single_mandate",
+      "choice": "Врублевский Эдуард Николаевич",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Красноярский край",
+      "district": "Красноярский",
+      "districtNumber": "58",
+      "ballotType": "federal_single_mandate",
+      "choice": "Золотухин Максим Анатольевич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Красноярский край",
+      "district": "Центральный",
+      "districtNumber": "59",
+      "ballotType": "federal_single_mandate",
+      "choice": "Саттаров Николай Степанович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Красноярский край",
+      "district": "Дивногорский",
+      "districtNumber": "60",
+      "ballotType": "federal_single_mandate",
+      "choice": "Исаев Валерий Андреевич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Красноярский край",
+      "district": "Енисейский",
+      "districtNumber": "61",
+      "ballotType": "federal_single_mandate",
+      "choice": "Дубров Дмитрий Владимирович",
+      "party": "Справедливая Россия"
+    },
+    {
+      "region": "Курганская область",
+      "district": "Курганский",
+      "districtNumber": "109",
+      "ballotType": "federal_single_mandate",
+      "choice": "Панова Елена Валерьевна",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Курская область",
+      "district": "Курский",
+      "districtNumber": "110",
+      "ballotType": "federal_single_mandate",
+      "choice": "Канунникова Светлана Игоревна",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Курская область",
+      "district": "Сеймский",
+      "districtNumber": "111",
+      "ballotType": "federal_single_mandate",
+      "choice": "Новиков Александр Павлович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Ленинградская область",
+      "district": "Всеволожский",
+      "districtNumber": "112",
+      "ballotType": "federal_single_mandate",
+      "choice": "Мухина Лариса Валентиновна",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Ленинградская область",
+      "district": "Гатчинский",
+      "districtNumber": "113",
+      "ballotType": "federal_single_mandate",
+      "choice": "Разина Виктория Юрьевна",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Ленинградская область",
+      "district": "Волховский",
+      "districtNumber": "114",
+      "ballotType": "federal_single_mandate",
+      "choice": "Костик Антон Владимирович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Липецкая область",
+      "district": "Липецкий",
+      "districtNumber": "115",
+      "ballotType": "federal_single_mandate",
+      "choice": "Кубрина Анна Борисовна",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Липецкая область",
+      "district": "Левобережный",
+      "districtNumber": "116",
+      "ballotType": "federal_single_mandate",
+      "choice": "Наумов Александр Владимирович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Магаданская область",
+      "district": "Магаданский",
+      "districtNumber": "117",
+      "ballotType": "federal_single_mandate",
+      "choice": "Эттенко Кирилл Геннадьевич",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Республика Марий Эл",
+      "district": "Марийский",
+      "districtNumber": "27",
+      "ballotType": "federal_single_mandate",
+      "choice": "Свинин Павел Иванович",
+      "party": "Партия пенсионеров"
+    },
+    {
+      "region": "Республика Мордовия",
+      "district": "Мордовский",
+      "districtNumber": "28",
+      "ballotType": "federal_single_mandate",
+      "choice": "Тулаев Владислав Геннадьевич",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Московская область",
+      "district": "Балашихинский",
+      "districtNumber": "118",
+      "ballotType": "federal_single_mandate",
+      "choice": "Хвастунова Алла Сергеевна",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Московская область",
+      "district": "Дмитровский",
+      "districtNumber": "119",
+      "ballotType": "federal_single_mandate",
+      "choice": "Поцелуева Наталья Сергеевна",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Московская область",
+      "district": "Коломенский",
+      "districtNumber": "120",
+      "ballotType": "federal_single_mandate",
+      "choice": "Тимкова Ирина Сергеевна",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Московская область",
+      "district": "Красногорский",
+      "districtNumber": "121",
+      "ballotType": "federal_single_mandate",
+      "choice": "Садилов Антон Михайлович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Московская область",
+      "district": "Люберецкий",
+      "districtNumber": "122",
+      "ballotType": "federal_single_mandate",
+      "choice": "Комарова Евгения Юрьевна",
+      "party": "Справедливая Россия"
+    },
+    {
+      "region": "Московская область",
+      "district": "Мытищинский",
+      "districtNumber": "123",
+      "ballotType": "federal_single_mandate",
+      "choice": "Синицына Наталья Сергеевна",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Московская область",
+      "district": "Одинцовский",
+      "districtNumber": "124",
+      "ballotType": "federal_single_mandate",
+      "choice": "Зуев Михаил Анатольевич",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Московская область",
+      "district": "Орехово-Зуевский",
+      "districtNumber": "125",
+      "ballotType": "federal_single_mandate",
+      "choice": "Смирнова Светлана Александровна",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Московская область",
+      "district": "Подольский",
+      "districtNumber": "126",
+      "ballotType": "federal_single_mandate",
+      "choice": "Филиппов Алексей Николаевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Московская область",
+      "district": "Сергиево-Посадский",
+      "districtNumber": "127",
+      "ballotType": "federal_single_mandate",
+      "choice": "Туманов Андрей Владимирович",
+      "party": "Справедливая Россия"
+    },
+    {
+      "region": "Московская область",
+      "district": "Серпуховский",
+      "districtNumber": "128",
+      "ballotType": "federal_single_mandate",
+      "choice": "Гусев Иван Львович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Московская область",
+      "district": "Щёлковский",
+      "districtNumber": "129",
+      "ballotType": "federal_single_mandate",
+      "choice": "Мякинин Илья Дмитриевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Мурманская область",
+      "district": "Мурманский",
+      "districtNumber": "130",
+      "ballotType": "federal_single_mandate",
+      "choice": "Хомечко Игорь Иванович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Ненецкий автономный округ",
+      "district": "Ненецкий",
+      "districtNumber": "221",
+      "ballotType": "federal_single_mandate",
+      "choice": "Райн Михаил Викторович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Нижегородская область",
+      "district": "Нижегородский",
+      "districtNumber": "131",
+      "ballotType": "federal_single_mandate",
+      "choice": "Душкин Алексей Вадимович",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Нижегородская область",
+      "district": "Приокский",
+      "districtNumber": "132",
+      "ballotType": "federal_single_mandate",
+      "choice": "Татаринцева Анна Валерьевна",
+      "party": "Справедливая Россия"
+    },
+    {
+      "region": "Нижегородская область",
+      "district": "Автозаводский",
+      "districtNumber": "133",
+      "ballotType": "federal_single_mandate",
+      "choice": "Рыхтик Михаил Иванович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Нижегородская область",
+      "district": "Канавинский",
+      "districtNumber": "134",
+      "ballotType": "federal_single_mandate",
+      "choice": "Горбунов Сергей Александрович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Нижегородская область",
+      "district": "Борский",
+      "districtNumber": "135",
+      "ballotType": "federal_single_mandate",
+      "choice": "Девонин Андрей Викторович",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Новгородская область",
+      "district": "Новгородский",
+      "districtNumber": "136",
+      "ballotType": "federal_single_mandate",
+      "choice": "Шалякин Виктор Владимирович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Новосибирская область",
+      "district": "Новосибирский",
+      "districtNumber": "137",
+      "ballotType": "federal_single_mandate",
+      "choice": "Жирнов Андрей Геннадьевич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Новосибирская область",
+      "district": "Центральный",
+      "districtNumber": "138",
+      "ballotType": "federal_single_mandate",
+      "choice": "Копылов Петр Андреевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Новосибирская область",
+      "district": "Искитимский",
+      "districtNumber": "139",
+      "ballotType": "federal_single_mandate",
+      "choice": "Шабанов Дмитрий Юрьевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Новосибирская область",
+      "district": "Барабинский",
+      "districtNumber": "140",
+      "ballotType": "federal_single_mandate",
+      "choice": "Пивоварова Елена Николаевна",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Омская область",
+      "district": "Омский",
+      "districtNumber": "141",
+      "ballotType": "federal_single_mandate",
+      "choice": "Алехин Андрей Анатольевич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Омская область",
+      "district": "Москаленский",
+      "districtNumber": "142",
+      "ballotType": "federal_single_mandate",
+      "choice": "Смолин Олег Николаевич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Омская область",
+      "district": "Любинский",
+      "districtNumber": "143",
+      "ballotType": "federal_single_mandate",
+      "choice": "Юдин Константин Алексеевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Оренбургская область",
+      "district": "Оренбургский",
+      "districtNumber": "144",
+      "ballotType": "federal_single_mandate",
+      "choice": "Салихова Карина Римовна",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Оренбургская область",
+      "district": "Бугурусланский",
+      "districtNumber": "145",
+      "ballotType": "federal_single_mandate",
+      "choice": "Шантелев Дмитрий Анатольевич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Оренбургская область",
+      "district": "Орский",
+      "districtNumber": "146",
+      "ballotType": "federal_single_mandate",
+      "choice": "Ращупкин Вячеслав Александрович",
+      "party": "Справедливая Россия"
+    },
+    {
+      "region": "Орловская область",
+      "district": "Орловский",
+      "districtNumber": "147",
+      "ballotType": "federal_single_mandate",
+      "choice": "Почтарёв Сергей Юрьевич",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Пензенская область",
+      "district": "Пензенский",
+      "districtNumber": "148",
+      "ballotType": "federal_single_mandate",
+      "choice": "Львов Дмитрий Андреевич",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Пензенская область",
+      "district": "Лермонтовский",
+      "districtNumber": "149",
+      "ballotType": "federal_single_mandate",
+      "choice": "Чекарев Владимир Викторович",
+      "party": "Справедливая Россия"
+    },
+    {
+      "region": "Пермский край",
+      "district": "Пермский",
+      "districtNumber": "62",
+      "ballotType": "federal_single_mandate",
+      "choice": "Пономарев Константин Эдуардович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Пермский край",
+      "district": "Чусовской",
+      "districtNumber": "63",
+      "ballotType": "federal_single_mandate",
+      "choice": "Ермаков Егор Сергеевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Пермский край",
+      "district": "Кунгурский",
+      "districtNumber": "64",
+      "ballotType": "federal_single_mandate",
+      "choice": "Вшивкова Ольга Витальевна",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Пермский край",
+      "district": "Кудымкарский",
+      "districtNumber": "65",
+      "ballotType": "federal_single_mandate",
+      "choice": "Колоколова Ольга Аркадьевна",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Приморский край",
+      "district": "Владивостокский",
+      "districtNumber": "66",
+      "ballotType": "federal_single_mandate",
+      "choice": "Куликов Геннадий Петрович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Приморский край",
+      "district": "Артемовский",
+      "districtNumber": "67",
+      "ballotType": "federal_single_mandate",
+      "choice": "Акимов Андрей Петрович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Приморский край",
+      "district": "Арсеньевский",
+      "districtNumber": "68",
+      "ballotType": "federal_single_mandate",
+      "choice": "Сорокин Александр Васильевич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Псковская область",
+      "district": "Псковский",
+      "districtNumber": "150",
+      "ballotType": "federal_single_mandate",
+      "choice": "Васильев Евгений Геннадьевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Ростовская область",
+      "district": "Ростовский",
+      "districtNumber": "151",
+      "ballotType": "federal_single_mandate",
+      "choice": "Черкашин Лавр Александрович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Ростовская область",
+      "district": "Батайский",
+      "districtNumber": "152",
+      "ballotType": "federal_single_mandate",
+      "choice": "Кошевой Сергей Викторович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Ростовская область",
+      "district": "Новочеркасский",
+      "districtNumber": "153",
+      "ballotType": "federal_single_mandate",
+      "choice": "Мы не смогли определить кандидата"
+    },
+    {
+      "region": "Ростовская область",
+      "district": "Неклиновский",
+      "districtNumber": "154",
+      "ballotType": "federal_single_mandate",
+      "choice": "Фомин Виталий Анатольевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Ростовская область",
+      "district": "Белокалитвинский",
+      "districtNumber": "155",
+      "ballotType": "federal_single_mandate",
+      "choice": "Абакумов Виталий Анатольевич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Ростовская область",
+      "district": "Усть-Донецкий",
+      "districtNumber": "156",
+      "ballotType": "federal_single_mandate",
+      "choice": "Черемисов Илья Евгеньевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Рязанская область",
+      "district": "Рязанский",
+      "districtNumber": "157",
+      "ballotType": "federal_single_mandate",
+      "choice": "Якунин Владимир Васильевич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Рязанская область",
+      "district": "Скопинский",
+      "districtNumber": "158",
+      "ballotType": "federal_single_mandate",
+      "choice": "Морозов Евгений Николаевич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Самарская область",
+      "district": "Самарский",
+      "districtNumber": "159",
+      "ballotType": "federal_single_mandate",
+      "choice": "Томчук Алексей Сергеевич",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Самарская область",
+      "district": "Тольяттинский",
+      "districtNumber": "160",
+      "ballotType": "federal_single_mandate",
+      "choice": "Мотрюков Владимир Анатольевич",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Самарская область",
+      "district": "Красноглинский",
+      "districtNumber": "161",
+      "ballotType": "federal_single_mandate",
+      "choice": "Боброва Наталья Алексеевна",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Самарская область",
+      "district": "Жигулевский",
+      "districtNumber": "162",
+      "ballotType": "federal_single_mandate",
+      "choice": "Усов Михаил Викторович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Самарская область",
+      "district": "Промышленный",
+      "districtNumber": "163",
+      "ballotType": "federal_single_mandate",
+      "choice": "Матвеев Михаил Николаевич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Саратовская область",
+      "district": "Саратовский",
+      "districtNumber": "164",
+      "ballotType": "federal_single_mandate",
+      "choice": "Любцов Сергей Анатольевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Саратовская область",
+      "district": "Балаковский",
+      "districtNumber": "165",
+      "ballotType": "federal_single_mandate",
+      "choice": "Анидалов Александр Юрьевич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Саратовская область",
+      "district": "Балашовский",
+      "districtNumber": "166",
+      "ballotType": "federal_single_mandate",
+      "choice": "Румянцев Кирилл Антонович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Саратовская область",
+      "district": "Энгельсский",
+      "districtNumber": "167",
+      "ballotType": "federal_single_mandate",
+      "choice": "Чернова Ксения Юрьевна",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Республика Саха (Якутия)",
+      "district": "Якутский",
+      "districtNumber": "29",
+      "ballotType": "federal_single_mandate",
+      "choice": "Ноговицын Анатолий Григорьевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Сахалинская область",
+      "district": "Сахалинский",
+      "districtNumber": "168",
+      "ballotType": "federal_single_mandate",
+      "choice": "Рыбаков Иван Владимирович",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Свердловская область",
+      "district": "Свердловский",
+      "districtNumber": "169",
+      "ballotType": "federal_single_mandate",
+      "choice": "Киселёв Константин Викторович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Свердловская область",
+      "district": "Каменск-Уральский",
+      "districtNumber": "170",
+      "ballotType": "federal_single_mandate",
+      "choice": "Гордеев Олег Сергеевич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Свердловская область",
+      "district": "Березовский",
+      "districtNumber": "171",
+      "ballotType": "federal_single_mandate",
+      "choice": "Краев Рант Кароевич",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Свердловская область",
+      "district": "Нижнетагильский",
+      "districtNumber": "172",
+      "ballotType": "federal_single_mandate",
+      "choice": "Бояркин Михаил Валентинович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Свердловская область",
+      "district": "Асбестовский",
+      "districtNumber": "173",
+      "ballotType": "federal_single_mandate",
+      "choice": "Севостьянов Владимир Викторович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Свердловская область",
+      "district": "Первоуральский",
+      "districtNumber": "174",
+      "ballotType": "federal_single_mandate",
+      "choice": "Лопарева Ольга Владимировна",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Свердловская область",
+      "district": "Серовский",
+      "districtNumber": "175",
+      "ballotType": "federal_single_mandate",
+      "choice": "Собянин Владимир Иванович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Республика Северная Осетия - Алания",
+      "district": "Северо-Осетинский",
+      "districtNumber": "30",
+      "ballotType": "federal_single_mandate",
+      "choice": "Цкаева Земфира Аслановна",
+      "party": "Справедливая Россия"
+    },
+    {
+      "region": "Смоленская область",
+      "district": "Смоленский",
+      "districtNumber": "176",
+      "ballotType": "federal_single_mandate",
+      "choice": "Войтов Алексей Михайлович",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Ставропольский край",
+      "district": "Ставропольский",
+      "districtNumber": "69",
+      "ballotType": "federal_single_mandate",
+      "choice": "Зубенко Виталий Григорьевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Ставропольский край",
+      "district": "Невинномысский",
+      "districtNumber": "70",
+      "ballotType": "federal_single_mandate",
+      "choice": "Чередниченко Анатолий Александрович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Ставропольский край",
+      "district": "Кавминводский",
+      "districtNumber": "71",
+      "ballotType": "federal_single_mandate",
+      "choice": "Захаренков Артемий Викторович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Ставропольский край",
+      "district": "Георгиевский",
+      "districtNumber": "72",
+      "ballotType": "federal_single_mandate",
+      "choice": "Бершак Максим Андреевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Тамбовская область",
+      "district": "Тамбовский",
+      "districtNumber": "177",
+      "ballotType": "federal_single_mandate",
+      "choice": "Зенкина Яна Александровна",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Республика Татарстан",
+      "district": "Приволжский",
+      "districtNumber": "31",
+      "ballotType": "federal_single_mandate",
+      "choice": "Федорова Софья Александровна",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Республика Татарстан",
+      "district": "Московский",
+      "districtNumber": "32",
+      "ballotType": "federal_single_mandate",
+      "choice": "Салахов Ренат Жамилевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Республика Татарстан",
+      "district": "Нижнекамский",
+      "districtNumber": "33",
+      "ballotType": "federal_single_mandate",
+      "choice": "Хузиев Булат Газинурович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Республика Татарстан",
+      "district": "Набережно-Челнинский",
+      "districtNumber": "34",
+      "ballotType": "federal_single_mandate",
+      "choice": "Гарифуллин Мансур Зайдуллович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Республика Татарстан",
+      "district": "Альметьевский",
+      "districtNumber": "35",
+      "ballotType": "federal_single_mandate",
+      "choice": "Ахметвалиев Рамиль Рахимзянович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Республика Татарстан",
+      "district": "Центральный",
+      "districtNumber": "36",
+      "ballotType": "federal_single_mandate",
+      "choice": "Зинатуллин Руслан Мансурович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Тверская область",
+      "district": "Тверской",
+      "districtNumber": "178",
+      "ballotType": "federal_single_mandate",
+      "choice": "Левшуков Дмитрий Николаевич",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Тверская область",
+      "district": "Заволжский",
+      "districtNumber": "179",
+      "ballotType": "federal_single_mandate",
+      "choice": "Тимченко Даниил Сергеевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Томская область",
+      "district": "Томский",
+      "districtNumber": "180",
+      "ballotType": "federal_single_mandate",
+      "choice": "Ерёмин Василий Васильевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Тульская область",
+      "district": "Тульский",
+      "districtNumber": "181",
+      "ballotType": "federal_single_mandate",
+      "choice": "Иванова Анна Игоревна",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Тульская область",
+      "district": "Новомосковский",
+      "districtNumber": "182",
+      "ballotType": "federal_single_mandate",
+      "choice": "Калиничева Кира Романовна",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Республика Тыва",
+      "district": "Тывинский",
+      "districtNumber": "37",
+      "ballotType": "federal_single_mandate",
+      "choice": "Мы не смогли определить кандидата"
+    },
+    {
+      "region": "Тюменская область",
+      "district": "Тюменский",
+      "districtNumber": "183",
+      "ballotType": "federal_single_mandate",
+      "choice": "Новиков Максим Петрович",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Тюменская область",
+      "district": "Заводоуковский",
+      "districtNumber": "184",
+      "ballotType": "federal_single_mandate",
+      "choice": "Левченко Иван Григорьевич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Удмуртская Республика",
+      "district": "Удмуртский",
+      "districtNumber": "38",
+      "ballotType": "federal_single_mandate",
+      "choice": "Гвоздак Иван Михайлович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Удмуртская Республика",
+      "district": "Ижевский",
+      "districtNumber": "39",
+      "ballotType": "federal_single_mandate",
+      "choice": "Балахонцев Юрий Анатольевич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Ульяновская область",
+      "district": "Ульяновский",
+      "districtNumber": "185",
+      "ballotType": "federal_single_mandate",
+      "choice": "Белоусов Юрий Александрович",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Ульяновская область",
+      "district": "Радищевский",
+      "districtNumber": "186",
+      "ballotType": "federal_single_mandate",
+      "choice": "Мы не смогли определить кандидата"
+    },
+    {
+      "region": "Хабаровский край",
+      "district": "Хабаровский",
+      "districtNumber": "73",
+      "ballotType": "federal_single_mandate",
+      "choice": "Мовчан Олег Викторович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Хабаровский край",
+      "district": "Комсомольский",
+      "districtNumber": "74",
+      "ballotType": "federal_single_mandate",
+      "choice": "Ермаков Антон Аркадьевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Республика Хакасия",
+      "district": "Хакасский",
+      "districtNumber": "40",
+      "ballotType": "federal_single_mandate",
+      "choice": "Старостин Валерий Николаевич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Ханты-Мансийский автономный округ - Югра",
+      "district": "Ханты-Мансийский",
+      "districtNumber": "222",
+      "ballotType": "federal_single_mandate",
+      "choice": "Мы не смогли определить кандидата"
+    },
+    {
+      "region": "Ханты-Мансийский автономный округ - Югра",
+      "district": "Нижневартовский",
+      "districtNumber": "223",
+      "ballotType": "federal_single_mandate",
+      "choice": "Вайман Артур Владимирович",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Челябинская область",
+      "district": "Челябинский",
+      "districtNumber": "188",
+      "ballotType": "federal_single_mandate",
+      "choice": "Гулин Максим Алексеевич",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Челябинская область",
+      "district": "Металлургический",
+      "districtNumber": "189",
+      "ballotType": "federal_single_mandate",
+      "choice": "Горшков Евгений Анатольевич",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Челябинская область",
+      "district": "Коркинский",
+      "districtNumber": "190",
+      "ballotType": "federal_single_mandate",
+      "choice": "Гартунг Валерий Карлович",
+      "party": "Справедливая Россия"
+    },
+    {
+      "region": "Челябинская область",
+      "district": "Магнитогорский",
+      "districtNumber": "191",
+      "ballotType": "federal_single_mandate",
+      "choice": "Сисина Екатерина Анатольевна",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Челябинская область",
+      "district": "Златоустовский",
+      "districtNumber": "192",
+      "ballotType": "federal_single_mandate",
+      "choice": "Мотовилов Евгений Алексеевич",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Чеченская Республика",
+      "district": "Чеченский",
+      "districtNumber": "41",
+      "ballotType": "federal_single_mandate",
+      "choice": "Мы не смогли определить кандидата"
+    },
+    {
+      "region": "Чувашская Республика - Чувашия",
+      "district": "Канашский",
+      "districtNumber": "42",
+      "ballotType": "federal_single_mandate",
+      "choice": "Андреев Александр Михайлович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Чувашская Республика - Чувашия",
+      "district": "Чебоксарский",
+      "districtNumber": "43",
+      "ballotType": "federal_single_mandate",
+      "choice": "Степанов Константин Олегович",
+      "party": "ЛДПР"
+    },
+    {
+      "region": "Чукотский автономный округ",
+      "district": "Чукотский",
+      "districtNumber": "224",
+      "ballotType": "federal_single_mandate",
+      "choice": "Гальцов Владимир Анатольевич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Ямало-Ненецкий автономный округ",
+      "district": "Ямало-Ненецкий",
+      "districtNumber": "225",
+      "ballotType": "federal_single_mandate",
+      "choice": "Марковскайте Марина Зенонасовна",
+      "party": "Справедливая Россия"
+    },
+    {
+      "region": "Ярославская область",
+      "district": "Ярославский",
+      "districtNumber": "193",
+      "ballotType": "federal_single_mandate",
+      "choice": "Скрозникова Анна Валерьевна",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Ярославская область",
+      "district": "Ростовский",
+      "districtNumber": "194",
+      "ballotType": "federal_single_mandate",
+      "choice": "Балабаев Сергей Анатольевич",
+      "party": "Яблоко"
+    }
+  ]
+}

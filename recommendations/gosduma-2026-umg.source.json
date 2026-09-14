@@ -1,0 +1,1514 @@
+{
+  "schemaVersion": 1,
+  "title": "Список кандидатов Умного голосования на выборах в Госдуму 2026",
+  "sourceFile": "GOSDUMA-2026-UMG.pdf",
+  "sourcePdfSha256": "9d1e010cc0452648310e759aceb77babc6e464eb03265943f773aae6b4ca23d5",
+  "partyListRecommendation": {
+    "instruction": "По спискам: за любую партию, которая имеет шанс пройти барьер в 5% (КПРФ, «Новые люди» или ЛДПР).",
+    "parties": [
+      "КПРФ",
+      "Новые люди",
+      "ЛДПР"
+    ]
+  },
+  "candidates": [
+    {
+      "region": "Город Москва",
+      "districtNumber": 195,
+      "electoralDistrict": "Бабушкинский",
+      "candidate": "Кузнецова Юлия Вадимовна",
+      "party": "Зелёные"
+    },
+    {
+      "region": "Город Москва",
+      "districtNumber": 196,
+      "electoralDistrict": "Кунцевский",
+      "candidate": "Евтеев Андрей Алексеевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Город Москва",
+      "districtNumber": 197,
+      "electoralDistrict": "Ленинградский",
+      "candidate": "Гришин Григорий Александрович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Город Москва",
+      "districtNumber": 198,
+      "electoralDistrict": "Люблинский",
+      "candidate": "Снеговский Артём Юрьевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Город Москва",
+      "districtNumber": 199,
+      "electoralDistrict": "Медведковский",
+      "candidate": "Лермант Полина Валерьевна",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Город Москва",
+      "districtNumber": 200,
+      "electoralDistrict": "Нагатинский",
+      "candidate": "Чунихин Герман Альбертович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Город Москва",
+      "districtNumber": 201,
+      "electoralDistrict": "Новомосковский",
+      "candidate": "Ковалев Семен Юрьевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Город Москва",
+      "districtNumber": 202,
+      "electoralDistrict": "Орехово-Борисовский",
+      "candidate": "Пархоменко Сергей Дмитриевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Город Москва",
+      "districtNumber": 203,
+      "electoralDistrict": "Перовский",
+      "candidate": "Макаров Максим Владиславович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Город Москва",
+      "districtNumber": 204,
+      "electoralDistrict": "Преображенский",
+      "candidate": "Шатуновская-Бюрно Анна Геннадиевна",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Город Москва",
+      "districtNumber": 205,
+      "electoralDistrict": "Тушинский",
+      "candidate": "Биктуганов Евгений Вячеславович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Город Москва",
+      "districtNumber": 206,
+      "electoralDistrict": "Ховринский",
+      "candidate": "Коган-Ясный Виктор Валентинович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Город Москва",
+      "districtNumber": 207,
+      "electoralDistrict": "Центральный",
+      "candidate": "Митрохин Сергей Сергеевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Город Москва",
+      "districtNumber": 208,
+      "electoralDistrict": "Черемушкинский",
+      "candidate": "Смирнов Алексей Олегович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Город Москва",
+      "districtNumber": 209,
+      "electoralDistrict": "Чертановский",
+      "candidate": "Ганзя Вера Анатольевна",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Город Москва",
+      "districtNumber": 210,
+      "electoralDistrict": "Солнцевский",
+      "candidate": "Рамазанова Марижат Курбановна",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Город Санкт-Петербург",
+      "districtNumber": 211,
+      "electoralDistrict": "Восточный",
+      "candidate": "Кизюкова Анастасия Сергеевна",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Город Санкт-Петербург",
+      "districtNumber": 212,
+      "electoralDistrict": "Западный",
+      "candidate": "Зудин Давид Сергеевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Город Санкт-Петербург",
+      "districtNumber": 213,
+      "electoralDistrict": "Северный",
+      "candidate": "Амосов Михаил Иванович",
+      "party": "Зелёные"
+    },
+    {
+      "region": "Город Санкт-Петербург",
+      "districtNumber": 214,
+      "electoralDistrict": "Северо-Восточный",
+      "candidate": "Панов Дмитрий Вячеславович",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Город Санкт-Петербург",
+      "districtNumber": 215,
+      "electoralDistrict": "Северо-Западный",
+      "candidate": "Юркевич Ольга Изяславовна",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Город Санкт-Петербург",
+      "districtNumber": 216,
+      "electoralDistrict": "Центральный",
+      "candidate": "Анисимов Дмитрий Игоревич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Город Санкт-Петербург",
+      "districtNumber": 217,
+      "electoralDistrict": "Юго-Восточный",
+      "candidate": "Исаков Виталий Михайлович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Город Санкт-Петербург",
+      "districtNumber": 218,
+      "electoralDistrict": "Южный",
+      "candidate": "Хорзов Дмитрий Викторович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Республика Адыгея (Адыгея)",
+      "districtNumber": 1,
+      "electoralDistrict": "Адыгейский",
+      "candidate": "Цахаев Рашид Юрьевич",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Республика Алтай",
+      "districtNumber": 2,
+      "electoralDistrict": "Алтайский",
+      "candidate": "Бакрасов Аржан Иванович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Алтайский край",
+      "districtNumber": 44,
+      "electoralDistrict": "Барнаульский",
+      "candidate": "Чернобай Андрей Борисович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Алтайский край",
+      "districtNumber": 45,
+      "electoralDistrict": "Бийский",
+      "candidate": "Арцибашев Антон Игоревич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Алтайский край",
+      "districtNumber": 46,
+      "electoralDistrict": "Славгородский",
+      "candidate": "Клюшникова Людмила Викторовна",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Амурская область",
+      "districtNumber": 75,
+      "electoralDistrict": "Амурский",
+      "candidate": "Кобызов Роман Александрович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Архангельская область",
+      "districtNumber": 76,
+      "electoralDistrict": "Архангельский",
+      "candidate": "Лаптев Вадим Геннадьевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Архангельская область",
+      "districtNumber": 77,
+      "electoralDistrict": "Котласский",
+      "candidate": "Ивашина Наталья Вячеславовна",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Астраханская область",
+      "districtNumber": 78,
+      "electoralDistrict": "Астраханский",
+      "candidate": "Самодаева Лариса Николаевна",
+      "party": "Партия пенсионеров"
+    },
+    {
+      "region": "Республика Башкортостан",
+      "districtNumber": 3,
+      "electoralDistrict": "Уфимский",
+      "candidate": "Давлетшин Руслан Рамзитович",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Республика Башкортостан",
+      "districtNumber": 4,
+      "electoralDistrict": "Благовещенский",
+      "candidate": "Адельмурдин Азат Вахитович",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Республика Башкортостан",
+      "districtNumber": 5,
+      "electoralDistrict": "Белорецкий",
+      "candidate": "Тимерьянов Ильшат Маратович",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Республика Башкортостан",
+      "districtNumber": 6,
+      "electoralDistrict": "Нефтекамский",
+      "candidate": "Вайсброт Дмитрий Григорьевич",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Республика Башкортостан",
+      "districtNumber": 7,
+      "electoralDistrict": "Салаватский",
+      "candidate": "Гафаров Тагир Анасович",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Республика Башкортостан",
+      "districtNumber": 8,
+      "electoralDistrict": "Стерлитамакский",
+      "candidate": "Смирнов Дмитрий Евгеньевич",
+      "party": "Справедливая Россия"
+    },
+    {
+      "region": "Белгородская область",
+      "districtNumber": 79,
+      "electoralDistrict": "Белгородский",
+      "candidate": "Костюков Илья Романович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Белгородская область",
+      "districtNumber": 80,
+      "electoralDistrict": "Старооскольский",
+      "candidate": "Криводеров Юрий Николаевич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Брянская область",
+      "districtNumber": 81,
+      "electoralDistrict": "Брянский",
+      "candidate": "Филимонов Иван Романович",
+      "party": "Справедливая Россия"
+    },
+    {
+      "region": "Брянская область",
+      "districtNumber": 82,
+      "electoralDistrict": "Унечский",
+      "candidate": "Фирсов Игорь Валерьевич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Республика Бурятия",
+      "districtNumber": 9,
+      "electoralDistrict": "Бурятский",
+      "candidate": "Цыренов Баир Цыденович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Владимирская область",
+      "districtNumber": 83,
+      "electoralDistrict": "Владимирский",
+      "candidate": "Серебров Вадим Анатольевич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Владимирская область",
+      "districtNumber": 84,
+      "electoralDistrict": "Суздальский",
+      "candidate": "Фирсов Алексей Александрович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Волгоградская область",
+      "districtNumber": 85,
+      "electoralDistrict": "Волгоградский",
+      "candidate": "Шевченко Андрей Сергеевич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Волгоградская область",
+      "districtNumber": 86,
+      "electoralDistrict": "Михайловский",
+      "candidate": "Могильный Валерий Федорович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Волгоградская область",
+      "districtNumber": 87,
+      "electoralDistrict": "Волжский",
+      "candidate": "Литвинов Роман Александрович",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Вологодская область",
+      "districtNumber": 88,
+      "electoralDistrict": "Вологодский",
+      "candidate": "Егоров Николай Александрович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Вологодская область",
+      "districtNumber": 89,
+      "electoralDistrict": "Череповецкий",
+      "candidate": "Николаев Владимир Валериевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Воронежская область",
+      "districtNumber": 90,
+      "electoralDistrict": "Воронежский",
+      "candidate": "Андриевских Татьяна Николаевна",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Воронежская область",
+      "districtNumber": 91,
+      "electoralDistrict": "Аннинский",
+      "candidate": "Гуляев Сергей Александрович",
+      "party": "Справедливая Россия"
+    },
+    {
+      "region": "Воронежская область",
+      "districtNumber": 92,
+      "electoralDistrict": "Павловский",
+      "candidate": "Харцызов Роман Александрович",
+      "party": "Справедливая Россия"
+    },
+    {
+      "region": "Республика Дагестан",
+      "districtNumber": 10,
+      "electoralDistrict": "Махачкалинский",
+      "candidate": "Девлетханов Вагид Асретович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Республика Дагестан",
+      "districtNumber": 11,
+      "electoralDistrict": "Буйнакский",
+      "candidate": "Магомедов Магомед Ибрагимович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Республика Дагестан",
+      "districtNumber": 12,
+      "electoralDistrict": "Дербентский",
+      "candidate": "Эседов Альберт Абдурахманович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Еврейская автономная область",
+      "districtNumber": 220,
+      "electoralDistrict": "Еврейский",
+      "candidate": "Конопаткин Евгений Григорьевич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Забайкальский край",
+      "districtNumber": 47,
+      "electoralDistrict": "Забайкальский",
+      "candidate": "Жданов Александр Валерьевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Ивановская область",
+      "districtNumber": 94,
+      "electoralDistrict": "Ивановский",
+      "candidate": "Бойков Александр Дмитриевич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Республика Ингушетия",
+      "districtNumber": 16,
+      "electoralDistrict": "Ингушский",
+      "candidate": "Оздоев Руслан Хусенович",
+      "party": "Справедливая Россия"
+    },
+    {
+      "region": "Иркутская область",
+      "districtNumber": 95,
+      "electoralDistrict": "Иркутский",
+      "candidate": "Файзулин Евгений Ревович",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Иркутская область",
+      "districtNumber": 96,
+      "electoralDistrict": "Ангарский",
+      "candidate": "Ахмадулин Андрей Фанисович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Иркутская область",
+      "districtNumber": 97,
+      "electoralDistrict": "Шелеховский",
+      "candidate": "Сумароков Илья Павлович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Иркутская область",
+      "districtNumber": 98,
+      "electoralDistrict": "Братский",
+      "candidate": "Башкатова Татьяна Борисовна",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Кабардино-Балкарская Республика",
+      "districtNumber": 17,
+      "electoralDistrict": "Кабардино-Балкарский",
+      "candidate": "Таппасханова Аминат Ануаровна",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Калининградская область",
+      "districtNumber": 99,
+      "electoralDistrict": "Калининградский",
+      "candidate": "Сидоров Виктор Владимирович",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Калининградская область",
+      "districtNumber": 100,
+      "electoralDistrict": "Центральный",
+      "candidate": "Морозов Роман Владимирович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Республика Калмыкия",
+      "districtNumber": 18,
+      "electoralDistrict": "Калмыцкий",
+      "candidate": "Мы не смогли определить кандидата",
+      "party": null
+    },
+    {
+      "region": "Калужская область",
+      "districtNumber": 101,
+      "electoralDistrict": "Калужский",
+      "candidate": "Яшкин Николай Иванович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Камчатский край",
+      "districtNumber": 48,
+      "electoralDistrict": "Камчатский",
+      "candidate": "Литвинов Роман Демьянович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Карачаево-Черкесская Республика",
+      "districtNumber": 19,
+      "electoralDistrict": "Карачаево-Черкесский",
+      "candidate": "Абазов Ахмед Назирович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Республика Карелия",
+      "districtNumber": 20,
+      "electoralDistrict": "Карельский",
+      "candidate": "Павлова Анна Валерьевна",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Кемеровская область - Кузбасс",
+      "districtNumber": 102,
+      "electoralDistrict": "Кемеровский",
+      "candidate": "Смольников Евгений Эдуардович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Кемеровская область - Кузбасс",
+      "districtNumber": 103,
+      "electoralDistrict": "Прокопьевский",
+      "candidate": "Альшевич Глеб Сергеевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Кемеровская область - Кузбасс",
+      "districtNumber": 104,
+      "electoralDistrict": "Заводский",
+      "candidate": "Терзицкая Олеся Викторовна",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Кемеровская область - Кузбасс",
+      "districtNumber": 105,
+      "electoralDistrict": "Новокузнецкий",
+      "candidate": "Калиногорский Николай Алексеевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Кировская область",
+      "districtNumber": 106,
+      "electoralDistrict": "Кировский",
+      "candidate": "Мамаев Сергей Павлинович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Кировская область",
+      "districtNumber": 107,
+      "electoralDistrict": "Кирово-Чепецкий",
+      "candidate": "Альминова Анна Александровна",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Республика Коми",
+      "districtNumber": 21,
+      "electoralDistrict": "Сыктывкарский",
+      "candidate": "Михайлов Олег Алексеевич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Костромская область",
+      "districtNumber": 108,
+      "electoralDistrict": "Костромской",
+      "candidate": "Тарасов Андрей Леонидович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Краснодарский край",
+      "districtNumber": 49,
+      "electoralDistrict": "Центральный",
+      "candidate": "Бесленей Ахмед Шамилевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Краснодарский край",
+      "districtNumber": 50,
+      "electoralDistrict": "Северо-Западный",
+      "candidate": "Шибалкин Игорь Владимирович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Краснодарский край",
+      "districtNumber": 51,
+      "electoralDistrict": "Юго-Западный",
+      "candidate": "Виноградов Игорь Валерьевич",
+      "party": "Справедливая Россия"
+    },
+    {
+      "region": "Краснодарский край",
+      "districtNumber": 52,
+      "electoralDistrict": "Западный",
+      "candidate": "Игнатов Игорь Борисович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Краснодарский край",
+      "districtNumber": 53,
+      "electoralDistrict": "Черноморский",
+      "candidate": "Пронькин Виталий Владимирович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Краснодарский край",
+      "districtNumber": 54,
+      "electoralDistrict": "Южный",
+      "candidate": "Мы не смогли определить кандидата",
+      "party": null
+    },
+    {
+      "region": "Краснодарский край",
+      "districtNumber": 55,
+      "electoralDistrict": "Юго-Восточный",
+      "candidate": "Дедочев Роман Иванович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Краснодарский край",
+      "districtNumber": 56,
+      "electoralDistrict": "Восточный",
+      "candidate": "Мы не смогли определить кандидата",
+      "party": null
+    },
+    {
+      "region": "Краснодарский край",
+      "districtNumber": 57,
+      "electoralDistrict": "Северный",
+      "candidate": "Врублевский Эдуард Николаевич",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Красноярский край",
+      "districtNumber": 58,
+      "electoralDistrict": "Красноярский",
+      "candidate": "Золотухин Максим Анатольевич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Красноярский край",
+      "districtNumber": 59,
+      "electoralDistrict": "Центральный",
+      "candidate": "Саттаров Николай Степанович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Красноярский край",
+      "districtNumber": 60,
+      "electoralDistrict": "Дивногорский",
+      "candidate": "Исаев Валерий Андреевич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Красноярский край",
+      "districtNumber": 61,
+      "electoralDistrict": "Енисейский",
+      "candidate": "Дубров Дмитрий Владимирович",
+      "party": "Справедливая Россия"
+    },
+    {
+      "region": "Курганская область",
+      "districtNumber": 109,
+      "electoralDistrict": "Курганский",
+      "candidate": "Панова Елена Валерьевна",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Курская область",
+      "districtNumber": 110,
+      "electoralDistrict": "Курский",
+      "candidate": "Канунникова Светлана Игоревна",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Курская область",
+      "districtNumber": 111,
+      "electoralDistrict": "Сеймский",
+      "candidate": "Новиков Александр Павлович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Ленинградская область",
+      "districtNumber": 112,
+      "electoralDistrict": "Всеволожский",
+      "candidate": "Мухина Лариса Валентиновна",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Ленинградская область",
+      "districtNumber": 113,
+      "electoralDistrict": "Гатчинский",
+      "candidate": "Разина Виктория Юрьевна",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Ленинградская область",
+      "districtNumber": 114,
+      "electoralDistrict": "Волховский",
+      "candidate": "Костик Антон Владимирович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Липецкая область",
+      "districtNumber": 115,
+      "electoralDistrict": "Липецкий",
+      "candidate": "Кубрина Анна Борисовна",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Липецкая область",
+      "districtNumber": 116,
+      "electoralDistrict": "Левобережный",
+      "candidate": "Наумов Александр Владимирович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Магаданская область",
+      "districtNumber": 117,
+      "electoralDistrict": "Магаданский",
+      "candidate": "Эттенко Кирилл Геннадьевич",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Республика Марий Эл",
+      "districtNumber": 27,
+      "electoralDistrict": "Марийский",
+      "candidate": "Свинин Павел Иванович",
+      "party": "Партия пенсионеров"
+    },
+    {
+      "region": "Республика Мордовия",
+      "districtNumber": 28,
+      "electoralDistrict": "Мордовский",
+      "candidate": "Тулаев Владислав Геннадьевич",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Московская область",
+      "districtNumber": 118,
+      "electoralDistrict": "Балашихинский",
+      "candidate": "Хвастунова Алла Сергеевна",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Московская область",
+      "districtNumber": 119,
+      "electoralDistrict": "Дмитровский",
+      "candidate": "Поцелуева Наталья Сергеевна",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Московская область",
+      "districtNumber": 120,
+      "electoralDistrict": "Коломенский",
+      "candidate": "Тимкова Ирина Сергеевна",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Московская область",
+      "districtNumber": 121,
+      "electoralDistrict": "Красногорский",
+      "candidate": "Садилов Антон Михайлович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Московская область",
+      "districtNumber": 122,
+      "electoralDistrict": "Люберецкий",
+      "candidate": "Комарова Евгения Юрьевна",
+      "party": "Справедливая Россия"
+    },
+    {
+      "region": "Московская область",
+      "districtNumber": 123,
+      "electoralDistrict": "Мытищинский",
+      "candidate": "Синицына Наталья Сергеевна",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Московская область",
+      "districtNumber": 124,
+      "electoralDistrict": "Одинцовский",
+      "candidate": "Зуев Михаил Анатольевич",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Московская область",
+      "districtNumber": 125,
+      "electoralDistrict": "Орехово-Зуевский",
+      "candidate": "Смирнова Светлана Александровна",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Московская область",
+      "districtNumber": 126,
+      "electoralDistrict": "Подольский",
+      "candidate": "Филиппов Алексей Николаевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Московская область",
+      "districtNumber": 127,
+      "electoralDistrict": "Сергиево-Посадский",
+      "candidate": "Туманов Андрей Владимирович",
+      "party": "Справедливая Россия"
+    },
+    {
+      "region": "Московская область",
+      "districtNumber": 128,
+      "electoralDistrict": "Серпуховский",
+      "candidate": "Гусев Иван Львович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Московская область",
+      "districtNumber": 129,
+      "electoralDistrict": "Щёлковский",
+      "candidate": "Мякинин Илья Дмитриевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Мурманская область",
+      "districtNumber": 130,
+      "electoralDistrict": "Мурманский",
+      "candidate": "Хомечко Игорь Иванович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Ненецкий автономный округ",
+      "districtNumber": 221,
+      "electoralDistrict": "Ненецкий",
+      "candidate": "Райн Михаил Викторович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Нижегородская область",
+      "districtNumber": 131,
+      "electoralDistrict": "Нижегородский",
+      "candidate": "Душкин Алексей Вадимович",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Нижегородская область",
+      "districtNumber": 132,
+      "electoralDistrict": "Приокский",
+      "candidate": "Татаринцева Анна Валерьевна",
+      "party": "Справедливая Россия"
+    },
+    {
+      "region": "Нижегородская область",
+      "districtNumber": 133,
+      "electoralDistrict": "Автозаводский",
+      "candidate": "Рыхтик Михаил Иванович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Нижегородская область",
+      "districtNumber": 134,
+      "electoralDistrict": "Канавинский",
+      "candidate": "Горбунов Сергей Александрович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Нижегородская область",
+      "districtNumber": 135,
+      "electoralDistrict": "Борский",
+      "candidate": "Девонин Андрей Викторович",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Новгородская область",
+      "districtNumber": 136,
+      "electoralDistrict": "Новгородский",
+      "candidate": "Шалякин Виктор Владимирович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Новосибирская область",
+      "districtNumber": 137,
+      "electoralDistrict": "Новосибирский",
+      "candidate": "Жирнов Андрей Геннадьевич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Новосибирская область",
+      "districtNumber": 138,
+      "electoralDistrict": "Центральный",
+      "candidate": "Копылов Петр Андреевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Новосибирская область",
+      "districtNumber": 139,
+      "electoralDistrict": "Искитимский",
+      "candidate": "Шабанов Дмитрий Юрьевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Новосибирская область",
+      "districtNumber": 140,
+      "electoralDistrict": "Барабинский",
+      "candidate": "Пивоварова Елена Николаевна",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Омская область",
+      "districtNumber": 141,
+      "electoralDistrict": "Омский",
+      "candidate": "Алехин Андрей Анатольевич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Омская область",
+      "districtNumber": 142,
+      "electoralDistrict": "Москаленский",
+      "candidate": "Смолин Олег Николаевич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Омская область",
+      "districtNumber": 143,
+      "electoralDistrict": "Любинский",
+      "candidate": "Юдин Константин Алексеевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Оренбургская область",
+      "districtNumber": 144,
+      "electoralDistrict": "Оренбургский",
+      "candidate": "Салихова Карина Римовна",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Оренбургская область",
+      "districtNumber": 145,
+      "electoralDistrict": "Бугурусланский",
+      "candidate": "Шантелев Дмитрий Анатольевич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Оренбургская область",
+      "districtNumber": 146,
+      "electoralDistrict": "Орский",
+      "candidate": "Ращупкин Вячеслав Александрович",
+      "party": "Справедливая Россия"
+    },
+    {
+      "region": "Орловская область",
+      "districtNumber": 147,
+      "electoralDistrict": "Орловский",
+      "candidate": "Почтарёв Сергей Юрьевич",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Пензенская область",
+      "districtNumber": 148,
+      "electoralDistrict": "Пензенский",
+      "candidate": "Львов Дмитрий Андреевич",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Пензенская область",
+      "districtNumber": 149,
+      "electoralDistrict": "Лермонтовский",
+      "candidate": "Чекарев Владимир Викторович",
+      "party": "Справедливая Россия"
+    },
+    {
+      "region": "Пермский край",
+      "districtNumber": 62,
+      "electoralDistrict": "Пермский",
+      "candidate": "Пономарев Константин Эдуардович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Пермский край",
+      "districtNumber": 63,
+      "electoralDistrict": "Чусовской",
+      "candidate": "Ермаков Егор Сергеевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Пермский край",
+      "districtNumber": 64,
+      "electoralDistrict": "Кунгурский",
+      "candidate": "Вшивкова Ольга Витальевна",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Пермский край",
+      "districtNumber": 65,
+      "electoralDistrict": "Кудымкарский",
+      "candidate": "Колоколова Ольга Аркадьевна",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Приморский край",
+      "districtNumber": 66,
+      "electoralDistrict": "Владивостокский",
+      "candidate": "Куликов Геннадий Петрович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Приморский край",
+      "districtNumber": 67,
+      "electoralDistrict": "Артемовский",
+      "candidate": "Акимов Андрей Петрович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Приморский край",
+      "districtNumber": 68,
+      "electoralDistrict": "Арсеньевский",
+      "candidate": "Сорокин Александр Васильевич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Псковская область",
+      "districtNumber": 150,
+      "electoralDistrict": "Псковский",
+      "candidate": "Васильев Евгений Геннадьевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Ростовская область",
+      "districtNumber": 151,
+      "electoralDistrict": "Ростовский",
+      "candidate": "Черкашин Лавр Александрович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Ростовская область",
+      "districtNumber": 152,
+      "electoralDistrict": "Батайский",
+      "candidate": "Кошевой Сергей Викторович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Ростовская область",
+      "districtNumber": 153,
+      "electoralDistrict": "Новочеркасский",
+      "candidate": "Мы не смогли определить кандидата",
+      "party": null
+    },
+    {
+      "region": "Ростовская область",
+      "districtNumber": 154,
+      "electoralDistrict": "Неклиновский",
+      "candidate": "Фомин Виталий Анатольевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Ростовская область",
+      "districtNumber": 155,
+      "electoralDistrict": "Белокалитвинский",
+      "candidate": "Абакумов Виталий Анатольевич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Ростовская область",
+      "districtNumber": 156,
+      "electoralDistrict": "Усть-Донецкий",
+      "candidate": "Черемисов Илья Евгеньевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Рязанская область",
+      "districtNumber": 157,
+      "electoralDistrict": "Рязанский",
+      "candidate": "Якунин Владимир Васильевич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Рязанская область",
+      "districtNumber": 158,
+      "electoralDistrict": "Скопинский",
+      "candidate": "Морозов Евгений Николаевич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Самарская область",
+      "districtNumber": 159,
+      "electoralDistrict": "Самарский",
+      "candidate": "Томчук Алексей Сергеевич",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Самарская область",
+      "districtNumber": 160,
+      "electoralDistrict": "Тольяттинский",
+      "candidate": "Мотрюков Владимир Анатольевич",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Самарская область",
+      "districtNumber": 161,
+      "electoralDistrict": "Красноглинский",
+      "candidate": "Боброва Наталья Алексеевна",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Самарская область",
+      "districtNumber": 162,
+      "electoralDistrict": "Жигулевский",
+      "candidate": "Усов Михаил Викторович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Самарская область",
+      "districtNumber": 163,
+      "electoralDistrict": "Промышленный",
+      "candidate": "Матвеев Михаил Николаевич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Саратовская область",
+      "districtNumber": 164,
+      "electoralDistrict": "Саратовский",
+      "candidate": "Любцов Сергей Анатольевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Саратовская область",
+      "districtNumber": 165,
+      "electoralDistrict": "Балаковский",
+      "candidate": "Анидалов Александр Юрьевич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Саратовская область",
+      "districtNumber": 166,
+      "electoralDistrict": "Балашовский",
+      "candidate": "Румянцев Кирилл Антонович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Саратовская область",
+      "districtNumber": 167,
+      "electoralDistrict": "Энгельсский",
+      "candidate": "Чернова Ксения Юрьевна",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Республика Саха (Якутия)",
+      "districtNumber": 29,
+      "electoralDistrict": "Якутский",
+      "candidate": "Ноговицын Анатолий Григорьевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Сахалинская область",
+      "districtNumber": 168,
+      "electoralDistrict": "Сахалинский",
+      "candidate": "Рыбаков Иван Владимирович",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Свердловская область",
+      "districtNumber": 169,
+      "electoralDistrict": "Свердловский",
+      "candidate": "Киселёв Константин Викторович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Свердловская область",
+      "districtNumber": 170,
+      "electoralDistrict": "Каменск-Уральский",
+      "candidate": "Гордеев Олег Сергеевич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Свердловская область",
+      "districtNumber": 171,
+      "electoralDistrict": "Березовский",
+      "candidate": "Краев Рант Кароевич",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Свердловская область",
+      "districtNumber": 172,
+      "electoralDistrict": "Нижнетагильский",
+      "candidate": "Бояркин Михаил Валентинович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Свердловская область",
+      "districtNumber": 173,
+      "electoralDistrict": "Асбестовский",
+      "candidate": "Севостьянов Владимир Викторович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Свердловская область",
+      "districtNumber": 174,
+      "electoralDistrict": "Первоуральский",
+      "candidate": "Лопарева Ольга Владимировна",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Свердловская область",
+      "districtNumber": 175,
+      "electoralDistrict": "Серовский",
+      "candidate": "Собянин Владимир Иванович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Республика Северная Осетия - Алания",
+      "districtNumber": 30,
+      "electoralDistrict": "Северо-Осетинский",
+      "candidate": "Цкаева Земфира Аслановна",
+      "party": "Справедливая Россия"
+    },
+    {
+      "region": "Смоленская область",
+      "districtNumber": 176,
+      "electoralDistrict": "Смоленский",
+      "candidate": "Войтов Алексей Михайлович",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Ставропольский край",
+      "districtNumber": 69,
+      "electoralDistrict": "Ставропольский",
+      "candidate": "Зубенко Виталий Григорьевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Ставропольский край",
+      "districtNumber": 70,
+      "electoralDistrict": "Невинномысский",
+      "candidate": "Чередниченко Анатолий Александрович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Ставропольский край",
+      "districtNumber": 71,
+      "electoralDistrict": "Кавминводский",
+      "candidate": "Захаренков Артемий Викторович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Ставропольский край",
+      "districtNumber": 72,
+      "electoralDistrict": "Георгиевский",
+      "candidate": "Бершак Максим Андреевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Тамбовская область",
+      "districtNumber": 177,
+      "electoralDistrict": "Тамбовский",
+      "candidate": "Зенкина Яна Александровна",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Республика Татарстан",
+      "districtNumber": 31,
+      "electoralDistrict": "Приволжский",
+      "candidate": "Федорова Софья Александровна",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Республика Татарстан",
+      "districtNumber": 32,
+      "electoralDistrict": "Московский",
+      "candidate": "Салахов Ренат Жамилевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Республика Татарстан",
+      "districtNumber": 33,
+      "electoralDistrict": "Нижнекамский",
+      "candidate": "Хузиев Булат Газинурович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Республика Татарстан",
+      "districtNumber": 34,
+      "electoralDistrict": "Набережно-Челнинский",
+      "candidate": "Гарифуллин Мансур Зайдуллович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Республика Татарстан",
+      "districtNumber": 35,
+      "electoralDistrict": "Альметьевский",
+      "candidate": "Ахметвалиев Рамиль Рахимзянович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Республика Татарстан",
+      "districtNumber": 36,
+      "electoralDistrict": "Центральный",
+      "candidate": "Зинатуллин Руслан Мансурович",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Тверская область",
+      "districtNumber": 178,
+      "electoralDistrict": "Тверской",
+      "candidate": "Левшуков Дмитрий Николаевич",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Тверская область",
+      "districtNumber": 179,
+      "electoralDistrict": "Заволжский",
+      "candidate": "Тимченко Даниил Сергеевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Томская область",
+      "districtNumber": 180,
+      "electoralDistrict": "Томский",
+      "candidate": "Ерёмин Василий Васильевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Тульская область",
+      "districtNumber": 181,
+      "electoralDistrict": "Тульский",
+      "candidate": "Иванова Анна Игоревна",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Тульская область",
+      "districtNumber": 182,
+      "electoralDistrict": "Новомосковский",
+      "candidate": "Калиничева Кира Романовна",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Республика Тыва",
+      "districtNumber": 37,
+      "electoralDistrict": "Тывинский",
+      "candidate": "Мы не смогли определить кандидата",
+      "party": null
+    },
+    {
+      "region": "Тюменская область",
+      "districtNumber": 183,
+      "electoralDistrict": "Тюменский",
+      "candidate": "Новиков Максим Петрович",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Тюменская область",
+      "districtNumber": 184,
+      "electoralDistrict": "Заводоуковский",
+      "candidate": "Левченко Иван Григорьевич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Удмуртская Республика",
+      "districtNumber": 38,
+      "electoralDistrict": "Удмуртский",
+      "candidate": "Гвоздак Иван Михайлович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Удмуртская Республика",
+      "districtNumber": 39,
+      "electoralDistrict": "Ижевский",
+      "candidate": "Балахонцев Юрий Анатольевич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Ульяновская область",
+      "districtNumber": 185,
+      "electoralDistrict": "Ульяновский",
+      "candidate": "Белоусов Юрий Александрович",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Ульяновская область",
+      "districtNumber": 186,
+      "electoralDistrict": "Радищевский",
+      "candidate": "Мы не смогли определить кандидата",
+      "party": null
+    },
+    {
+      "region": "Хабаровский край",
+      "districtNumber": 73,
+      "electoralDistrict": "Хабаровский",
+      "candidate": "Мовчан Олег Викторович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Хабаровский край",
+      "districtNumber": 74,
+      "electoralDistrict": "Комсомольский",
+      "candidate": "Ермаков Антон Аркадьевич",
+      "party": "Яблоко"
+    },
+    {
+      "region": "Республика Хакасия",
+      "districtNumber": 40,
+      "electoralDistrict": "Хакасский",
+      "candidate": "Старостин Валерий Николаевич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Ханты-Мансийский автономный округ - Югра",
+      "districtNumber": 222,
+      "electoralDistrict": "Ханты-Мансийский",
+      "candidate": "Мы не смогли определить кандидата",
+      "party": null
+    },
+    {
+      "region": "Ханты-Мансийский автономный округ - Югра",
+      "districtNumber": 223,
+      "electoralDistrict": "Нижневартовский",
+      "candidate": "Вайман Артур Владимирович",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Челябинская область",
+      "districtNumber": 188,
+      "electoralDistrict": "Челябинский",
+      "candidate": "Гулин Максим Алексеевич",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Челябинская область",
+      "districtNumber": 189,
+      "electoralDistrict": "Металлургический",
+      "candidate": "Горшков Евгений Анатольевич",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Челябинская область",
+      "districtNumber": 190,
+      "electoralDistrict": "Коркинский",
+      "candidate": "Гартунг Валерий Карлович",
+      "party": "Справедливая Россия"
+    },
+    {
+      "region": "Челябинская область",
+      "districtNumber": 191,
+      "electoralDistrict": "Магнитогорский",
+      "candidate": "Сисина Екатерина Анатольевна",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Челябинская область",
+      "districtNumber": 192,
+      "electoralDistrict": "Златоустовский",
+      "candidate": "Мотовилов Евгений Алексеевич",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Чеченская Республика",
+      "districtNumber": 41,
+      "electoralDistrict": "Чеченский",
+      "candidate": "Мы не смогли определить кандидата",
+      "party": null
+    },
+    {
+      "region": "Чувашская Республика - Чувашия",
+      "districtNumber": 42,
+      "electoralDistrict": "Канашский",
+      "candidate": "Андреев Александр Михайлович",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Чувашская Республика - Чувашия",
+      "districtNumber": 43,
+      "electoralDistrict": "Чебоксарский",
+      "candidate": "Степанов Константин Олегович",
+      "party": "ЛДПР"
+    },
+    {
+      "region": "Чукотский автономный округ",
+      "districtNumber": 224,
+      "electoralDistrict": "Чукотский",
+      "candidate": "Гальцов Владимир Анатольевич",
+      "party": "КПРФ"
+    },
+    {
+      "region": "Ямало-Ненецкий автономный округ",
+      "districtNumber": 225,
+      "electoralDistrict": "Ямало-Ненецкий",
+      "candidate": "Марковскайте Марина Зенонасовна",
+      "party": "Справедливая Россия"
+    },
+    {
+      "region": "Ярославская область",
+      "districtNumber": 193,
+      "electoralDistrict": "Ярославский",
+      "candidate": "Скрозникова Анна Валерьевна",
+      "party": "Новые люди"
+    },
+    {
+      "region": "Ярославская область",
+      "districtNumber": 194,
+      "electoralDistrict": "Ростовский",
+      "candidate": "Балабаев Сергей Анатольевич",
+      "party": "Яблоко"
+    }
+  ]
+}
