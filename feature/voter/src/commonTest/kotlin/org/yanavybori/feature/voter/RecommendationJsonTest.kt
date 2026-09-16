@@ -75,6 +75,77 @@ class RecommendationJsonTest {
     }
 
     @Test
+    fun lower_priority_list_only_fills_missing_ballots() {
+        val primary = recommendationSet(
+            id = "umg",
+            title = "Умное голосование — Госдума 2026",
+            recommendations = listOf(
+                recommendation("1", "federal_party_list", "Партия УмГ"),
+                recommendation("1", "federal_single_mandate", "Кандидат УмГ"),
+            ),
+        )
+        val supplement = recommendationSet(
+            id = "new-parliament",
+            title = "Новый парламент — Госдума 2026",
+            recommendations = listOf(
+                recommendation("1", "federal_party_list", "Партия НП"),
+                recommendation("1", "federal_single_mandate", "Кандидат НП"),
+                recommendation("1", "regional_party_list", "Региональная партия НП"),
+                recommendation("1", "regional_single_mandate", "Региональный кандидат НП"),
+            ),
+        )
+
+        val result = resolveRecommendationMatches(
+            sets = listOf(primary, supplement),
+            regionQuery = "",
+            cityQuery = "",
+            districtQuery = "1",
+            precinctQuery = "",
+            ballotTypeQuery = "",
+            interactionMode = RecommendationInteractionMode.COMPLEMENT_BY_PRIORITY,
+            prioritySetId = primary.id,
+        )
+
+        assertEquals(listOf("Партия УмГ", "Кандидат УмГ"), result[0].recommendations.map { it.choice })
+        assertEquals(
+            listOf("Региональная партия НП", "Региональный кандидат НП"),
+            result[1].recommendations.map { it.choice },
+        )
+        assertEquals(2, result[1].suppressedByPriority)
+    }
+
+    @Test
+    fun lower_priority_list_fills_district_missing_from_primary_list() {
+        val primary = recommendationSet(
+            id = "umg",
+            title = "Умное голосование — Госдума 2026",
+            recommendations = listOf(recommendation("1", "federal_single_mandate", "УмГ, округ 1")),
+        )
+        val supplement = recommendationSet(
+            id = "new-parliament",
+            title = "Новый парламент — Госдума 2026",
+            recommendations = listOf(
+                recommendation("1", "federal_single_mandate", "НП, округ 1"),
+                recommendation("2", "federal_single_mandate", "НП, округ 2"),
+            ),
+        )
+
+        val result = resolveRecommendationMatches(
+            sets = listOf(primary, supplement),
+            regionQuery = "",
+            cityQuery = "",
+            districtQuery = "",
+            precinctQuery = "",
+            ballotTypeQuery = "",
+            interactionMode = RecommendationInteractionMode.COMPLEMENT_BY_PRIORITY,
+            prioritySetId = primary.id,
+        )
+
+        assertEquals(listOf("УмГ, округ 1"), result[0].recommendations.map { it.choice })
+        assertEquals(listOf("НП, округ 2"), result[1].recommendations.map { it.choice })
+    }
+
+    @Test
     fun local_state_round_trips() {
         val imported = RecommendationJson.import(sample, "", "file")
         val state = VoterLocalState(recommendationSets = listOf(imported))
@@ -104,4 +175,24 @@ class RecommendationJsonTest {
         assertTrue("задерж" in text)
         assertTrue("бюллетень" in text)
     }
+
+    private fun recommendationSet(
+        id: String,
+        title: String,
+        recommendations: List<VoteRecommendation>,
+    ) = ImportedRecommendationSet(
+        id = id,
+        displayName = title,
+        source = "test",
+        rawSha256 = id,
+        pack = RecommendationPack(title = title, recommendations = recommendations),
+    )
+
+    private fun recommendation(districtNumber: String, ballotType: String, choice: String) = VoteRecommendation(
+        region = "Регион",
+        district = "Округ $districtNumber",
+        districtNumber = districtNumber,
+        ballotType = ballotType,
+        choice = choice,
+    )
 }

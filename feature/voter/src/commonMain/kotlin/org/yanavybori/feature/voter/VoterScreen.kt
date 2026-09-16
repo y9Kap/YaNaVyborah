@@ -21,6 +21,8 @@ import androidx.compose.material.icons.automirrored.outlined.OpenInNew
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Download
+import androidx.compose.material.icons.outlined.ExpandLess
+import androidx.compose.material.icons.outlined.ExpandMore
 import androidx.compose.material.icons.outlined.HowToVote
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.PhotoCamera
@@ -165,12 +167,21 @@ fun VoterScreen(onBack: () -> Unit, onWorkPressure: () -> Unit) {
     var precinct by rememberSaveable { mutableStateOf("") }
     var ballotType by rememberSaveable { mutableStateOf("") }
     var selectedSetIdsText by rememberSaveable { mutableStateOf("") }
+    var interactionModeName by rememberSaveable {
+        mutableStateOf(RecommendationInteractionMode.COMPLEMENT_BY_PRIORITY.name)
+    }
+    var prioritySetId by rememberSaveable { mutableStateOf("") }
+    var interactionSettingsExpanded by rememberSaveable { mutableStateOf(false) }
     var appliedRegion by rememberSaveable { mutableStateOf("") }
     var appliedCity by rememberSaveable { mutableStateOf("") }
     var appliedDistrict by rememberSaveable { mutableStateOf("") }
     var appliedPrecinct by rememberSaveable { mutableStateOf("") }
     var appliedBallotType by rememberSaveable { mutableStateOf("") }
     var appliedSetIdsText by rememberSaveable { mutableStateOf("") }
+    var appliedInteractionModeName by rememberSaveable {
+        mutableStateOf(RecommendationInteractionMode.COMPLEMENT_BY_PRIORITY.name)
+    }
+    var appliedPrioritySetId by rememberSaveable { mutableStateOf("") }
     var searchRequest by rememberSaveable { mutableStateOf(0) }
     val listState = rememberLazyListState()
 
@@ -409,12 +420,17 @@ fun VoterScreen(onBack: () -> Unit, onWorkPressure: () -> Unit) {
                     precinct = precinct,
                     ballotType = ballotType,
                     selectedSetIds = selectedSetIdsText.toIdSet(),
+                    interactionMode = RecommendationInteractionMode.valueOf(interactionModeName),
+                    prioritySetId = prioritySetId,
+                    interactionSettingsExpanded = interactionSettingsExpanded,
                     appliedRegion = appliedRegion,
                     appliedCity = appliedCity,
                     appliedDistrict = appliedDistrict,
                     appliedPrecinct = appliedPrecinct,
                     appliedBallotType = appliedBallotType,
                     appliedSetIds = appliedSetIdsText.toIdSet(),
+                    appliedInteractionMode = RecommendationInteractionMode.valueOf(appliedInteractionModeName),
+                    appliedPrioritySetId = appliedPrioritySetId,
                     hasSearched = searchRequest > 0,
                     onRegionChange = { region = it },
                     onCityChange = { city = it },
@@ -422,6 +438,9 @@ fun VoterScreen(onBack: () -> Unit, onWorkPressure: () -> Unit) {
                     onPrecinctChange = { precinct = it },
                     onBallotTypeChange = { ballotType = it },
                     onSelectedSetIdsChange = { selectedSetIdsText = it.toIdText() },
+                    onInteractionModeChange = { interactionModeName = it.name },
+                    onPrioritySetIdChange = { prioritySetId = it },
+                    onInteractionSettingsExpandedChange = { interactionSettingsExpanded = it },
                     onSearch = {
                         appliedRegion = region
                         appliedCity = city
@@ -429,6 +448,8 @@ fun VoterScreen(onBack: () -> Unit, onWorkPressure: () -> Unit) {
                         appliedPrecinct = precinct
                         appliedBallotType = ballotType
                         appliedSetIdsText = selectedSetIdsText
+                        appliedInteractionModeName = interactionModeName
+                        appliedPrioritySetId = prioritySetId
                         searchRequest += 1
                     },
                     onImport = {
@@ -503,12 +524,17 @@ private fun androidx.compose.foundation.lazy.LazyListScope.recommendationsConten
     precinct: String,
     ballotType: String,
     selectedSetIds: Set<String>,
+    interactionMode: RecommendationInteractionMode,
+    prioritySetId: String,
+    interactionSettingsExpanded: Boolean,
     appliedRegion: String,
     appliedCity: String,
     appliedDistrict: String,
     appliedPrecinct: String,
     appliedBallotType: String,
     appliedSetIds: Set<String>,
+    appliedInteractionMode: RecommendationInteractionMode,
+    appliedPrioritySetId: String,
     hasSearched: Boolean,
     onRegionChange: (String) -> Unit,
     onCityChange: (String) -> Unit,
@@ -516,6 +542,9 @@ private fun androidx.compose.foundation.lazy.LazyListScope.recommendationsConten
     onPrecinctChange: (String) -> Unit,
     onBallotTypeChange: (String) -> Unit,
     onSelectedSetIdsChange: (Set<String>) -> Unit,
+    onInteractionModeChange: (RecommendationInteractionMode) -> Unit,
+    onPrioritySetIdChange: (String) -> Unit,
+    onInteractionSettingsExpandedChange: (Boolean) -> Unit,
     onSearch: () -> Unit,
     onImport: () -> Unit,
     onDelete: (String) -> Unit,
@@ -542,12 +571,18 @@ private fun androidx.compose.foundation.lazy.LazyListScope.recommendationsConten
             ballotType,
             state.recommendationSets,
             selectedSetIds,
+            interactionMode,
+            prioritySetId,
+            interactionSettingsExpanded,
             onRegionChange,
             onCityChange,
             onDistrictChange,
             onPrecinctChange,
             onBallotTypeChange,
             onSelectedSetIdsChange,
+            onInteractionModeChange,
+            onPrioritySetIdChange,
+            onInteractionSettingsExpandedChange,
             onSearch,
         )
     }
@@ -572,17 +607,19 @@ private fun androidx.compose.foundation.lazy.LazyListScope.recommendationsConten
         } else {
             matchingSelectedSets
         }
-        val matchesBySet = selectedSets.associateWith { set ->
-            set.pack.recommendations.filter {
-                it.matches(
-                    appliedRegion,
-                    appliedCity,
-                    appliedDistrict,
-                    appliedPrecinct,
-                    appliedBallotType,
-                )
-            }
-        }
+        val effectivePrioritySetId = appliedPrioritySetId
+            .takeIf { id -> selectedSets.any { it.id == id } }
+            ?: defaultRecommendationPrioritySetId(selectedSets)
+        val resolvedMatches = resolveRecommendationMatches(
+            sets = selectedSets,
+            regionQuery = appliedRegion,
+            cityQuery = appliedCity,
+            districtQuery = appliedDistrict,
+            precinctQuery = appliedPrecinct,
+            ballotTypeQuery = appliedBallotType,
+            interactionMode = appliedInteractionMode,
+            prioritySetId = effectivePrioritySetId,
+        )
         item {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
@@ -591,16 +628,32 @@ private fun androidx.compose.foundation.lazy.LazyListScope.recommendationsConten
                     fontWeight = FontWeight.Bold,
                 )
                 Text(
-                    "Найдено ${matchesBySet.values.sumOf { it.size }} в ${selectedSets.size} списках",
+                    "Найдено ${resolvedMatches.sumOf { it.recommendations.size }}; " +
+                        "источников с результатами ${resolvedMatches.count { it.recommendations.isNotEmpty() }} из ${selectedSets.size}",
                     style = MaterialTheme.typography.bodyMedium,
                 )
+                if (appliedInteractionMode == RecommendationInteractionMode.COMPLEMENT_BY_PRIORITY) {
+                    Text(
+                        "Совпадения из дополняющих списков скрыты, если приоритетный список уже заполнил тот же бюллетень и округ.",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
             }
         }
-        items(selectedSets, key = { set -> set.id }) { set ->
+        items(resolvedMatches, key = { result -> result.set.id }) { result ->
+            val set = result.set
+            val interactionNote = when {
+                appliedInteractionMode == RecommendationInteractionMode.COMPARE_ALL -> null
+                set.id == effectivePrioritySetId -> "Приоритетный список"
+                result.recommendations.isNotEmpty() -> "Дополняет отсутствующие округа и типы бюллетеней"
+                result.suppressedByPriority > 0 -> "Все совпадения уже покрыты списками с более высоким приоритетом"
+                else -> "Для выбранных фильтров дополнений нет"
+            }
             RecommendationSetCard(
                 set = set,
-                filtered = matchesBySet.getValue(set),
+                filtered = result.recommendations,
                 containerColor = recommendationSetColor(state.recommendationSets.indexOf(set)),
+                interactionNote = interactionNote,
                 onDelete = { onDelete(set.id) },
                 onAddToPlan = { onAddToPlan(set, it) },
             )
@@ -640,16 +693,25 @@ private fun LocationFilters(
     ballotType: String,
     recommendationSets: List<ImportedRecommendationSet>,
     selectedSetIds: Set<String>,
+    interactionMode: RecommendationInteractionMode,
+    prioritySetId: String,
+    interactionSettingsExpanded: Boolean,
     onRegionChange: (String) -> Unit,
     onCityChange: (String) -> Unit,
     onDistrictChange: (String) -> Unit,
     onPrecinctChange: (String) -> Unit,
     onBallotTypeChange: (String) -> Unit,
     onSelectedSetIdsChange: (Set<String>) -> Unit,
+    onInteractionModeChange: (RecommendationInteractionMode) -> Unit,
+    onPrioritySetIdChange: (String) -> Unit,
+    onInteractionSettingsExpandedChange: (Boolean) -> Unit,
     onSearch: () -> Unit,
 ) {
     val availableSetIds = recommendationSets.mapTo(mutableSetOf()) { it.id }
     val effectiveSelectedSetIds = selectedSetIds.intersect(availableSetIds)
+    val effectivePrioritySetId = prioritySetId
+        .takeIf { it in availableSetIds }
+        ?: defaultRecommendationPrioritySetId(recommendationSets)
     Card(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Text("Найти рекомендации для себя", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
@@ -701,6 +763,60 @@ private fun LocationFilters(
                         )
                     }
                 }
+                OutlinedButton(
+                    onClick = { onInteractionSettingsExpandedChange(!interactionSettingsExpanded) },
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Icon(
+                        if (interactionSettingsExpanded) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore,
+                        contentDescription = null,
+                    )
+                    Text(
+                        if (interactionMode == RecommendationInteractionMode.COMPLEMENT_BY_PRIORITY) {
+                            "Объединение: дополнять по приоритету"
+                        } else {
+                            "Объединение: показывать все варианты"
+                        },
+                        Modifier.padding(start = 8.dp),
+                    )
+                }
+                if (interactionSettingsExpanded) {
+                    Text(
+                        "При дополнении рекомендация нижестоящего списка показывается только тогда, когда списки выше не заполнили тот же тип бюллетеня в этом округе или УИК.",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                    Text("Режим взаимодействия", style = MaterialTheme.typography.labelLarge)
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                    ) {
+                        FilterChip(
+                            selected = interactionMode == RecommendationInteractionMode.COMPLEMENT_BY_PRIORITY,
+                            onClick = { onInteractionModeChange(RecommendationInteractionMode.COMPLEMENT_BY_PRIORITY) },
+                            label = { Text("Дополнять по приоритету") },
+                        )
+                        FilterChip(
+                            selected = interactionMode == RecommendationInteractionMode.COMPARE_ALL,
+                            onClick = { onInteractionModeChange(RecommendationInteractionMode.COMPARE_ALL) },
+                            label = { Text("Показывать все варианты") },
+                        )
+                    }
+                    if (interactionMode == RecommendationInteractionMode.COMPLEMENT_BY_PRIORITY) {
+                        Text("Приоритетный список", style = MaterialTheme.typography.labelLarge)
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp),
+                        ) {
+                            recommendationSets.forEach { set ->
+                                FilterChip(
+                                    selected = set.id == effectivePrioritySetId,
+                                    onClick = { onPrioritySetIdChange(set.id) },
+                                    label = { Text(set.displayName) },
+                                )
+                            }
+                        }
+                    }
+                }
             }
             Button(onClick = onSearch, modifier = Modifier.fillMaxWidth().height(52.dp)) {
                 Icon(Icons.Outlined.Search, contentDescription = null)
@@ -715,6 +831,7 @@ private fun RecommendationSetCard(
     set: ImportedRecommendationSet,
     filtered: List<VoteRecommendation>,
     containerColor: Color,
+    interactionNote: String?,
     onDelete: () -> Unit,
     onAddToPlan: (VoteRecommendation) -> Unit,
 ) {
@@ -732,6 +849,7 @@ private fun RecommendationSetCard(
                 }
                 IconButton(onClick = onDelete) { Icon(Icons.Outlined.Delete, contentDescription = "Удалить набор") }
             }
+            interactionNote?.let { Text(it, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.SemiBold) }
             Text("Источник импорта: ${set.source}", style = MaterialTheme.typography.bodySmall)
             Text("SHA-256 файла: ${set.rawSha256}", style = MaterialTheme.typography.bodySmall)
             if (set.expectedSha256 != null || set.pack.contentSha256 != null) {

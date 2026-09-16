@@ -46,6 +46,40 @@ class PublishedRecommendationPackTest {
         assertNotNull(imported.pack.contentSha256)
     }
 
+    @Test
+    fun new_parliament_fills_only_districts_missing_from_umg_by_default() {
+        val umg = importPublishedPack("gosduma-2026-umg.yanavyborah.json")
+        val newParliament = importPublishedPack("new-parliament-gosduma-2026.yanavyborah.json")
+
+        val result = resolveRecommendationMatches(
+            sets = listOf(umg, newParliament),
+            regionQuery = "",
+            cityQuery = "",
+            districtQuery = "",
+            precinctQuery = "",
+            ballotTypeQuery = "",
+            interactionMode = RecommendationInteractionMode.COMPLEMENT_BY_PRIORITY,
+            prioritySetId = umg.id,
+        )
+
+        assertEquals(215, result[0].recommendations.size)
+        assertEquals(11, result[1].recommendations.size)
+        assertEquals(214, result[1].suppressedByPriority)
+        assertEquals(
+            (1..225).map(Int::toString).toSet(),
+            result.flatMap { it.recommendations }.mapNotNull { it.districtNumber }.toSet(),
+        )
+    }
+
+    private fun importPublishedPack(fileName: String): ImportedRecommendationSet {
+        val file = findPublishedPack(fileName)
+        return RecommendationJson.import(
+            raw = file.readText(),
+            displayName = "",
+            source = "Файл: ${file.name}",
+        )
+    }
+
     private fun findPublishedPack(fileName: String): File {
         val workingDirectory = File(requireNotNull(System.getProperty("user.dir")))
         return sequenceOf(

@@ -222,6 +222,61 @@ internal val knownBallotTypes = linkedMapOf(
 
 internal fun ballotTypeLabel(value: String): String = knownBallotTypes[value] ?: value
 
+internal enum class RecommendationInteractionMode {
+    COMPLEMENT_BY_PRIORITY,
+    COMPARE_ALL,
+}
+
+internal data class RecommendationSetMatch(
+    val set: ImportedRecommendationSet,
+    val recommendations: List<VoteRecommendation>,
+    val suppressedByPriority: Int = 0,
+)
+
+internal fun defaultRecommendationPrioritySetId(sets: List<ImportedRecommendationSet>): String? =
+    sets.firstOrNull { it.pack.title.startsWith("Умное голосование", ignoreCase = true) }?.id
+        ?: sets.firstOrNull()?.id
+
+internal fun resolveRecommendationMatches(
+    sets: List<ImportedRecommendationSet>,
+    regionQuery: String,
+    cityQuery: String,
+    districtQuery: String,
+    precinctQuery: String,
+    ballotTypeQuery: String,
+    interactionMode: RecommendationInteractionMode,
+    prioritySetId: String?,
+): List<RecommendationSetMatch> {
+    val orderedSets = if (interactionMode == RecommendationInteractionMode.COMPLEMENT_BY_PRIORITY) {
+        val priority = prioritySetId?.takeIf { id -> sets.any { it.id == id } }
+            ?: defaultRecommendationPrioritySetId(sets)
+        sets.sortedBy { if (it.id == priority) 0 else 1 }
+    } else {
+        sets
+    }
+    val acceptedFromHigherPriority = mutableListOf<VoteRecommendation>()
+    return orderedSets.map { set ->
+        val matching = set.pack.recommendations.filter {
+            it.matches(regionQuery, cityQuery, districtQuery, precinctQuery, ballotTypeQuery)
+        }
+        val included = if (interactionMode == RecommendationInteractionMode.COMPARE_ALL) {
+            matching
+        } else {
+            matching.filter { candidate ->
+                acceptedFromHigherPriority.none { higher -> higher.coversSameBallot(candidate) }
+            }
+        }
+        if (interactionMode == RecommendationInteractionMode.COMPLEMENT_BY_PRIORITY) {
+            acceptedFromHigherPriority += included
+        }
+        RecommendationSetMatch(
+            set = set,
+            recommendations = included,
+            suppressedByPriority = matching.size - included.size,
+        )
+    }
+}
+
 internal fun VoteRecommendation.matches(
     regionQuery: String,
     cityQuery: String,
@@ -263,3 +318,41 @@ private fun normalizePrecinct(value: String): String = value
     .removePrefix("№")
     .removePrefix("#")
     .trim()
+
+private fun VoteRecommendation.coversSameBallot(other: VoteRecommendation): Boolean {
+    if (!ballotType.equals(other.ballotType, ignoreCase = true)) return false
+
+    val leftPrecinct = precinct.normalizedScopeValue()
+    val rightPrecinct = other.precinct.normalizedScopeValue()
+    if (leftPrecinct != null || rightPrecinct != null) {
+        return leftPrecinct != null && rightPrecinct != null &&
+            normalizePrecinct(leftPrecinct) == normalizePrecinct(rightPrecinct)
+    }
+
+    val leftDistrictNumber = districtNumber.normalizedScopeValue()
+    val rightDistrictNumber = other.districtNumber.normalizedScopeValue()
+    if (leftDistrictNumber != null || rightDistrictNumber != null) {
+        return leftDistrictNumber != null && rightDistrictNumber != null &&
+            leftDistrictNumber.equals(rightDistrictNumber, ignoreCase = true)
+    }
+
+    val leftDistrict = district.normalizedScopeValue()
+    val rightDistrict = other.district.normalizedScopeValue()
+    if (leftDistrict != null || rightDistrict != null) {
+        return leftDistrict != null && rightDistrict != null &&
+            leftDistrict.equals(rightDistrict, ignoreCase = true) &&
+            scopesOverlap(region, other.region) && scopesOverlap(city, other.city)
+    }
+
+    return scopesOverlap(region, other.region) && scopesOverlap(city, other.city)
+}
+
+private fun scopesOverlap(left: String?, right: String?): Boolean {
+    val normalizedLeft = left.normalizedScopeValue()
+    val normalizedRight = right.normalizedScopeValue()
+    return normalizedLeft == null || normalizedRight == null || normalizedLeft.equals(normalizedRight, ignoreCase = true)
+}
+
+private fun String?.normalizedScopeValue(): String? = this
+    ?.trim()
+    ?.takeIf { it.isNotBlank() && it != "*" }
