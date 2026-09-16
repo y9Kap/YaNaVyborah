@@ -7,8 +7,11 @@ import org.yanavybori.core.crypto.Sha256
 
 const val VOTER_STATE_KEY = "voter-recommendations.v1"
 internal const val MAX_RECOMMENDATION_JSON_BYTES = 2 * 1024 * 1024
-internal const val BUNDLED_RECOMMENDATION_PATH = "recommendations/gosduma-2026-umg.yanavyborah.json"
-internal const val BUNDLED_RECOMMENDATION_VERSION = 1
+internal val BUNDLED_RECOMMENDATION_PATHS = listOf(
+    "recommendations/gosduma-2026-umg.yanavyborah.json",
+    "recommendations/new-parliament-gosduma-2026.yanavyborah.json",
+)
+internal const val BUNDLED_RECOMMENDATION_VERSION = 2
 internal const val OVD_INFO_ELECTION_GUIDE_URL =
     "https://ovdinfo.legal/instruction/ya-khochu-poyti-na-vybory-kak-podgotovitsya-i-obezopasit-sebya"
 
@@ -123,15 +126,21 @@ internal object RecommendationJson {
 
     fun encodeState(state: VoterLocalState): String = storageJson.encodeToString(state)
 
-    fun installBundled(raw: String, state: VoterLocalState): VoterLocalState {
+    fun installBundled(rawFiles: List<String>, state: VoterLocalState): VoterLocalState {
         if (state.bundledRecommendationVersion >= BUNDLED_RECOMMENDATION_VERSION) return state
-        val imported = import(
-            raw = raw,
-            displayName = "",
-            source = "Встроенный список приложения",
-        )
+        require(rawFiles.size == BUNDLED_RECOMMENDATION_PATHS.size) {
+            "Не все встроенные списки были загружены"
+        }
+        val imported = rawFiles.map { raw ->
+            import(
+                raw = raw,
+                displayName = "",
+                source = "Встроенный список приложения",
+            )
+        }.distinctBy { it.id }
+        val importedIds = imported.mapTo(mutableSetOf()) { it.id }
         return state.copy(
-            recommendationSets = state.recommendationSets.filterNot { it.id == imported.id } + imported,
+            recommendationSets = state.recommendationSets.filterNot { it.id in importedIds } + imported,
             bundledRecommendationVersion = BUNDLED_RECOMMENDATION_VERSION,
         )
     }
@@ -223,7 +232,7 @@ internal fun VoteRecommendation.matches(
     matchesField(region, regionQuery) &&
         matchesField(city, cityQuery) &&
         matchesDistrict(district, districtNumber, districtQuery) &&
-        matchesField(precinct, precinctQuery) &&
+        matchesPrecinct(precinct, precinctQuery) &&
         (ballotTypeQuery.isBlank() || ballotType.equals(ballotTypeQuery, ignoreCase = true))
 
 private fun matchesField(value: String?, query: String): Boolean {
@@ -239,3 +248,18 @@ private fun matchesDistrict(name: String?, number: String?, query: String): Bool
     return name?.contains(normalized, ignoreCase = true) == true ||
         number?.contains(normalized, ignoreCase = true) == true
 }
+
+private fun matchesPrecinct(value: String?, query: String): Boolean {
+    if (query.isBlank()) return true
+    if (value.isNullOrBlank() || value == "*") return true
+    return normalizePrecinct(value) == normalizePrecinct(query)
+}
+
+private fun normalizePrecinct(value: String): String = value
+    .trim()
+    .lowercase()
+    .removePrefix("уик")
+    .trim()
+    .removePrefix("№")
+    .removePrefix("#")
+    .trim()

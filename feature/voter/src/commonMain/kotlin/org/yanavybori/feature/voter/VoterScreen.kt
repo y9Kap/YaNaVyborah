@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
@@ -23,6 +24,7 @@ import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.HowToVote
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.PhotoCamera
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Shield
 import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material.icons.outlined.UploadFile
@@ -56,6 +58,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
@@ -161,6 +164,15 @@ fun VoterScreen(onBack: () -> Unit, onWorkPressure: () -> Unit) {
     var district by rememberSaveable { mutableStateOf("") }
     var precinct by rememberSaveable { mutableStateOf("") }
     var ballotType by rememberSaveable { mutableStateOf("") }
+    var selectedSetIdsText by rememberSaveable { mutableStateOf("") }
+    var appliedRegion by rememberSaveable { mutableStateOf("") }
+    var appliedCity by rememberSaveable { mutableStateOf("") }
+    var appliedDistrict by rememberSaveable { mutableStateOf("") }
+    var appliedPrecinct by rememberSaveable { mutableStateOf("") }
+    var appliedBallotType by rememberSaveable { mutableStateOf("") }
+    var appliedSetIdsText by rememberSaveable { mutableStateOf("") }
+    var searchRequest by rememberSaveable { mutableStateOf(0) }
+    val listState = rememberLazyListState()
 
     val commit: (VoterLocalState) -> Unit = { next ->
         runCatching { platform.savePrivateText(VOTER_STATE_KEY, RecommendationJson.encodeState(next)) }
@@ -263,12 +275,19 @@ fun VoterScreen(onBack: () -> Unit, onWorkPressure: () -> Unit) {
     LaunchedEffect(platform, state.bundledRecommendationVersion) {
         if (state.bundledRecommendationVersion < BUNDLED_RECOMMENDATION_VERSION) {
             runCatching {
-                val raw = platform.readBundledFile(BUNDLED_RECOMMENDATION_PATH)
-                    .decodeToString(throwOnInvalidSequence = true)
-                RecommendationJson.installBundled(raw, state)
+                val rawFiles = BUNDLED_RECOMMENDATION_PATHS.map { path ->
+                    platform.readBundledFile(path).decodeToString(throwOnInvalidSequence = true)
+                }
+                RecommendationJson.installBundled(rawFiles, state)
             }.onSuccess { next -> commit(next) }.onFailure { error ->
-                snackbar.showSnackbar(error.userMessage("Не удалось открыть встроенный список УмГ"))
+                snackbar.showSnackbar(error.userMessage("Не удалось открыть встроенные списки"))
             }
+        }
+    }
+
+    LaunchedEffect(searchRequest) {
+        if (searchRequest > 0 && selectedName == VoterSection.RECOMMENDATIONS.name) {
+            listState.animateScrollToItem(RECOMMENDATION_RESULTS_ITEM_INDEX)
         }
     }
 
@@ -361,6 +380,7 @@ fun VoterScreen(onBack: () -> Unit, onWorkPressure: () -> Unit) {
     ) { padding ->
         LazyColumn(
             Modifier.fillMaxSize().padding(padding).padding(horizontal = 16.dp),
+            state = listState,
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             item { LocalOnlyNotice() }
@@ -388,11 +408,29 @@ fun VoterScreen(onBack: () -> Unit, onWorkPressure: () -> Unit) {
                     district = district,
                     precinct = precinct,
                     ballotType = ballotType,
+                    selectedSetIds = selectedSetIdsText.toIdSet(),
+                    appliedRegion = appliedRegion,
+                    appliedCity = appliedCity,
+                    appliedDistrict = appliedDistrict,
+                    appliedPrecinct = appliedPrecinct,
+                    appliedBallotType = appliedBallotType,
+                    appliedSetIds = appliedSetIdsText.toIdSet(),
+                    hasSearched = searchRequest > 0,
                     onRegionChange = { region = it },
                     onCityChange = { city = it },
                     onDistrictChange = { district = it },
                     onPrecinctChange = { precinct = it },
                     onBallotTypeChange = { ballotType = it },
+                    onSelectedSetIdsChange = { selectedSetIdsText = it.toIdText() },
+                    onSearch = {
+                        appliedRegion = region
+                        appliedCity = city
+                        appliedDistrict = district
+                        appliedPrecinct = precinct
+                        appliedBallotType = ballotType
+                        appliedSetIdsText = selectedSetIdsText
+                        searchRequest += 1
+                    },
                     onImport = {
                         importDisplayName = ""
                         importUrl = ""
@@ -464,11 +502,21 @@ private fun androidx.compose.foundation.lazy.LazyListScope.recommendationsConten
     district: String,
     precinct: String,
     ballotType: String,
+    selectedSetIds: Set<String>,
+    appliedRegion: String,
+    appliedCity: String,
+    appliedDistrict: String,
+    appliedPrecinct: String,
+    appliedBallotType: String,
+    appliedSetIds: Set<String>,
+    hasSearched: Boolean,
     onRegionChange: (String) -> Unit,
     onCityChange: (String) -> Unit,
     onDistrictChange: (String) -> Unit,
     onPrecinctChange: (String) -> Unit,
     onBallotTypeChange: (String) -> Unit,
+    onSelectedSetIdsChange: (Set<String>) -> Unit,
+    onSearch: () -> Unit,
     onImport: () -> Unit,
     onDelete: (String) -> Unit,
     onAddToPlan: (ImportedRecommendationSet, VoteRecommendation) -> Unit,
@@ -492,11 +540,15 @@ private fun androidx.compose.foundation.lazy.LazyListScope.recommendationsConten
             district,
             precinct,
             ballotType,
+            state.recommendationSets,
+            selectedSetIds,
             onRegionChange,
             onCityChange,
             onDistrictChange,
             onPrecinctChange,
             onBallotTypeChange,
+            onSelectedSetIdsChange,
+            onSearch,
         )
     }
     if (state.recommendationSets.isEmpty()) {
@@ -506,13 +558,49 @@ private fun androidx.compose.foundation.lazy.LazyListScope.recommendationsConten
                 "Загрузите JSON, который вы уже проверили, или вставьте HTTPS-ссылку. Загрузка начнётся только после нажатия кнопки.",
             )
         }
+    } else if (!hasSearched) {
+        item {
+            InfoCard(
+                "Укажите параметры поиска",
+                "По умолчанию поиск выполняется по всем спискам. Заполните известные поля и нажмите «Найти».",
+            )
+        }
     } else {
-        items(state.recommendationSets, key = { it.id }) { set ->
+        val matchingSelectedSets = state.recommendationSets.filter { it.id in appliedSetIds }
+        val selectedSets = if (appliedSetIds.isEmpty() || matchingSelectedSets.isEmpty()) {
+            state.recommendationSets
+        } else {
+            matchingSelectedSets
+        }
+        val matchesBySet = selectedSets.associateWith { set ->
+            set.pack.recommendations.filter {
+                it.matches(
+                    appliedRegion,
+                    appliedCity,
+                    appliedDistrict,
+                    appliedPrecinct,
+                    appliedBallotType,
+                )
+            }
+        }
+        item {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(
+                    if (hasSearched) "Результаты поиска" else "Все рекомендации",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                )
+                Text(
+                    "Найдено ${matchesBySet.values.sumOf { it.size }} в ${selectedSets.size} списках",
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            }
+        }
+        items(selectedSets, key = { set -> set.id }) { set ->
             RecommendationSetCard(
                 set = set,
-                filtered = set.pack.recommendations.filter {
-                    it.matches(region, city, district, precinct, ballotType)
-                },
+                filtered = matchesBySet.getValue(set),
+                containerColor = recommendationSetColor(state.recommendationSets.indexOf(set)),
                 onDelete = { onDelete(set.id) },
                 onAddToPlan = { onAddToPlan(set, it) },
             )
@@ -550,20 +638,33 @@ private fun LocationFilters(
     district: String,
     precinct: String,
     ballotType: String,
+    recommendationSets: List<ImportedRecommendationSet>,
+    selectedSetIds: Set<String>,
     onRegionChange: (String) -> Unit,
     onCityChange: (String) -> Unit,
     onDistrictChange: (String) -> Unit,
     onPrecinctChange: (String) -> Unit,
     onBallotTypeChange: (String) -> Unit,
+    onSelectedSetIdsChange: (Set<String>) -> Unit,
+    onSearch: () -> Unit,
 ) {
+    val availableSetIds = recommendationSets.mapTo(mutableSetOf()) { it.id }
+    val effectiveSelectedSetIds = selectedSetIds.intersect(availableSetIds)
     Card(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Text("Найти рекомендации для себя", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-            Text("Пустые поля показывают всё. Значение «*» в JSON означает любую территорию.", style = MaterialTheme.typography.bodySmall)
+            Text("Заполните нужные поля и нажмите «Найти». Пустые поля не ограничивают поиск.", style = MaterialTheme.typography.bodySmall)
             OutlinedTextField(region, onRegionChange, label = { Text("Регион") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
             OutlinedTextField(city, onCityChange, label = { Text("Город / поселение") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
             OutlinedTextField(district, onDistrictChange, label = { Text("Округ") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
-            OutlinedTextField(precinct, onPrecinctChange, label = { Text("Участок, если нужен") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+            OutlinedTextField(
+                precinct,
+                onPrecinctChange,
+                label = { Text("Номер УИК, если нужен") },
+                supportingText = { Text("Номер сравнивается целиком: УИК 27 не совпадёт с УИК 127") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+            )
             Text("Тип бюллетеня", style = MaterialTheme.typography.labelLarge)
             FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -574,6 +675,37 @@ private fun LocationFilters(
                     FilterChip(selected = ballotType == value, onClick = { onBallotTypeChange(value) }, label = { Text(label) })
                 }
             }
+            if (recommendationSets.isNotEmpty()) {
+                Text("Искать в списках", style = MaterialTheme.typography.labelLarge)
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
+                    FilterChip(
+                        selected = effectiveSelectedSetIds.isEmpty(),
+                        onClick = { onSelectedSetIdsChange(emptySet()) },
+                        label = { Text("Во всех") },
+                    )
+                    recommendationSets.forEach { set ->
+                        FilterChip(
+                            selected = set.id in effectiveSelectedSetIds,
+                            onClick = {
+                                val next = if (set.id in effectiveSelectedSetIds) {
+                                    effectiveSelectedSetIds - set.id
+                                } else {
+                                    effectiveSelectedSetIds + set.id
+                                }
+                                onSelectedSetIdsChange(next)
+                            },
+                            label = { Text(set.displayName) },
+                        )
+                    }
+                }
+            }
+            Button(onClick = onSearch, modifier = Modifier.fillMaxWidth().height(52.dp)) {
+                Icon(Icons.Outlined.Search, contentDescription = null)
+                Text("Найти", Modifier.padding(start = 8.dp))
+            }
         }
     }
 }
@@ -582,12 +714,13 @@ private fun LocationFilters(
 private fun RecommendationSetCard(
     set: ImportedRecommendationSet,
     filtered: List<VoteRecommendation>,
+    containerColor: Color,
     onDelete: () -> Unit,
     onAddToPlan: (VoteRecommendation) -> Unit,
 ) {
     Card(
         Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+        colors = CardDefaults.cardColors(containerColor = containerColor),
     ) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
@@ -615,6 +748,13 @@ private fun RecommendationSetCard(
             }
         }
     }
+}
+
+@Composable
+private fun recommendationSetColor(index: Int): Color = when (index % 3) {
+    0 -> MaterialTheme.colorScheme.primaryContainer
+    1 -> MaterialTheme.colorScheme.secondaryContainer
+    else -> MaterialTheme.colorScheme.tertiaryContainer
 }
 
 @Composable
@@ -1047,6 +1187,12 @@ private fun personalChoiceId(item: VoteRecommendation, sourceName: String): Stri
     "$sourceName|${item.region}|${item.city}|${item.district}|${item.districtNumber}|${item.precinct}|${item.ballotType}|${item.choice}"
         .encodeToByteArray(),
 )
+
+private fun String.toIdSet(): Set<String> = split(',').filter(String::isNotBlank).toSet()
+
+private fun Set<String>.toIdText(): String = sorted().joinToString(",")
+
+private const val RECOMMENDATION_RESULTS_ITEM_INDEX = 5
 
 private fun Throwable.userMessage(fallback: String): String =
     message?.takeIf(String::isNotBlank)?.let { "$fallback: $it" } ?: fallback

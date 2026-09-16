@@ -61,6 +61,20 @@ class RecommendationJsonTest {
     }
 
     @Test
+    fun precinct_number_matches_exactly_instead_of_as_a_substring() {
+        val recommendation = VoteRecommendation(
+            region = "Москва",
+            precinct = "УИК №127",
+            ballotType = "other",
+            choice = "Вариант",
+        )
+
+        assertTrue(recommendation.matches("Москва", "", "", "127", ""))
+        assertTrue(recommendation.matches("Москва", "", "", "УИК 127", ""))
+        assertTrue(!recommendation.matches("Москва", "", "", "27", ""))
+    }
+
+    @Test
     fun local_state_round_trips() {
         val imported = RecommendationJson.import(sample, "", "file")
         val state = VoterLocalState(recommendationSets = listOf(imported))
@@ -73,12 +87,12 @@ class RecommendationJsonTest {
         val localChoice = PersonalVoteChoice(id = "mine", ballotType = "other", choice = "Мой выбор")
         val initial = VoterLocalState(personalChoices = listOf(localChoice))
 
-        val installed = RecommendationJson.installBundled(sample, initial)
+        val installed = RecommendationJson.installBundled(listOf(sample, sample), initial)
 
         assertEquals(BUNDLED_RECOMMENDATION_VERSION, installed.bundledRecommendationVersion)
         assertEquals(listOf(localChoice), installed.personalChoices)
         assertEquals("Совет автора", installed.recommendationSets.single().displayName)
-        assertEquals(installed, RecommendationJson.installBundled(sample, installed))
+        assertEquals(installed, RecommendationJson.installBundled(listOf(sample, sample), installed))
     }
 
     @Test

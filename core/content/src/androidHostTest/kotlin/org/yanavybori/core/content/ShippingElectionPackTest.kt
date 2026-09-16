@@ -24,11 +24,13 @@ class ShippingElectionPackTest {
 
         assertTrue(result is ElectionPackImportResult.Installed)
         val content = requireNotNull(repository.content)
-        assertEquals(7, content.manifest.contentVersion)
+        assertEquals(8, content.manifest.contentVersion)
         assertEquals("8 (800) 777-87-25", content.manifest.emergencyContacts.first().phone)
         assertEquals(156, content.checklistItems.count { it.sourceDocumentId == "reference-roadmap" })
         assertEquals(15, content.situations.count { it.parentId == "situation-roadmap-gross" })
         assertTrue(content.referenceDocuments.single { it.id == "reference-roadmap" }.content.isNotBlank())
+        assertTrue(content.complaintTemplates.any { it.id == "statement-certified-act-copies" })
+        assertTrue(content.referenceDocuments.any { it.id == "reference-observer-badge-2026" })
         assertEquals(4, content.reconciliationDefinitions
             .single { it.id == "reconciliation-protocol-lines" }.rules.size)
     }

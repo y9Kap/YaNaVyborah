@@ -147,8 +147,8 @@ class AndroidPlatformUi(private val context: Context) : PlatformUi {
 
     override fun copyText(text: String) {
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        clipboard.setPrimaryClip(ClipData.newPlainText("Шаблон обращения", text))
-        Toast.makeText(context, "Шаблон скопирован", Toast.LENGTH_SHORT).show()
+        clipboard.setPrimaryClip(ClipData.newPlainText("Текст из приложения", text))
+        Toast.makeText(context, "Текст скопирован", Toast.LENGTH_SHORT).show()
     }
 
     override fun decodeImage(bytes: ByteArray): ImageBitmap? =

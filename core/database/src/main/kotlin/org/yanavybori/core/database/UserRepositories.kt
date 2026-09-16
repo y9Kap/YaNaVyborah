@@ -180,7 +180,6 @@ class RoomObservationRepository(
         votingDayId: String,
         stageId: String,
     ): ObservationSession {
-        require(observerFullName.isNotBlank()) { "Укажите ФИО наблюдателя" }
         require(region.isNotBlank()) { "Укажите регион" }
         require(precinctNumber.isNotBlank()) { "Укажите номер участка" }
         val passwordDigest = withContext(Dispatchers.Default) {

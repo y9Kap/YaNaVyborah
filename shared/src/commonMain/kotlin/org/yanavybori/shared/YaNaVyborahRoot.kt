@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Button
@@ -54,14 +55,16 @@ fun YaNaVyborahRoot(container: SharedAppContainer) {
     SideEffect { platform.applyTheme(themeMode == AppThemeMode.DARK) }
 
     YaNaVyborahTheme(darkTheme = themeMode == AppThemeMode.DARK) {
-        RootContent(
-            container = container,
-            themeMode = themeMode,
-            onThemeChange = { mode ->
-                platform.savePrivateText(APP_THEME_PREFERENCE_KEY, mode.name)
-                themeMode = mode
-            },
-        )
+        SelectionContainer {
+            RootContent(
+                container = container,
+                themeMode = themeMode,
+                onThemeChange = { mode ->
+                    platform.savePrivateText(APP_THEME_PREFERENCE_KEY, mode.name)
+                    themeMode = mode
+                },
+            )
+        }
     }
 }
 

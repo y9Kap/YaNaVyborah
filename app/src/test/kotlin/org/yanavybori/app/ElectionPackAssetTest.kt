@@ -19,8 +19,8 @@ class ElectionPackAssetTest {
         val pack = findPackDirectory()
         val manifest = parseObject(pack.resolve("manifest.json"))
 
-        assertEquals("2026.09.06-observer-kit", manifest.string("version"))
-        assertEquals(7, manifest.int("contentVersion"))
+        assertEquals("2026.09.16-observer-kit", manifest.string("version"))
+        assertEquals(8, manifest.int("contentVersion"))
         assertEquals("2026-09-18", manifest.string("validFrom"))
         assertEquals("2026-09-20", manifest.string("validUntil"))
         assertTrue("Приоритетный источник" in manifest.string("publisher"))
@@ -66,7 +66,7 @@ class ElectionPackAssetTest {
 
         val documents = parseArray(pack.resolve("reference_documents/documents.json")).map { it.jsonObject }
         val originals = documents.mapNotNull { it["original"]?.jsonObject }
-        assertEquals(4, originals.size)
+        assertEquals(7, originals.size)
         originals.forEach { original ->
             val originalFile = pack.resolve(original.string("path"))
             assertTrue(originalFile.length() > 1000)
@@ -84,6 +84,8 @@ class ElectionPackAssetTest {
         assertFalse(documents.any { "конспект" in it.string("description").lowercase() })
         assertEquals("reference_documents/source_roadmap.txt",
             documents.single { it.string("id") == "reference-roadmap" }.string("contentPath"))
+        assertTrue(documents.any { it.string("id") == "reference-copy-requests-2026" })
+        assertTrue(items.any { it.string("id") == "supplement-copy-acts-request" })
         val source = pack.resolve("reference_documents/source_roadmap.txt").readText()
         assertTrue("8 (800) 777-87-25" in source)
         assertTrue("[1] ≥ [3] + [4] + [5]" in source)

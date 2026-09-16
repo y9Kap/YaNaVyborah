@@ -32,7 +32,7 @@ fun main() {
         mediaRepository = store,
         readPackFile = { path -> source.read(path) },
     )
-    val container = SharedAppContainer(dependencies, source, store, "0.6.0")
+    val container = SharedAppContainer(dependencies, source, store, "0.7.0")
 
     ComposeViewport(document.body!!) {
         CompositionLocalProvider(LocalPlatformUi provides platformUi) {

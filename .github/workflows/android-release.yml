@@ -107,8 +107,12 @@ jobs:
           (cd dist && sha256sum "${file_name}") > "dist/${file_name}.sha256"
           cp data/recommendations/gosduma-2026-umg.source.json dist/
           cp data/recommendations/gosduma-2026-umg.yanavyborah.json dist/
+          cp data/recommendations/new-parliament-gosduma-2026.source.json dist/
+          cp data/recommendations/new-parliament-gosduma-2026.yanavyborah.json dist/
           (cd dist && sha256sum gosduma-2026-umg.source.json) > dist/gosduma-2026-umg.source.json.sha256
           (cd dist && sha256sum gosduma-2026-umg.yanavyborah.json) > dist/gosduma-2026-umg.yanavyborah.json.sha256
+          (cd dist && sha256sum new-parliament-gosduma-2026.source.json) > dist/new-parliament-gosduma-2026.source.json.sha256
+          (cd dist && sha256sum new-parliament-gosduma-2026.yanavyborah.json) > dist/new-parliament-gosduma-2026.yanavyborah.json.sha256
           echo "apk=dist/${file_name}" >> "${GITHUB_OUTPUT}"
           echo "checksum=dist/${file_name}.sha256" >> "${GITHUB_OUTPUT}"
 
@@ -125,7 +129,11 @@ jobs:
               dist/gosduma-2026-umg.source.json.sha256 \
               dist/gosduma-2026-umg.yanavyborah.json \
               dist/gosduma-2026-umg.yanavyborah.json.sha256 \
-              --verify-tag --generate-notes --prerelease \
+              dist/new-parliament-gosduma-2026.source.json \
+              dist/new-parliament-gosduma-2026.source.json.sha256 \
+              dist/new-parliament-gosduma-2026.yanavyborah.json \
+              dist/new-parliament-gosduma-2026.yanavyborah.json.sha256 \
+              --verify-tag --notes-file docs/RELEASE_NOTES_CURRENT.md --prerelease \
               --title "Я на выборах ${GITHUB_REF_NAME}"
           else
             gh release create "${GITHUB_REF_NAME}" \
@@ -135,6 +143,10 @@ jobs:
               dist/gosduma-2026-umg.source.json.sha256 \
               dist/gosduma-2026-umg.yanavyborah.json \
               dist/gosduma-2026-umg.yanavyborah.json.sha256 \
-              --verify-tag --generate-notes \
+              dist/new-parliament-gosduma-2026.source.json \
+              dist/new-parliament-gosduma-2026.source.json.sha256 \
+              dist/new-parliament-gosduma-2026.yanavyborah.json \
+              dist/new-parliament-gosduma-2026.yanavyborah.json.sha256 \
+              --verify-tag --notes-file docs/RELEASE_NOTES_CURRENT.md \
               --title "Я на выборах ${GITHUB_REF_NAME}"
           fi

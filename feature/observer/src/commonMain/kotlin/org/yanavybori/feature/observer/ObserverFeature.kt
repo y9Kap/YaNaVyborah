@@ -22,6 +22,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.ExpandLess
+import androidx.compose.material.icons.outlined.ExpandMore
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -206,6 +208,7 @@ private fun SessionSetupScreen(
     var deletionPassword by remember { mutableStateOf("") }
     var deletionPasswordConfirmation by remember { mutableStateOf("") }
     var selectedDayId by rememberSaveable { mutableStateOf("") }
+    var showOptionalFields by rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(state.votingDays) {
         if (selectedDayId.isBlank()) selectedDayId = state.votingDays.minByOrNull { it.order }?.id.orEmpty()
     }
@@ -228,13 +231,7 @@ private fun SessionSetupScreen(
                 Text("Данные сохраняются только на этом устройстве. Регистрация и интернет не нужны.")
             }
             item {
-                OutlinedTextField(
-                    value = observerFullName,
-                    onValueChange = { observerFullName = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text("ФИО наблюдателя") },
-                    singleLine = true,
-                )
+                Text("Участок", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             }
             item {
                 OutlinedTextField(
@@ -243,6 +240,7 @@ private fun SessionSetupScreen(
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text("Регион") },
                     placeholder = { Text("Например: Москва") },
+                    supportingText = { Text("Номера УИК повторяются в разных регионах") },
                     singleLine = true,
                 )
             }
@@ -251,27 +249,8 @@ private fun SessionSetupScreen(
                     value = precinct,
                     onValueChange = { precinct = it },
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Номер участка") },
+                    label = { Text("Номер УИК") },
                     singleLine = true,
-                )
-            }
-            item {
-                OutlinedTextField(
-                    value = precinctName,
-                    onValueChange = { precinctName = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Название или адрес участка (необязательно)") },
-                )
-            }
-            item {
-                OutlinedTextField(
-                    value = commissionMembers,
-                    onValueChange = { commissionMembers = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text("ФИО членов комиссии (необязательно)") },
-                    supportingText = { Text("Каждое ФИО — с новой строки") },
-                    minLines = 2,
-                    maxLines = 5,
                 )
             }
             item { Text("Текущий день", style = MaterialTheme.typography.titleMedium) }
@@ -284,6 +263,52 @@ private fun SessionSetupScreen(
                             label = { Text(day.shortTitle) },
                         )
                     }
+                }
+            }
+            item {
+                TextButton(
+                    onClick = { showOptionalFields = !showOptionalFields },
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Icon(
+                        if (showOptionalFields) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore,
+                        contentDescription = null,
+                    )
+                    Text(
+                        if (showOptionalFields) "Скрыть дополнительные сведения"
+                        else "Добавить сведения о наблюдателе и участке",
+                        modifier = Modifier.padding(start = 8.dp),
+                    )
+                }
+            }
+            if (showOptionalFields) {
+                item {
+                    OutlinedTextField(
+                        value = observerFullName,
+                        onValueChange = { observerFullName = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text("ФИО наблюдателя (необязательно)") },
+                        singleLine = true,
+                    )
+                }
+                item {
+                    OutlinedTextField(
+                        value = precinctName,
+                        onValueChange = { precinctName = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text("Название или адрес участка (необязательно)") },
+                    )
+                }
+                item {
+                    OutlinedTextField(
+                        value = commissionMembers,
+                        onValueChange = { commissionMembers = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text("ФИО членов комиссии (необязательно)") },
+                        supportingText = { Text("Каждое ФИО — с новой строки") },
+                        minLines = 2,
+                        maxLines = 5,
+                    )
                 }
             }
             item { Text("Защита сессии", style = MaterialTheme.typography.titleMedium) }
@@ -336,8 +361,8 @@ private fun SessionSetupScreen(
                         deletionPassword = ""
                         deletionPasswordConfirmation = ""
                     },
-                    enabled = observerFullName.isNotBlank() && region.isNotBlank() &&
-                        precinct.isNotBlank() && selectedDayId.isNotBlank() && passwordIsValid,
+                    enabled = region.isNotBlank() && precinct.isNotBlank() &&
+                        selectedDayId.isNotBlank() && passwordIsValid,
                     modifier = Modifier.fillMaxWidth().height(56.dp),
                 ) { Text("Начать наблюдение") }
             }
